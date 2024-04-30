@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using WarSteel.Entities;
 using WarSteel.Scenes;
 
@@ -10,13 +9,13 @@ public class Camera : Entity
 {
     public Matrix Projection { get; private set; }
     public Matrix View { get; private set; }
-    private Entity FollowedEntity;
+    private Entity _followedEntity;
 
-    private const float defaultNearPlaneDistance = 0.1f;
-    private const float defaultFarPlaneDistance = 1000f;
-    private const float defaultFOV = MathHelper.PiOver2;
+    private const float DefaultNearPlaneDistance = 0.1f;
+    private const float DefaultFarPlaneDistance = 1000f;
+    private const float DefaultFOV = MathHelper.PiOver2;
 
-    public Camera(Vector3 initialPosition, float aspectRatio, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance) : base("camera", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
+    public Camera(Vector3 initialPosition, float aspectRatio, float fov = DefaultFOV, float nearPlaneDistance = DefaultNearPlaneDistance, float farPlaneDistance = DefaultFarPlaneDistance) : base("camera", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
     {
         Transform.Pos = initialPosition;
         Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
@@ -24,13 +23,13 @@ public class Camera : Entity
 
     public void Follow(Entity entity)
     {
-        FollowedEntity = entity;
+        _followedEntity = entity;
     }
 
     public override void Update(GameTime time, Scene scene)
     {
-        Transform.Pos = Vector3.Transform(Transform.Pos, FollowedEntity.Transform.GetWorld());
+        Transform.Pos = Vector3.Transform(Transform.Pos, _followedEntity.Transform.GetWorld());
         base.Update(time, scene);
-        View = Matrix.CreateLookAt(Transform.Pos, FollowedEntity.Transform.Pos, Transform.GetWorld().Up);
+        View = Matrix.CreateLookAt(Transform.Pos, _followedEntity.Transform.Pos, Transform.GetWorld().Up);
     }
 }

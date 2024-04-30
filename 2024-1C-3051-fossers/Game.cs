@@ -1,22 +1,19 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Managers;
-using WarSteel.Scenes;
 using WarSteel.Scenes.Main;
 
 namespace WarSteel;
 
 public class Game : Microsoft.Xna.Framework.Game
 {
-    private GraphicsDeviceManager Graphics { get; }
+    private GraphicsDeviceManager _graphics { get; }
 
-    private SceneManager SceneManager;
+    private SceneManager _sceneManager;
 
     public Game()
     {
-        Graphics = new GraphicsDeviceManager(this);
+        _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -24,27 +21,27 @@ public class Game : Microsoft.Xna.Framework.Game
     protected override void Initialize()
     {
         ContentRepoManager.SetUpInstance(Content);
-        SceneManager = new SceneManager();
+        _sceneManager = new SceneManager();
 
-        SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics));
-        SceneManager.SetCurrentScene(ScenesNames.MAIN);
-        
-        
-        SceneManager.CurrentScene().Initialize();
+        _sceneManager.AddScene(ScenesNames.MAIN, new MainScene(_graphics));
+        _sceneManager.SetCurrentScene(ScenesNames.MAIN);
+
+
+        _sceneManager.CurrentScene().Initialize();
 
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        SceneManager.CurrentScene().LoadContent();
+        _sceneManager.CurrentScene().LoadContent();
         base.LoadContent();
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-        SceneManager.CurrentScene().Draw();
+        _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+        _sceneManager.CurrentScene().Draw();
         base.Draw(gameTime);
     }
 
@@ -54,14 +51,14 @@ public class Game : Microsoft.Xna.Framework.Game
         {
             Exit();
         }
-        SceneManager.CurrentScene().Update(gameTime);
+        _sceneManager.CurrentScene().Update(gameTime);
 
         base.Update(gameTime);
     }
 
     protected override void UnloadContent()
     {
-        SceneManager.CurrentScene().Unload();
+        _sceneManager.CurrentScene().Unload();
         Content.Unload();
         base.UnloadContent();
     }

@@ -1,10 +1,7 @@
 
 using System;
-using System.ComponentModel;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 
 namespace WarSteel.Entities.Map;
@@ -21,15 +18,16 @@ public enum RockSize
 
 public class Rock : Entity
 {
-    private RockSize rockSize;
+    private RockSize _rockSize;
+
     public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
     {
-        rockSize = size;
+        _rockSize = size;
     }
 
-    private String GetRockSizeStringValue()
+    private string GetRockSizeStringValue()
     {
-        switch (rockSize)
+        switch (_rockSize)
         {
             case RockSize.SMALL:
                 return "Small";
@@ -45,7 +43,7 @@ public class Rock : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
-        _renderable = new Renderable(model);
+        Renderable = new Renderable(model);
 
         base.LoadContent();
     }

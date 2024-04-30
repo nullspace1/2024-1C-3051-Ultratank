@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
-public interface Component {
+public interface Component
+{
+    public string Id();
 
-    public string id();
-
-    void UpdateEntity(Entity self,GameTime gameTime, Scene scene);
-
+    void UpdateEntity(Entity self, GameTime gameTime, Scene scene);
 }

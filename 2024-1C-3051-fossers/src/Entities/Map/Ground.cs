@@ -2,7 +2,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 
 
@@ -20,7 +19,7 @@ public class Ground : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        _renderable = new Renderable(model);
+        Renderable = new Renderable(model);
 
         base.LoadContent();
     }

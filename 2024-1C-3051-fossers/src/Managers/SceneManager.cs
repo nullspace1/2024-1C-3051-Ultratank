@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using WarSteel.Managers;
 using WarSteel.Scenes;
 
 public enum ScenesNames
@@ -10,21 +8,24 @@ public enum ScenesNames
 
 public class SceneManager
 {
-    private Dictionary<ScenesNames, Scene> scenes = new();
-    private ScenesNames currentSceneName;
+    private Dictionary<ScenesNames, Scene> _scenes = new();
+    private ScenesNames _currentSceneName;
 
-    public void AddScene(ScenesNames name, Scene scene){
-        scenes.Add(name,scene);
+    public void AddScene(ScenesNames name, Scene scene)
+    {
+        _scenes.Add(name, scene);
     }
 
-    public ScenesNames CurrentSceneKey() => currentSceneName;
-    public Scene CurrentScene() => scenes[currentSceneName];
+    public ScenesNames CurrentSceneKey() => _currentSceneName;
+    public Scene CurrentScene() => _scenes[_currentSceneName];
 
-    public void SetCurrentScene(ScenesNames name){
-        if (scenes.ContainsKey(name)){
-            currentSceneName = name;
+    public void SetCurrentScene(ScenesNames name)
+    {
+        if (_scenes.ContainsKey(name))
+        {
+            _currentSceneName = name;
         }
-        
+
     }
 
 

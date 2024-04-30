@@ -1,8 +1,6 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 
 namespace WarSteel.Entities;
@@ -17,7 +15,7 @@ class Bush : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
-        _renderable = new Renderable(model);
+        Renderable = new Renderable(model);
 
         base.LoadContent();
     }

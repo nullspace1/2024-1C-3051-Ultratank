@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
-using System.Xml;
 using Microsoft.Xna.Framework;
 using WarSteel.Scenes;
 
@@ -37,13 +33,13 @@ class RigidBody : Component
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector3 torques = calculateTorques();
         Vector3 forces = calculateForces();
-        
+
         _angularVelocity += Vector3.Transform(torques, Matrix.Invert(_inertiaTensor)) * dt;
         _velocity += forces / _mass * dt;
 
         self.Transform.Translate(_velocity * dt);
         self.Transform.Orientation += new Quaternion(_angularVelocity * 0.5f * dt, 0) * self.Transform.Orientation;
-        self.Transform.Orientation = Quaternion.Multiply(self.Transform.Orientation,1/self.Transform.Orientation.Length());
+        self.Transform.Orientation = Quaternion.Multiply(self.Transform.Orientation, 1 / self.Transform.Orientation.Length());
     }
 
     private Vector3 calculateTorques()
@@ -76,7 +72,7 @@ class RigidBody : Component
 
     public void ApplyConstantForce(Force force)
     {
-       _constForces = _constForces.Append(force).ToArray();
+        _constForces = _constForces.Append(force).ToArray();
     }
 
     public void ApplyForce(Force force)
@@ -85,7 +81,7 @@ class RigidBody : Component
     }
 
 
-    public string id()
+    public string Id()
     {
         return "rigidbody";
     }

@@ -1,6 +1,4 @@
 
-using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 
 namespace WarSteel.Common;
@@ -34,7 +32,8 @@ public class Transform
 
     public void Rotate(Quaternion quaternion) => Orientation += quaternion;
 
-    public Matrix GetWorld(){
+    public Matrix GetWorld()
+    {
         return Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
     }
 }
