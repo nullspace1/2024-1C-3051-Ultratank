@@ -2,16 +2,15 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Entities;
-using WarSteel.Managers;
 
 namespace WarSteel.Scenes;
 
 public class Scene
 {
-    private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
+    private Dictionary<string, Entity> _entities = new Dictionary<string, Entity>();
     protected GraphicsDeviceManager Graphics;
 
-    protected Camera camera;
+    protected Camera Camera;
 
     public Scene(GraphicsDeviceManager Graphics)
     {
@@ -20,23 +19,23 @@ public class Scene
 
     public void SetCamera(Camera camera)
     {
-        entities.Add(camera.Id, camera);
-        this.camera = camera;
+        _entities.Add(camera.Id, camera);
+        this.Camera = camera;
     }
 
     public Camera GetCamera()
     {
-        return camera;
+        return Camera;
     }
 
     public void AddEntity(Entity entity)
     {
-        entities.Add(entity.Id, entity);
+        _entities.Add(entity.Id, entity);
     }
 
     public Entity GetEntityByName(string name)
     {
-        foreach (var entity in entities.Values)
+        foreach (var entity in _entities.Values)
         {
             if (entity.Name == name)
                 return entity;
@@ -46,7 +45,7 @@ public class Scene
 
     public virtual void Initialize()
     {
-        foreach (var entity in entities.Values)
+        foreach (var entity in _entities.Values)
         {
             entity.Initialize();
         }
@@ -54,7 +53,7 @@ public class Scene
 
     public virtual void LoadContent()
     {
-        foreach (var entity in entities.Values)
+        foreach (var entity in _entities.Values)
         {
             entity.LoadContent();
         }
@@ -62,16 +61,16 @@ public class Scene
 
     public virtual void Draw()
     {
-        foreach (var entity in entities.Values)
+        foreach (var entity in _entities.Values)
         {
             entity.Draw(this);
         }
     }
     public virtual void Update(GameTime gameTime)
     {
-        foreach (var entity in entities.Values)
+        foreach (var entity in _entities.Values)
         {
-            entity.Update(gameTime,this);
+            entity.Update(gameTime, this);
         }
 
     }

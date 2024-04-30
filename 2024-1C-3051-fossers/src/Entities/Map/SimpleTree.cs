@@ -15,7 +15,7 @@ class SimpleTree : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/SimpleTree");
-        _renderable = new Renderable(model);
+        Renderable = new Renderable(model);
 
         base.LoadContent();
     }
