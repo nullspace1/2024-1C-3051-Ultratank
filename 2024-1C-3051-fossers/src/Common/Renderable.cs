@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common.Shaders;
@@ -8,8 +11,8 @@ namespace WarSteel.Common;
 
 public class Renderable
 {
-    private Model _model { get; }
-    private Dictionary<string, Shader> _shaders;
+    protected Model _model { get; }
+    protected Dictionary<string, Shader> _shaders;
 
     public Renderable(Model model)
     {
@@ -23,14 +26,14 @@ public class Renderable
         shader.AssociateShaderTo(_model);
     }
 
-    public void Draw(Matrix world, Scene scene)
+    public virtual void Draw(Matrix world, Scene scene)
     {
         foreach (var mesh in _model.Meshes)
         {
             foreach (var shader in _shaders)
             {
                 shader.Value.UseCamera(scene.GetCamera());
-                shader.Value.ApplyEffects();
+                shader.Value.ApplyEffects(scene);
 
                 Matrix modelWorld = mesh.ParentBone.Transform * world;
                 shader.Value.UseWorld(modelWorld);

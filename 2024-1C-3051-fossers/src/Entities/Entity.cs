@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Scenes;
@@ -11,19 +13,19 @@ public class Entity
     public string Name { get; }
     public string[] Tags { get; }
 
-    public Component[] Modifiers { get; }
+    public Dictionary<Type, IComponent> Components { get; private set; }
 
     public Transform Transform { get; }
-    protected Renderable Renderable { get; set; }
+    protected Renderable _renderable { get; set; }
 
-    public Entity(string name, string[] tags, Transform transform, Component[] modifiers)
+    public Entity(string name, string[] tags, Transform transform, Dictionary<Type, IComponent> Components)
     {
         Id = Guid.NewGuid().ToString();
         Name = name;
         Tags = tags;
         Transform = transform;
-        Modifiers = modifiers;
-        Renderable = null;
+        this.Components = Components;
+        _renderable = null;
     }
 
     public Entity(string name, string[] tags, Transform transform, Renderable renderable)
@@ -32,22 +34,52 @@ public class Entity
         Name = name;
         Tags = tags;
         Transform = transform;
-        Renderable = renderable;
+        _renderable = renderable;
     }
 
-    public virtual void Initialize() { }
+    public void AddComponent(IComponent c)
+    {
+        Components.Add(c.GetType(), c);
+    }
+
+    public T GetComponent<T>() where T : class, IComponent
+    {
+        return Components.TryGetValue(typeof(T), out var processor) ? processor as T : default;
+    }
+
+    public bool HasComponent<T>() where T : class, IComponent
+    {
+        return Components.TryGetValue(typeof(T), out var pr);
+    }
+
+
+    public virtual void Initialize(Scene scene)
+    {
+        foreach (var c in Components.Values)
+        {
+            c.Initialize(this, scene);
+        }
+    }
     public virtual void LoadContent() { }
     public virtual void Draw(Scene scene)
     {
-        if (Renderable != null)
-            Renderable.Draw(Transform.GetWorld(), scene);
+        if (_renderable != null)
+            _renderable.Draw(Transform.GetWorld(), scene);
     }
     public virtual void Update(GameTime gameTime, Scene scene)
     {
-        foreach (var m in Modifiers)
+        foreach (var m in Components.Values)
         {
             m.UpdateEntity(this, gameTime, scene);
         }
     }
-    public virtual void OnDestroy() { }
+
+    public virtual void OnDestroy(Scene scene)
+    {
+        foreach (var m in Components.Values)
+        {
+            m.Destroy(this,scene);
+        }
+    }
+
 }

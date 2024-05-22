@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 using WarSteel.Scenes;
@@ -9,13 +10,14 @@ public class Camera : Entity
 {
     public Matrix Projection { get; private set; }
     public Matrix View { get; private set; }
-    private Entity _followedEntity;
+    private Entity FollowedEntity;
 
-    private const float DefaultNearPlaneDistance = 0.1f;
-    private const float DefaultFarPlaneDistance = 1000f;
-    private const float DefaultFOV = MathHelper.PiOver2;
 
-    public Camera(Vector3 initialPosition, float aspectRatio, float fov = DefaultFOV, float nearPlaneDistance = DefaultNearPlaneDistance, float farPlaneDistance = DefaultFarPlaneDistance) : base("camera", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
+    private const float defaultNearPlaneDistance = 0.1f;
+    private const float defaultFarPlaneDistance = 1000f;
+    private const float defaultFOV = MathHelper.PiOver2;
+
+    public Camera(Vector3 initialPosition, float aspectRatio, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance) : base("camera", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
         Transform.Pos = initialPosition;
         Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
@@ -23,13 +25,13 @@ public class Camera : Entity
 
     public void Follow(Entity entity)
     {
-        _followedEntity = entity;
+        FollowedEntity = entity;
+        Transform.Parent = entity.Transform;
     }
 
     public override void Update(GameTime time, Scene scene)
     {
-        Transform.Pos = Vector3.Transform(Transform.Pos, _followedEntity.Transform.GetWorld());
         base.Update(time, scene);
-        View = Matrix.CreateLookAt(Transform.Pos, _followedEntity.Transform.Pos, Transform.GetWorld().Up);
+        View = Matrix.CreateLookAt(Transform.Pos + FollowedEntity.Transform.Pos, FollowedEntity.Transform.Pos, Vector3.Up);
     }
 }
