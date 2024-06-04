@@ -15,17 +15,18 @@ public class StartScreen : UIScreen
     MenuScreens currentScreen = MenuScreens.START;
     SoundEffectInstance song;
 
-    public StartScreen() : base("start-screen") { }
+    public StartScreen() : base("start-screen")
+    {
+        song = ContentRepoManager.Instance().GetSoundEffect("start-song").CreateInstance();
+        song.IsLooped = true;
+        song.Play();
+    }
 
     public override void Initialize(Scene scene)
     {
         GraphicsDeviceManager GraphicsDeviceManager = scene.GraphicsDeviceManager;
         Vector2 screenCenter = Screen.GetScreenCenter(GraphicsDeviceManager);
         int screenWidth = Screen.GetScreenWidth(GraphicsDeviceManager);
-
-        song = ContentRepoManager.Instance().GetSoundEffect("start-song").CreateInstance();
-        song.IsLooped = true;
-        song.Play();
 
         // ui elems
         UI background = new UI(new Vector3(screenCenter.X, screenCenter.Y, 0), screenWidth, screenWidth, new Image("UI/menu-bg"));
