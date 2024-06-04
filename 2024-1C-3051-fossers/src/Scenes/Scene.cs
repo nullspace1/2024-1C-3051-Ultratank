@@ -1,51 +1,37 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Entities;
-using WarSteel.Managers.Gizmos;
+
 
 namespace WarSteel.Scenes;
 
 public class Scene
 {
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
-    protected GraphicsDeviceManager Graphics;
-    protected Camera camera;
-    protected PhysicsProcessor physics = new PhysicsProcessor();
+    public GraphicsDeviceManager GraphicsDeviceManager;
+    public SpriteBatch SpriteBatch;
+    protected Camera Camera;
     private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
-    protected Gizmos _gizmos = new Gizmos();
 
-    public Gizmos Gizmos
+
+    public Scene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch)
     {
-        get => _gizmos;
-    }
-
-    // We collect entities to remove separately to avoid changing the main list of entities
-    // while we're still going through it. This prevents any mix-ups or errors that might happen
-    // if we tried to remove entities directly during the loop.
-    // After we've finished going through all the entities, we safely remove the collected ones.
-    List<Entity> entitiesToRemove = new List<Entity>();
-
-    public Scene(GraphicsDeviceManager graphics)
-    {
-        Graphics = graphics;
+        GraphicsDeviceManager = graphics;
+        SpriteBatch = spriteBatch;
     }
 
     public void SetCamera(Camera camera)
     {
         entities.Add(camera.Id, camera);
-        this.camera = camera;
+        Camera = camera;
     }
 
     public Camera GetCamera()
     {
-        return camera;
-    }
-
-    public GraphicsDeviceManager GetGraphicsDevice()
-    {
-        return Graphics;
+        return Camera;
     }
 
     public void AddSceneProcessor(ISceneProcessor p)
@@ -53,33 +39,22 @@ public class Scene
         SceneProcessors.Add(p.GetType(), p);
     }
 
-    public void AddEntity(Entity entity)
+    public void AddEntityBeforeRun(Entity entity)
     {
         entities.Add(entity.Id, entity);
-        // adding the physics can be done via the initialize method in each entity, 
-        // in that case we would be avoiding these ifs, 
-        // though we would actually have to remember to do it on every implementation!
-        if (entity.HasComponent<DynamicBody>())
-            physics.AddBody(entity.GetComponent<DynamicBody>());
-        if (entity.HasComponent<StaticBody>())
-            physics.AddBody(entity.GetComponent<StaticBody>());
     }
 
-    public void RemoveEntity(Entity entity)
+    public void AddEntityDynamically(Entity entity)
     {
-        if (entity != null && entities.ContainsKey(entity.Id))
-            entitiesToRemove.Add(entity);
+        entity.Initialize(this);
+        entity.LoadContent();
+        entities.Add(entity.Id, entity);
     }
 
     private void DeleteEntity(Entity entity)
     {
         entities.Remove(entity.Id);
-
-        // Remove the physics body if it exists
-        if (entity.HasComponent<DynamicBody>())
-            physics.RemoveDynamicBody(entity.GetComponent<DynamicBody>());
-        if (entity.HasComponent<StaticBody>())
-            physics.RemoveStaticBody(entity.GetComponent<StaticBody>());
+        entity.OnDestroy(this);
     }
 
     public T GetSceneProcessor<T>() where T : class, ISceneProcessor
@@ -120,7 +95,6 @@ public class Scene
         {
             processor.Initialize(this);
         }
-
     }
 
     public virtual void LoadContent()
@@ -129,10 +103,32 @@ public class Scene
         {
             entity.LoadContent();
         }
+
     }
 
     public virtual void Draw()
     {
+
+
+        /*
+        So apparently the spritebatch messes up with some GraphicsDevice settings that basically break 3D rendering.
+        Since we're storing the SpriteBatch in the scene class I think we should just have the UIProcessor behavior in the Scene class.
+
+        I'm probably not going to make the refactor in time for the 6/4 delivery of the project so for now this stays here
+
+        */
+        // Set the DepthStencilState to enable the depth buffer
+        GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+        // Other rendering state settings as needed
+        GraphicsDeviceManager.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+        GraphicsDeviceManager.GraphicsDevice.BlendState = BlendState.Opaque;
+        GraphicsDeviceManager.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+        // Clear the depth buffer
+        GraphicsDeviceManager.GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
+
+
         foreach (var entity in entities.Values)
         {
             entity.Draw(this);
@@ -144,15 +140,17 @@ public class Scene
         }
     }
 
-    public virtual void DrawGizmos()
-    {
-        _gizmos.Draw();
-    }
-
     public virtual void Update(GameTime gameTime)
     {
-        // creating a copy here to prevent weird behaviors 
-        // while adding a new entity to the list and iterating over it at the same time in the game loop 
+
+        foreach (var entity in entities.Values)
+        {
+            if (entity.ToDestroy)
+            {
+                DeleteEntity(entity);
+            }
+        }
+
         var copyEntities = new Dictionary<string, Entity>(entities);
         foreach (var entity in copyEntities.Values)
         {
@@ -164,17 +162,15 @@ public class Scene
             processor.Update(this, gameTime);
         }
 
-        // remove the entities 
-        foreach (Entity entity in entitiesToRemove)
-            DeleteEntity(entity);
-
-        entitiesToRemove.Clear();
-
     }
 
     public virtual void Unload()
     {
-        _gizmos.Dispose();
+        // the entities could have a Dispose method to free its resources (models, textures, shaders)
+        entities.Clear();
+        Camera = null;
+        SceneProcessors.Clear();
+
     }
 
 }

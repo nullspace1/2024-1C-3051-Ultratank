@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common.Shaders;
@@ -12,44 +9,53 @@ namespace WarSteel.Common;
 public class Renderable
 {
     protected Model _model { get; }
-    protected Dictionary<string, Shader> _shaders;
+    protected Shader _shader;
 
-    public Renderable(Model model)
+    public Renderable(Model model, Shader shader)
     {
         _model = model;
-        _shaders = new Dictionary<string, Shader>();
+        _shader = shader;
+        _shader.AssociateTo(model);
     }
 
-    public void AddShader(string name, Shader shader)
+    public virtual void Draw(Transform transform, Scene scene)
     {
-        _shaders[name] = shader;
-        shader.AssociateShaderTo(_model);
-    }
 
-    public virtual void Draw(Matrix world, Scene scene)
-    {
         foreach (var mesh in _model.Meshes)
         {
-            foreach (var shader in _shaders)
-            {
-                shader.Value.UseCamera(scene.GetCamera());
-                shader.Value.ApplyEffects(scene);
+            Matrix modelWorld = GetMatrix(mesh, transform);
 
-                Matrix modelWorld = mesh.ParentBone.Transform * world;
-                shader.Value.UseWorld(modelWorld);
-            }
-
-            foreach (Effect effect in mesh.Effects)
-            {
-                if (effect is BasicEffect basicEffect)
-                {
-                    basicEffect.World = mesh.ParentBone.Transform * world;
-                    basicEffect.View = scene.GetCamera().View;
-                    basicEffect.Projection = scene.GetCamera().Projection;
-                }
-            }
+            _shader.ApplyEffects(scene, modelWorld);
 
             mesh.Draw();
-        };
+        }
+
+    }
+
+    public Vector3 GetModelCenter()
+    {
+        int count = 0;
+        Vector3 center = Vector3.Zero;
+        foreach (ModelMesh mesh in _model.Meshes)
+        {
+            foreach (ModelMeshPart meshPart in mesh.MeshParts)
+            {
+                VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[meshPart.NumVertices];
+                meshPart.VertexBuffer.GetData(0, vertices, 0, meshPart.NumVertices, meshPart.VertexBuffer.VertexDeclaration.VertexStride);
+
+                foreach (VertexPositionNormalTexture vertex in vertices)
+                {
+                    Vector3 v = Vector3.Transform(vertex.Position, mesh.ParentBone.Transform);
+                    center += v;
+                    count++;
+                }
+            }
+        }
+        return center / count;
+    }
+
+    public virtual Matrix GetMatrix(ModelMesh mesh, Transform transform)
+    {
+        return transform.LocalToWorldMatrix(mesh.ParentBone.Transform);
     }
 }

@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Scenes;
@@ -8,27 +9,11 @@ public abstract class Shader
 {
     public Effect Effect { get; set; }
 
-    public void AssociateShaderTo(Model model)
+    public void AssociateTo(Model model)
     {
-        foreach (var mesh in model.Meshes)
-        {
-            foreach (var meshPart in mesh.MeshParts)
-            {
+        foreach (var modelMesh in model.Meshes)
+            foreach (var meshPart in modelMesh.MeshParts)
                 meshPart.Effect = Effect;
-            }
-        }
     }
-
-    public void UseCamera(Camera camera)
-    {
-        Effect.Parameters["View"].SetValue(camera.View);
-        Effect.Parameters["Projection"].SetValue(camera.Projection);
-    }
-
-    public void UseWorld(Matrix world)
-    {
-        Effect.Parameters["World"].SetValue(world);
-    }
-
-    public abstract void ApplyEffects(Scene scene);
+    public abstract void ApplyEffects(Scene scene, Matrix world);
 }
