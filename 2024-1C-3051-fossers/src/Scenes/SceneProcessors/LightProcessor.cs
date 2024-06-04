@@ -6,7 +6,6 @@ namespace WarSteel.Scenes.SceneProcessors;
 
 class LightProcessor : ISceneProcessor
 {
-
     private Color AmbientLight;
     private List<LightSource> Sources;
 
@@ -34,7 +33,8 @@ class LightProcessor : ISceneProcessor
         return Sources;
     }
 
-    public void AddLightSource(LightSource s){
+    public void AddLightSource(LightSource s)
+    {
         Sources.Add(s);
     }
 
