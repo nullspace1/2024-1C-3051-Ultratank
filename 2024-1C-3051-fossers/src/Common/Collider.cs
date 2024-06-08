@@ -8,15 +8,14 @@ using BepuUtilities;
 using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using WarSteel.Common;
 using WarSteel.Entities;
 using WarSteel.Managers.Gizmos;
 
 public class Collision
 {
-    public Entity Entity;
+    public GameObject Entity;
 
-    public Collision(Entity entity)
+    public Collision(GameObject entity)
     {
         Entity = entity;
     }
@@ -42,22 +41,11 @@ public class Collider
 
     public void OnCollide(Collision collision)
     {
-        _action.ExecuteAction(collision);
+        _action.Invoke(collision);
     }
 }
 
-public interface CollisionAction
-{
-    public void ExecuteAction(Collision collision);
-}
-
-public class NoAction : CollisionAction
-{
-    public void ExecuteAction(Collision collision)
-    {
-    }
-
-}
+public delegate void CollisionAction(Collision collision);
 
 
 public interface ColliderShape
@@ -139,7 +127,7 @@ public class ConvexShape : ColliderShape
     public ConvexShape(Model model)
     {
 
-        List<Vector3> list = new List<Vector3>();
+        List<Vector3> list = new();
 
         foreach (ModelMesh mesh in model.Meshes)
         {
@@ -182,7 +170,7 @@ public class ConvexShape : ColliderShape
         for (int i = 0; i < _hull.Points.Length; i++)
         {
             Vector3Wide point = _hull.Points[i];
-            Vector3 pos = new Vector3(point.X[0], point.Y[0], point.Z[0]);
+            Vector3 pos = new(point.X[0], point.Y[0], point.Z[0]);
             gizmos.DrawSphere(position + pos, new Vector3(10, 10, 10));
         }
     }

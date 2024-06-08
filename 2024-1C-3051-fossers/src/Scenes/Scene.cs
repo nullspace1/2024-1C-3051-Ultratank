@@ -8,14 +8,14 @@ using WarSteel.Entities;
 
 namespace WarSteel.Scenes;
 
-public class Scene
+public abstract class Scene
 {
-    private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
+    private Dictionary<string, GameObject> _gameObjects = new();
+    private List<UI> _UIs = new();
+    private Dictionary<Type, ISceneProcessor> _sceneProcessors = new();
     public GraphicsDeviceManager GraphicsDeviceManager;
     public SpriteBatch SpriteBatch;
-    protected Camera Camera;
-    private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
-
+    public Camera Camera;
 
     public Scene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch)
     {
@@ -25,7 +25,6 @@ public class Scene
 
     public void SetCamera(Camera camera)
     {
-        entities.Add(camera.Id, camera);
         Camera = camera;
     }
 
@@ -36,141 +35,133 @@ public class Scene
 
     public void AddSceneProcessor(ISceneProcessor p)
     {
-        SceneProcessors.Add(p.GetType(), p);
+        p.Initialize(this);
+        _sceneProcessors.Add(p.GetType(), p);
     }
 
-    public void AddEntityBeforeRun(Entity entity)
+    public void AddUI(UI ui)
     {
-        entities.Add(entity.Id, entity);
+        _UIs.Add(ui);
     }
 
-    public void AddEntityDynamically(Entity entity)
+    public void AddUI(List<UI> UIs){
+        _UIs.AddRange(UIs);
+    }
+
+    public void RemoveUI(UI ui){
+        _UIs.Remove(ui);
+    }
+
+    public void RemoveUI(List<UI> UIs){
+        UIs.ForEach(ui => _UIs.Remove(ui));
+    }
+
+    public void AddGameObject(GameObject entity)
     {
         entity.Initialize(this);
-        entity.LoadContent();
-        entities.Add(entity.Id, entity);
-    }
-
-    private void DeleteEntity(Entity entity)
-    {
-        entities.Remove(entity.Id);
-        entity.OnDestroy(this);
+        _gameObjects.Add(entity.Id, entity);
     }
 
     public T GetSceneProcessor<T>() where T : class, ISceneProcessor
     {
-        return SceneProcessors.TryGetValue(typeof(T), out var processor) ? processor as T : default;
+        return _sceneProcessors.TryGetValue(typeof(T), out var processor) ? processor as T : default;
     }
 
-    public List<Entity> GetEntities()
+    public List<GameObject> GetEntities()
     {
-        List<Entity> list = new List<Entity>();
-        foreach (var e in entities.Values)
+        List<GameObject> list = new();
+        foreach (var e in _gameObjects.Values)
         {
             list.Add(e);
         }
         return list;
     }
 
+    public abstract void Initialize();
 
-    public Entity GetEntityByName(string name)
-    {
-        foreach (var entity in entities.Values)
-        {
-            if (entity.Name == name)
-                return entity;
-        }
-        return null;
-    }
-
-
-    public virtual void Initialize()
-    {
-        foreach (var entity in entities.Values)
-        {
-            entity.Initialize(this);
-        }
-
-        foreach (var processor in SceneProcessors.Values)
-        {
-            processor.Initialize(this);
-        }
-    }
-
-    public virtual void LoadContent()
-    {
-        foreach (var entity in entities.Values)
-        {
-            entity.LoadContent();
-        }
-
-    }
-
-    public virtual void Draw()
+    public void Draw()
     {
 
+        foreach (var ui in _UIs)
+        {
+            ui.Draw(SpriteBatch);
+        }
 
-        /*
-        So apparently the spritebatch messes up with some GraphicsDevice settings that basically break 3D rendering.
-        Since we're storing the SpriteBatch in the scene class I think we should just have the UIProcessor behavior in the Scene class.
+        ResetGraphicsDevice();
 
-        I'm probably not going to make the refactor in time for the 6/4 delivery of the project so for now this stays here
-
-        */
-        // Set the DepthStencilState to enable the depth buffer
-        GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-
-        // Other rendering state settings as needed
-        GraphicsDeviceManager.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-        GraphicsDeviceManager.GraphicsDevice.BlendState = BlendState.Opaque;
-        GraphicsDeviceManager.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-
-        // Clear the depth buffer
-        GraphicsDeviceManager.GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
-
-
-        foreach (var entity in entities.Values)
+        foreach (var entity in _gameObjects.Values)
         {
             entity.Draw(this);
         }
 
-        foreach (var processor in SceneProcessors.Values)
+        foreach (var sceneProcessor in _sceneProcessors.Values)
         {
-            processor.Draw(this);
+            sceneProcessor.Draw(this);
         }
+
     }
 
-    public virtual void Update(GameTime gameTime)
+    public void Update(GameTime gameTime)
     {
 
-        foreach (var entity in entities.Values)
+        Camera.Update(this,gameTime);
+
+        foreach (var entity in new List<GameObject>(_gameObjects.Values))
         {
-            if (entity.ToDestroy)
-            {
-                DeleteEntity(entity);
-            }
+            entity.Update(this, gameTime);
         }
 
-        var copyEntities = new Dictionary<string, Entity>(entities);
-        foreach (var entity in copyEntities.Values)
+        foreach (var ui in _UIs)
         {
-            entity.Update(gameTime, this);
+            ui.Update(this, gameTime);
         }
 
-        foreach (var processor in SceneProcessors.Values)
+        foreach (var processor in _sceneProcessors.Values)
         {
             processor.Update(this, gameTime);
         }
 
+
+        CheckDeletedEntities();
+
+    }
+    private void CheckDeletedEntities()
+    {
+        var copyEntities = new Dictionary<string, GameObject>(_gameObjects);
+        foreach (var entity in copyEntities.Values)
+        {
+            if (entity.IsDestroyed())
+            {
+                entity.OnDestroy(this);
+                _gameObjects.Remove(entity.Id);
+            }
+        }
+
+        var copyUI = new List<UI>(_UIs);
+        foreach (var ui in copyUI)
+        {
+            if (ui.IsDestroyed())
+            {
+                _UIs.Remove(ui);
+            }
+        }
     }
 
-    public virtual void Unload()
+    public void Unload()
     {
-        // the entities could have a Dispose method to free its resources (models, textures, shaders)
-        entities.Clear();
+        _gameObjects.Clear();
+        _UIs.Clear();
+        _sceneProcessors.Clear();
         Camera = null;
-        SceneProcessors.Clear();
+    }
 
+    public void ResetGraphicsDevice()
+    {
+        GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+        GraphicsDeviceManager.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+        GraphicsDeviceManager.GraphicsDevice.BlendState = BlendState.Opaque;
+        GraphicsDeviceManager.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+        GraphicsDeviceManager.GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
     }
 
 }

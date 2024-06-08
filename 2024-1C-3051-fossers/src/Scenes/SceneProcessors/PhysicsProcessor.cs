@@ -19,20 +19,20 @@ public class PhysicsProcessor : ISceneProcessor
 {
     private Simulation _simulation;
 
-    private List<(StaticBody, StaticHandle)> _staticBodies = new List<(StaticBody, StaticHandle)>();
-    private List<(DynamicBody, BodyHandle)> _dynamicBodies = new List<(DynamicBody, BodyHandle)>();
+    private List<(StaticBody, StaticHandle)> _staticBodies = new();
+    private List<(DynamicBody, BodyHandle)> _dynamicBodies = new();
 
     public PhysicsProcessor()
     {
-        BufferPool bufferPool = new BufferPool();
-        SolveDescription solveDescription = new SolveDescription(30, 5);
+        BufferPool bufferPool = new();
+        SolveDescription solveDescription = new(30, 5);
 
 
         _simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), solveDescription);
 
     }
 
-    public void Draw(Scene scene) { }
+    public void Draw(Scene scene) {}
 
     public void Initialize(Scene scene)
     {
@@ -222,7 +222,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 {
 
-    private Vector3 _gravity = new Vector3(0, -1000, 0);
+    private Vector3 _gravity = new(0, -1000, 0);
 
     private float _dragCoeff = 0.2f;
 

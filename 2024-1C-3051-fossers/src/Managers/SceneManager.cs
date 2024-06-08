@@ -41,7 +41,6 @@ public class SceneManager
             CurrentScene().Unload();
             currentSceneName = name;
             CurrentScene().Initialize();
-            CurrentScene().LoadContent();
         }
     }
 }
