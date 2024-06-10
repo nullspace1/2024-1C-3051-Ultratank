@@ -23,7 +23,7 @@ public class Camera
 
     private float _rotationSpeed = 3f;
 
-    private float _verticalOffset = 100f;
+    private float _verticalOffset = 400f;
 
     private float _currentPitch = 0;
 
@@ -33,9 +33,9 @@ public class Camera
     private const float defaultFarPlaneDistance = 1000f;
     private const float defaultFOV = MathHelper.PiOver2;
 
-    public Camera(Vector3 initialPosition, float aspectRatio, GraphicsDevice device, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance)
+    public Camera(Vector3 offset, float aspectRatio, GraphicsDevice device, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance)
     {
-        _offset = initialPosition;
+        _offset = offset;
         Transform = new Transform();
         Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
     }
@@ -51,7 +51,7 @@ public class Camera
 
     public void Update(Scene scene, GameTime gameTime)
     {
-
+        if (_followed != null){
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         MouseState state = Mouse.GetState();
@@ -66,7 +66,7 @@ public class Camera
 
         Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_currentYaw, _currentPitch, 0);
         Vector3 desiredPosition =  _followed.Transform.AbsolutePosition + Vector3.Transform(_offset, Matrix.CreateFromQuaternion(rotation));
-
+        desiredPosition.Y = MathHelper.Max(desiredPosition.Y,_followed.Transform.AbsolutePosition.Y + 200);
 
         Vector3 smoothedPosition = Vector3.Lerp(Transform.AbsolutePosition, desiredPosition, _smoothSpeed);
         Transform.Position = smoothedPosition;
@@ -75,6 +75,6 @@ public class Camera
         _previousMouseState = state;
 
         View = Matrix.CreateLookAt(Transform.AbsolutePosition, Transform.AbsolutePosition + Transform.Forward * 10, Vector3.Up);
-
+        }
     }
 }

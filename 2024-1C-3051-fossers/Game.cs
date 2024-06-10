@@ -30,11 +30,11 @@ public class Game : Microsoft.Xna.Framework.Game
     {
         // init singleton classes
         ContentRepoManager.SetUpInstance(Content);
-        SceneManager.SetUpInstance(ScenesNames.MAIN);
+        SceneManager.SetUpInstance(ScenesNames.MENU);
         SceneManager = SceneManager.Instance();
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        //SceneManager.AddScene(ScenesNames.MENU, new MenuScene(Graphics, SpriteBatch));
+        SceneManager.AddScene(ScenesNames.MENU, new MenuScene(Graphics, SpriteBatch));
         SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics, SpriteBatch));
 
         SceneManager.CurrentScene().Initialize();

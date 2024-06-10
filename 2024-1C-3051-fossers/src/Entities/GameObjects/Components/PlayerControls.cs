@@ -11,7 +11,7 @@ namespace WarSteel.Scenes.Main;
 public class PlayerControls : IComponent
 {
     DynamicBody rb;
-    float BulletForce = 18000;
+    float BulletForce = 36000;
     bool IsReloading = false;
     int ReloadingTimeInMs = 1000;
 
@@ -53,7 +53,7 @@ public class PlayerControls : IComponent
     {
         if (IsReloading) return;
 
-        GameObject bullet = CreateBullet();
+        GameObject bullet = CreateBullet(self);
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_tankCannon.Forward * BulletForce);
 
@@ -64,10 +64,11 @@ public class PlayerControls : IComponent
 
     }
 
-    public GameObject CreateBullet()
+    public GameObject CreateBullet(GameObject self)
     {
-        GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), new GameObjectRenderer(ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new PhongShader(0.5f, 0.5f, Color.Red)));
+        GameObject bullet = new(new string[] { "bullet" }, new Transform(), new GameObjectRenderer(ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new PhongShader(0.5f, 0.5f, Color.Red)));
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c => { }), Vector3.Zero, 5, 0, 0));
+        bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
         bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200;
         return bullet;
     }

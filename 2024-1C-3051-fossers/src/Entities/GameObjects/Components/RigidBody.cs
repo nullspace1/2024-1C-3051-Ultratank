@@ -152,6 +152,8 @@ public class DynamicBody : RigidBody
         _mass = mass;
         _dragCoeff = dragCoeff;
         _angularDragCoeff = angularDragCoeff;
+        _velocity = Vector3.Zero;
+        _angularVelocity = Vector3.Zero;
     }
 
     public override void OnUpdate(GameObject self, GameTime time, Scene scene)
@@ -186,6 +188,9 @@ public class DynamicBody : RigidBody
 
             new BodyActivityDescription(1000f)
         );
+        
+        bodyDescription.Velocity.Linear = new(_velocity.X,_velocity.Y,_velocity.Z);
+        bodyDescription.Velocity.Angular = new(_angularVelocity.X,_angularVelocity.Y,_angularVelocity.Z);
 
         processor.AddDynamic(this, bodyDescription);
     }

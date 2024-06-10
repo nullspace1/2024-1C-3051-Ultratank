@@ -17,9 +17,9 @@ public class MainScene : Scene
 
     public override void Initialize()
     {
-        MainSceneFactory factory = new MainSceneFactory(this);
+        MainSceneFactory factory = new(this);
 
-        Camera = new(new Vector3(0, 800, -500), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, GraphicsDeviceManager.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
+        Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, GraphicsDeviceManager.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
         SetCamera(Camera);
 
         AddSceneProcessor(new LightProcessor(Color.AliceBlue,new List<LightSource>(){new(Color.White, new Vector3(2000, 9000, 0))}));
@@ -30,6 +30,7 @@ public class MainScene : Scene
 
         AddGameObject(factory.Ground(Vector3.Zero));
         AddGameObject(player);
+        AddGameObject(factory.SkyBox());
         
         
         Camera.Follow(player);

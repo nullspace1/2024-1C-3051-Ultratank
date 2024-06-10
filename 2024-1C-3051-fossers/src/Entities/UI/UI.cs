@@ -39,6 +39,10 @@ public class UI
         _action = (scene, ui) => {};
     }
 
+    public void AddAction(ClickAction action){
+        _action = action;
+    }
+
     public void Draw(SpriteBatch spriteBatch)
     {
         _renderable?.Draw(spriteBatch, this);

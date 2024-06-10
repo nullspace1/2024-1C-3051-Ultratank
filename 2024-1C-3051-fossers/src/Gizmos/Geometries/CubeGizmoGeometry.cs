@@ -18,14 +18,14 @@ class CubeGizmoGeometry : GizmoGeometry
     {
         var vertices = new VertexPosition[8]
         {
-                new VertexPosition(new Vector3(0.5f, 0.5f, 0.5f)),
-                new VertexPosition(new Vector3(-0.5f, 0.5f, 0.5f)),
-                new VertexPosition(new Vector3(0.5f, -0.5f, 0.5f)),
-                new VertexPosition(new Vector3(-0.5f, -0.5f, 0.5f)),
-                new VertexPosition(new Vector3(0.5f, 0.5f, -0.5f)),
-                new VertexPosition(new Vector3(-0.5f, 0.5f, -0.5f)),
-                new VertexPosition(new Vector3(0.5f, -0.5f, -0.5f)),
-                new VertexPosition(new Vector3(-0.5f, -0.5f, -0.5f))
+                new(new Vector3(0.5f, 0.5f, 0.5f)),
+                new(new Vector3(-0.5f, 0.5f, 0.5f)),
+                new(new Vector3(0.5f, -0.5f, 0.5f)),
+                new(new Vector3(-0.5f, -0.5f, 0.5f)),
+                new(new Vector3(0.5f, 0.5f, -0.5f)),
+                new(new Vector3(-0.5f, 0.5f, -0.5f)),
+                new(new Vector3(0.5f, -0.5f, -0.5f)),
+                new(new Vector3(-0.5f, -0.5f, -0.5f))
         };
         var indices = new ushort[24]
         {

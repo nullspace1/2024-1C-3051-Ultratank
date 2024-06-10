@@ -8,7 +8,7 @@ namespace WarSteel.Entities;
 
 public class GameObject
 {
-    private Dictionary<Type, IComponent> _components = new Dictionary<Type, IComponent>();
+    private Dictionary<Type, IComponent> _components = new();
     public Transform Transform { get; }
     protected GameObjectRenderer _renderable { get; set; }
     private string[] _tags { get; }

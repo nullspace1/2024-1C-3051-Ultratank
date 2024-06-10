@@ -21,6 +21,7 @@ public abstract class Scene
     {
         GraphicsDeviceManager = graphics;
         SpriteBatch = spriteBatch;
+        Camera = new Camera(Vector3.Zero,GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, GraphicsDeviceManager.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
     }
 
     public void SetCamera(Camera camera)
@@ -37,6 +38,10 @@ public abstract class Scene
     {
         p.Initialize(this);
         _sceneProcessors.Add(p.GetType(), p);
+    }
+
+    public void ClearUI(){
+        _UIs.Clear();
     }
 
     public void AddUI(UI ui)
@@ -82,10 +87,14 @@ public abstract class Scene
     public void Draw()
     {
 
+        SpriteBatch.Begin();
+
         foreach (var ui in _UIs)
         {
             ui.Draw(SpriteBatch);
         }
+
+        SpriteBatch.End();
 
         ResetGraphicsDevice();
 
@@ -111,7 +120,7 @@ public abstract class Scene
             entity.Update(this, gameTime);
         }
 
-        foreach (var ui in _UIs)
+        foreach (var ui in new List<UI>(_UIs))
         {
             ui.Update(this, gameTime);
         }
@@ -127,8 +136,8 @@ public abstract class Scene
     }
     private void CheckDeletedEntities()
     {
-        var copyEntities = new Dictionary<string, GameObject>(_gameObjects);
-        foreach (var entity in copyEntities.Values)
+
+        foreach (var entity in new Dictionary<string, GameObject>(_gameObjects).Values)
         {
             if (entity.IsDestroyed())
             {
@@ -137,8 +146,7 @@ public abstract class Scene
             }
         }
 
-        var copyUI = new List<UI>(_UIs);
-        foreach (var ui in copyUI)
+        foreach (var ui in new List<UI>(_UIs))
         {
             if (ui.IsDestroyed())
             {

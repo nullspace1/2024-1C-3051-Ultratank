@@ -7,7 +7,7 @@ using WarSteel.Scenes;
 public class GizmosProcessor : ISceneProcessor
 {
 
-    protected Gizmos _gizmos = new Gizmos();
+    protected Gizmos _gizmos = new();
 
     public void Draw(Scene scene)
     {
