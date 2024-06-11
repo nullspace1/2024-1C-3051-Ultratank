@@ -20,23 +20,15 @@ public class GameObjectRenderer
 
     public virtual void Draw(Transform transform, Scene scene)
     {
-        foreach (var pass in _shader.Effect.CurrentTechnique.Passes)
+        foreach (var mesh in _model.Meshes)
         {
-            pass.Apply();
-            foreach (var mesh in _model.Meshes)
-            {
-                Matrix modelWorld = GetMatrix(mesh, transform);
+            Matrix modelWorld = GetMatrix(mesh, transform);
 
-                _shader.ApplyEffects(scene, modelWorld);
+            _shader.ApplyEffects(scene, modelWorld);
 
-                foreach (var part in mesh.MeshParts)
-                {
-                    part.Effect = _shader.Effect;
-                }
-
-                mesh.Draw();
-            }
+            mesh.Draw();
         }
+
 
     }
 
