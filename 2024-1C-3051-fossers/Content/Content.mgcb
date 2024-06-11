@@ -477,17 +477,17 @@
 /processorParam:TextureFormat=Color
 /build:Textures/skybox.dds
 
-#begin Textures/SkyBox.jpg
+#begin Textures/sun-in-space.dds
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+/processorParam:GenerateMipmaps=True
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/SkyBox.jpg
+/build:Textures/sun-in-space.dds
 
 #begin Textures/sunset.dds
 /importer:TextureImporter

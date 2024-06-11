@@ -20,7 +20,7 @@ class SkyBoxShader : Shader
     public override void ApplyEffects(Scene scene, Matrix world)
     {
         Transform cameraTransform = scene.GetCamera().Transform;
-        Effect.Parameters["World"].SetValue(Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
+        Effect.Parameters["World"].SetValue( Matrix.CreateScale(10000) * Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
         Effect.Parameters["SkyBoxTexture"].SetValue(_texture);
         Effect.Parameters["CameraPosition"].SetValue(cameraTransform.AbsolutePosition);
         Effect.Parameters["View"].SetValue(scene.GetCamera().View);

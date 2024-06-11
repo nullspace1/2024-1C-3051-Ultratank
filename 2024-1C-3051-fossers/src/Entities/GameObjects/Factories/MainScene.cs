@@ -27,7 +27,7 @@ class MainSceneFactory
         Transform tankTransform = new();
         Transform turretTransform = new(tankTransform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
-        GameObject tank = new(new string[] { PLAYER }, tankTransform, new TankRenderable(ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new PhongShader(0.2f, 0.8f, Color.DarkGreen), turretTransform, cannonTransform));
+        GameObject tank = new(new string[] { PLAYER }, tankTransform, new TankRenderable(ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new PhongShader(0.8f, 0.8f, Color.DarkGreen), turretTransform, cannonTransform));
         tank.AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => {}), new Vector3(0, 100, 0), 200, 0.9f, 2f));
         tank.AddComponent(new PlayerControls(cannonTransform));
         tank.AddComponent(new TurretController(turretTransform, _scene.GetCamera(), 3f));
@@ -51,7 +51,7 @@ class MainSceneFactory
         Model model = ContentRepoManager.Instance().GetModel("Map/" + size + "Stone");
         GameObjectRenderer renderable = new(model, new ColorShader(Color.DarkGray));
         GameObject rock = new(new string[] { GROUND }, new Transform(), renderable);
-        rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model), (c) => {}), Vector3.Zero));
+        rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model, rock.Transform), (c) => {}), Vector3.Zero));
         rock.Transform.Position = position;
         return rock;
     }
@@ -75,14 +75,6 @@ class MainSceneFactory
         return ground;
     }
 
-    public GameObject SkyBox()
-    {
-        Model model = ContentRepoManager.Instance().GetModel("SkyBox/cube");
-        TextureCube skyboxTexture = ContentRepoManager.Instance().GetTextureCube("sunset");
-        GameObjectRenderer renderer = new(model, new SkyBoxShader(skyboxTexture));
-        GameObject skybox = new(Array.Empty<string>(), new Transform(), renderer);
-        return skybox;
-    }
 
 
 }
