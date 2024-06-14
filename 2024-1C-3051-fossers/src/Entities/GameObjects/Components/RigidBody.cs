@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;

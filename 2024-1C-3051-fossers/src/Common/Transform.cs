@@ -1,5 +1,5 @@
+using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace WarSteel.Common;
 
@@ -15,6 +15,11 @@ public class Transform
     public Matrix World
     {
         get => Matrix.CreateScale(Dimensions) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Position) * (Parent == null ? Matrix.Identity : Parent.World);
+    }
+
+    public Matrix View
+    {
+        get => GetLookAt(AbsolutePosition + Forward * 10);
     }
 
     public Vector3 Forward
@@ -93,9 +98,36 @@ public class Transform
 
     public void LookAt(Vector3 point)
     {
-        Matrix rotationMatrix = Matrix.CreateLookAt(Position, point, Vector3.Up);
-        Orientation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(rotationMatrix));
+
+        Matrix view = GetLookAt(point);
+        view.Translation = Vector3.Zero;
+        Orientation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(view));
+
     }
+
+    public Matrix GetLookAt(Vector3 point)
+    {
+        Vector3 direction = Vector3.Normalize(point - AbsolutePosition);
+        Vector3 up = Vector3.UnitY;
+        if (MathF.Abs(Vector3.Dot(direction, up)) > 0.9999f) // Adjust the threshold as necessary
+        {
+            // If they are nearly parallel, choose a different up vector
+            if (Math.Abs(direction.Y) < 0.9999f)
+            {
+                up = Vector3.UnitY;
+            }
+            else
+            {
+                up = Vector3.UnitX;
+            }
+        }
+        Matrix rotationMatrix = Matrix.CreateLookAt(AbsolutePosition, point, up);
+
+        return rotationMatrix;
+    }
+
+
+
 }
 
 

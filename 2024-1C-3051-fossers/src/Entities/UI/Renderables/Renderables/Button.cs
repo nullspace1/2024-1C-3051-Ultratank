@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Managers;
-using WarSteel.Scenes;
 
 namespace WarSteel.UIKit;
 

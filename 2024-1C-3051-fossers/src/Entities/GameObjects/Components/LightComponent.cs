@@ -1,4 +1,3 @@
-using System.Drawing;
 using Microsoft.Xna.Framework;
 using WarSteel.Scenes;
 using Color = Microsoft.Xna.Framework.Color;
@@ -22,7 +21,7 @@ class LightComponent : IComponent {
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene){
 
-        Vector3 worldPosition = self.Transform.LocalToWorldPosition(_localPosition);
+        Vector3 worldPosition = self.Transform.AbsolutePosition + _localPosition;
         CurrentLightSource = new LightSource(_color,worldPosition);
 
     }

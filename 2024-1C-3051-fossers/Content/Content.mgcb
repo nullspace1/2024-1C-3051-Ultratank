@@ -63,17 +63,23 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicTextureShader.fx
 
+#begin Effects/Default.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Default.fx
+
 #begin Effects/Gizmos.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Effects/Gizmos.fx
 
-#begin Effects/PhongShader.fx
+#begin Effects/Shadow.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/PhongShader.fx
+/build:Effects/Shadow.fx
 
 #begin Effects/SkyBox.fx
 /importer:EffectImporter

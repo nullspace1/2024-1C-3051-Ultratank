@@ -11,7 +11,6 @@ using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 using WarSteel.Scenes;
-using Quaternion = System.Numerics.Quaternion;
 using Vector3 = System.Numerics.Vector3;
 
 

@@ -21,7 +21,7 @@ public abstract class Scene
     {
         GraphicsDeviceManager = graphics;
         SpriteBatch = spriteBatch;
-        Camera = new Camera(Vector3.Zero,GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, GraphicsDeviceManager.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
+        Camera = new Camera(Vector3.Zero, GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
     }
 
     public void SetCamera(Camera camera)
@@ -40,7 +40,8 @@ public abstract class Scene
         _sceneProcessors.Add(p.GetType(), p);
     }
 
-    public void ClearUI(){
+    public void ClearUI()
+    {
         _UIs.Clear();
     }
 
@@ -49,15 +50,18 @@ public abstract class Scene
         _UIs.Add(ui);
     }
 
-    public void AddUI(List<UI> UIs){
+    public void AddUI(List<UI> UIs)
+    {
         _UIs.AddRange(UIs);
     }
 
-    public void RemoveUI(UI ui){
+    public void RemoveUI(UI ui)
+    {
         _UIs.Remove(ui);
     }
 
-    public void RemoveUI(List<UI> UIs){
+    public void RemoveUI(List<UI> UIs)
+    {
         UIs.ForEach(ui => _UIs.Remove(ui));
     }
 
@@ -87,6 +91,7 @@ public abstract class Scene
     public void Draw()
     {
 
+
         SpriteBatch.Begin();
 
         foreach (var ui in _UIs)
@@ -98,22 +103,24 @@ public abstract class Scene
 
         ResetGraphicsDevice();
 
+        foreach (var sceneProcessor in _sceneProcessors.Values)
+        {
+            sceneProcessor.Draw(this);
+        }
+
         foreach (var entity in _gameObjects.Values)
         {
             entity.Draw(this);
         }
 
-        foreach (var sceneProcessor in _sceneProcessors.Values)
-        {
-            sceneProcessor.Draw(this);
-        }
+
 
     }
 
     public void Update(GameTime gameTime)
     {
 
-        Camera.Update(this,gameTime);
+        Camera.Update(this, gameTime);
 
         foreach (var entity in new List<GameObject>(_gameObjects.Values))
         {
@@ -169,7 +176,6 @@ public abstract class Scene
         GraphicsDeviceManager.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         GraphicsDeviceManager.GraphicsDevice.BlendState = BlendState.Opaque;
         GraphicsDeviceManager.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-        GraphicsDeviceManager.GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
     }
 
 }

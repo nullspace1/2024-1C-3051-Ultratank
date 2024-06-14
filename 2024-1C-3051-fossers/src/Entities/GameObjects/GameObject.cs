@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
+using WarSteel.Common.Shaders;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
@@ -10,17 +12,20 @@ public class GameObject
 {
     private Dictionary<Type, IComponent> _components = new();
     public Transform Transform { get; }
-    protected GameObjectRenderer _renderable { get; set; }
+    public Model Model { get; set; }
+    private GameObjectRenderer _defaultRenderer;
+
     private string[] _tags { get; }
     private bool _toDestroy = false;
     public string Id { get; }
 
-    public GameObject(string[] tags, Transform transform, GameObjectRenderer renderable) : base()
+    public GameObject(string[] tags, Transform transform, Model model, GameObjectRenderer renderer) : base()
     {
         Id = Guid.NewGuid().ToString();
         _tags = tags;
         Transform = transform;
-        _renderable = renderable;
+        Model = model;
+        _defaultRenderer = renderer;
     }
 
     public void AddComponent(IComponent c)
@@ -46,9 +51,10 @@ public class GameObject
         }
     }
 
-    public void Draw(Scene scene)
+    public void Draw(Scene scene, GameObjectRenderer renderer = null)
     {
-        _renderable?.Draw(Transform, scene);
+        GameObjectRenderer activeRenderer = renderer ?? _defaultRenderer;
+        activeRenderer.Draw(this,scene);
     }
 
     public void Update(Scene scene, GameTime gameTime)

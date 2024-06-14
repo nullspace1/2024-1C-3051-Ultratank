@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Entities;
 using WarSteel.Scenes;
@@ -33,10 +31,13 @@ public class Camera
     private const float defaultFarPlaneDistance = 1000f;
     private const float defaultFOV = MathHelper.PiOver2;
 
-    public Camera(Vector3 offset, float aspectRatio, GraphicsDevice device, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance)
+    public Camera(Vector3 offset, float aspectRatio, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance)
     {
         _offset = offset;
-        Transform = new Transform();
+        Transform = new Transform
+        {
+            Position = _offset
+        };
         Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
     }
 
@@ -51,30 +52,32 @@ public class Camera
 
     public void Update(Scene scene, GameTime gameTime)
     {
-        if (_followed != null){
-        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (_followed != null)
+        {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        MouseState state = Mouse.GetState();
+            MouseState state = Mouse.GetState();
 
-        float deltaX = state.X - _previousMouseState.X;
-        float deltaY = state.Y - _previousMouseState.Y;
+            float deltaX = state.X - _previousMouseState.X;
+            float deltaY = state.Y - _previousMouseState.Y;
 
-        _currentYaw -= deltaX * _rotationSpeed * dt;
-        _currentPitch -= deltaY * _rotationSpeed * dt;
+            _currentYaw -= deltaX * _rotationSpeed * dt;
+            _currentPitch -= deltaY * _rotationSpeed * dt;
 
-        _currentPitch = Math.Clamp(_currentPitch, -40, 80);
+            _currentPitch = Math.Clamp(_currentPitch, -40, 80);
 
-        Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_currentYaw, _currentPitch, 0);
-        Vector3 desiredPosition =  _followed.Transform.AbsolutePosition + Vector3.Transform(_offset, Matrix.CreateFromQuaternion(rotation));
-        desiredPosition.Y = MathHelper.Max(desiredPosition.Y,_followed.Transform.AbsolutePosition.Y + 200);
+            Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_currentYaw, _currentPitch, 0);
+            Vector3 desiredPosition = _followed.Transform.AbsolutePosition + Vector3.Transform(_offset, Matrix.CreateFromQuaternion(rotation));
+            desiredPosition.Y = MathHelper.Max(desiredPosition.Y, _followed.Transform.AbsolutePosition.Y + 200);
 
-        Vector3 smoothedPosition = Vector3.Lerp(Transform.AbsolutePosition, desiredPosition, _smoothSpeed);
-        Transform.Position = smoothedPosition;
-        Transform.LookAt(_followed.Transform.AbsolutePosition + Vector3.Up * _verticalOffset);
+            Vector3 smoothedPosition = Vector3.Lerp(Transform.AbsolutePosition, desiredPosition, _smoothSpeed);
+            Transform.Position = smoothedPosition;
+            Transform.LookAt(_followed.Transform.AbsolutePosition + Vector3.Up * _verticalOffset);
 
-        _previousMouseState = state;
+            _previousMouseState = state;
 
-        View = Matrix.CreateLookAt(Transform.AbsolutePosition, Transform.AbsolutePosition + Transform.Forward * 10, Vector3.Up);
         }
+
+        View = Transform.View;
     }
 }

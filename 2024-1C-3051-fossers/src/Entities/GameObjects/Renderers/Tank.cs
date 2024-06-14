@@ -2,10 +2,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
+using WarSteel.Managers;
+using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
-public class TankRenderable : GameObjectRenderer
+public class TankRenderable : Default
 {
 
     private static readonly string TurretBone = "Turret";
@@ -13,26 +15,45 @@ public class TankRenderable : GameObjectRenderer
     private Transform _turretTransform;
     private Transform _cannonTransform;
 
-    public TankRenderable(Model model, Shader shader, Transform turretTransform, Transform cannonTransform) : base(model, shader)
+    public TankRenderable(Transform turretTransform, Transform cannonTransform) : base(0.5f,0.5f,Color.Green)
     {
         _turretTransform = turretTransform;
         _cannonTransform = cannonTransform;
     }
 
-    public override Matrix GetMatrix(ModelMesh mesh, Transform transform)
+    public override void Draw(GameObject gameObject, Scene scene)
     {
+        LoadEffectParams(scene);
+        
 
-        if (mesh.Name is string t && t == TurretBone)
+        foreach (var m in gameObject.Model.Meshes)
         {
-            return _turretTransform.LocalToWorldMatrix(mesh.ParentBone.Transform);
-        }
+            foreach (var p in m.MeshParts)
+            {
+                Matrix world;
 
-        if (mesh.Name is string c && c == Cannonbone)
-        {
-            return _cannonTransform.LocalToWorldMatrix(mesh.ParentBone.Transform);
-        }
+                if (m.Name is string t && t == TurretBone)
+                {
+                    world = _turretTransform.LocalToWorldMatrix(m.ParentBone.Transform);
+                }
+                else if (m.Name is string c && c == Cannonbone)
+                {
+                    world = _cannonTransform.LocalToWorldMatrix(m.ParentBone.Transform);
+                }
+                else
+                {
+                    world = gameObject.Transform.LocalToWorldMatrix(m.ParentBone.Transform);
+                }
 
-        return base.GetMatrix(mesh, transform);
+                _effect.Parameters["World"].SetValue(world);
+                _effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
+
+                p.Effect = _effect;
+                
+            }
+            m.Draw();
+        }
     }
+
 
 }
