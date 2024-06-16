@@ -56,12 +56,9 @@ public class PlayerControls : IComponent
         GameObject bullet = CreateBullet(self);
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_tankCannon.Forward * BulletForce);
-
-        
-
+        PlayerEvents.TriggerReload(ReloadingTimeInMs);
         IsReloading = true;
         Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
-
     }
 
     public GameObject CreateBullet(GameObject self)
@@ -80,5 +77,4 @@ public class PlayerControls : IComponent
     }
 
     public void Destroy(GameObject self, Scene scene) { }
-
 }

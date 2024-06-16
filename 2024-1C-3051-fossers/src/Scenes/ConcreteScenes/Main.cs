@@ -20,6 +20,7 @@ public class MainScene : Scene
     public override void Initialize()
     {
         MainSceneFactory factory = new(this);
+        
 
         Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
         SetCamera(Camera);
@@ -37,9 +38,11 @@ public class MainScene : Scene
         GetSceneProcessor<LightProcessor>().AddLightSource(new LightSource(Color.White, new Vector3(0, 1000, 0)));
 
         GameObject player = factory.PlayerTank(new Vector3(0, 500, 0));
+        AddGameObject(player);
+        PlayerScreen playerScreen = new(this);
+        playerScreen.Initialize();
 
         AddGameObject(factory.Ground(Vector3.Zero));
-        AddGameObject(player);
         Random rand = new();
 
         int numTress = 100;
@@ -57,6 +60,8 @@ public class MainScene : Scene
         for (int i = 0; i < numRocks; i++)
             AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.LARGE));
 
+
+       
         Camera.Follow(player);
     }
 }

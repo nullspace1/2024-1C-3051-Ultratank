@@ -90,19 +90,6 @@ public abstract class Scene
 
     public void Draw()
     {
-
-
-        SpriteBatch.Begin();
-
-        foreach (var ui in _UIs)
-        {
-            ui.Draw(SpriteBatch);
-        }
-
-        SpriteBatch.End();
-
-        ResetGraphicsDevice();
-
         foreach (var sceneProcessor in _sceneProcessors.Values)
         {
             sceneProcessor.Draw(this);
@@ -113,14 +100,22 @@ public abstract class Scene
             entity.Draw(this);
         }
 
+         SpriteBatch.Begin();
 
+        foreach (var ui in _UIs)
+        {
+            ui.Draw(SpriteBatch);
+        }
 
+        SpriteBatch.End();
+
+        ResetGraphicsDevice();
     }
 
     public void Update(GameTime gameTime)
     {
 
-        Camera.Update(this, gameTime);
+        Camera?.Update(this, gameTime);
 
         foreach (var entity in new List<GameObject>(_gameObjects.Values))
         {
