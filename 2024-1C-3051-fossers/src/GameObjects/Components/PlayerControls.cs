@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -14,12 +15,14 @@ public class PlayerControls : IComponent
     float BulletForce = 36000;
     bool IsReloading = false;
     int ReloadingTimeInMs = 1000;
+    SoundEffectInstance _shootSoundEffect;
 
     Transform _tankCannon;
 
     public PlayerControls(Transform tankCannon)
     {
         _tankCannon = tankCannon;
+        _shootSoundEffect = ContentRepoManager.Instance().GetSoundEffect("tank-shot").CreateInstance();
     }
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
@@ -54,6 +57,7 @@ public class PlayerControls : IComponent
         if (IsReloading) return;
 
         GameObject bullet = CreateBullet(self);
+        _shootSoundEffect.Play();
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_tankCannon.Forward * BulletForce);
         PlayerEvents.TriggerReload(ReloadingTimeInMs);
