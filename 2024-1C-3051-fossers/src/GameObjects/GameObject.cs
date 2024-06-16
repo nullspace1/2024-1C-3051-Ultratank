@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;

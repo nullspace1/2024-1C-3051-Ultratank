@@ -1,7 +1,4 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
@@ -10,7 +7,6 @@ using WarSteel.Scenes.SceneProcessors;
 
 public class Shadow : GameObjectRenderer
 {
-
     public int _size;
     private static readonly string DEPTH = "DepthPass";
 
@@ -19,7 +15,6 @@ public class Shadow : GameObjectRenderer
         _size = size;
 
     }
-
 
     public override void Draw(GameObject gameObject, Scene scene)
     {

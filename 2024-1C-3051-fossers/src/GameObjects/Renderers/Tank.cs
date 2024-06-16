@@ -1,15 +1,12 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
-using WarSteel.Managers;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
 public class TankRenderable : Default
 {
-
     private static readonly string TurretBone = "Turret";
     private static readonly string Cannonbone = "Cannon";
     private Transform _turretTransform;
@@ -54,6 +51,4 @@ public class TankRenderable : Default
             m.Draw();
         }
     }
-
-
 }

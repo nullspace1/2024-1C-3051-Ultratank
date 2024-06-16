@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using WarSteel.UIKit;
 using WarSteel.Utils;
 
-
 namespace WarSteel.Scenes.Main;
 
 public class MenuScene : Scene
@@ -123,12 +122,5 @@ public class MenuScene : Scene
         });
 
         AddUI(startMenu);
-
-
-
-
-
     }
-
-
 }

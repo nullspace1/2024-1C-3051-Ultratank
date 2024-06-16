@@ -57,8 +57,6 @@ public class Default : GameObjectRenderer
 
     protected void LoadEffectParams(Scene scene)
     {
-
-
         if (scene.GetSceneProcessor<LightProcessor>() == null)
         {
             return;

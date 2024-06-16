@@ -15,6 +15,4 @@ public abstract class GameObjectRenderer
     }
 
     public abstract void Draw(GameObject gameObject, Scene scene);
-
-    
 }
