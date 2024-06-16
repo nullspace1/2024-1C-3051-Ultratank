@@ -12,7 +12,7 @@ public class GameObject
     private Dictionary<Type, IComponent> _components = new();
     public Transform Transform { get; }
     public Model Model { get; set; }
-    private GameObjectRenderer _defaultRenderer;
+    protected GameObjectRenderer _defaultRenderer;
 
     private string[] _tags { get; }
     private bool _toDestroy = false;
@@ -25,6 +25,14 @@ public class GameObject
         Transform = transform;
         Model = model;
         _defaultRenderer = renderer;
+    }
+
+    public GameObject(string[] tags, Model model) : base()
+    {
+        Id = Guid.NewGuid().ToString();
+        _tags = tags;
+        Transform = new();
+        Model = model;
     }
 
     public void AddComponent(IComponent c)

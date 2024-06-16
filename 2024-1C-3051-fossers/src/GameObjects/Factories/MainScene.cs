@@ -13,7 +13,6 @@ class MainSceneFactory
 {
 
     private Scene _scene;
-    private string PLAYER = "player";
     private string GROUND = "ground";
 
     public MainSceneFactory(Scene scene)
@@ -23,16 +22,7 @@ class MainSceneFactory
 
     public GameObject PlayerTank(Vector3 position)
     {
-        Transform tankTransform = new();
-        Transform turretTransform = new(tankTransform, Vector3.Zero);
-        Transform cannonTransform = new(turretTransform, Vector3.Zero);
-        GameObject tank = new(new string[] { PLAYER }, tankTransform, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new TankRenderable(turretTransform, cannonTransform));
-        tank.AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f));
-        tank.AddComponent(new PlayerControls(cannonTransform));
-        tank.AddComponent(new TurretController(turretTransform, _scene.GetCamera(), 3f));
-        tank.AddComponent(new CannonController(cannonTransform, _scene.GetCamera()));
-        tank.Transform.Position = position;
-        return tank;
+        return new Player(_scene, position);
     }
 
     public GameObject Tree(Vector3 position)
