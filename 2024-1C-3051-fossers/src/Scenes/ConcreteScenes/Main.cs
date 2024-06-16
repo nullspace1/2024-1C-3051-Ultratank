@@ -38,11 +38,11 @@ public class MainScene : Scene
         GetSceneProcessor<LightProcessor>().AddLightSource(new LightSource(Color.White, new Vector3(0, 1000, 0)));
 
         GameObject player = factory.PlayerTank(new Vector3(0, 500, 0));
-        AddGameObject(player);
         PlayerScreen playerScreen = new(this);
         playerScreen.Initialize();
 
         AddGameObject(factory.Ground(Vector3.Zero));
+        AddGameObject(player);
         Random rand = new();
 
         int numTress = 100;
