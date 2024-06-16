@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Entities;
+using WarSteel.Entities.Map;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 using WarSteel.Scenes.Main;
@@ -44,14 +45,9 @@ class MainSceneFactory
         return tree;
     }
 
-    public GameObject Rock(Vector3 position, string size)
+    public GameObject Rock(Vector3 position, RockSize size)
     {
-        Model model = ContentRepoManager.Instance().GetModel("Map/" + size + "Stone");
-        GameObjectRenderer renderable = new Default(0.5f,0.5f,Color.DarkGray);
-        GameObject rock = new(new string[] { GROUND }, new Transform(), model,renderable);
-        rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model, rock.Transform), (c) => { }), Vector3.Zero));
-        rock.Transform.Position = position;
-        return rock;
+       return RockFactory.Generate(new string[] {GROUND}, position, size);
     }
 
     public GameObject Bush(Vector3 position)
@@ -72,7 +68,5 @@ class MainSceneFactory
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));
         return ground;
     }
-
-
 
 }
