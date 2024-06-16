@@ -13,7 +13,7 @@ public class UI
     private ClickAction _action;
     private bool _toDestroy = false;
 
-    public UI(Vector2 position, float width, float height, UIRenderer renderable, ClickAction action) : base()
+    public UI(Vector2 position, float width, float height, UIRenderer renderable, ClickAction action)
     {
         _renderable = renderable;
         _action = action;
@@ -28,7 +28,7 @@ public class UI
         _renderable = renderable;
     }
 
-    public UI(Vector2 position, float width, float height, UIRenderer renderable) : base()
+    public UI(Vector2 position, float width, float height, UIRenderer renderable)
     {
         _renderable = renderable;
         Position = position;
