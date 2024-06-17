@@ -9,6 +9,7 @@ public class UI
     public Vector2 Position;
     public float Height;
     public float Width;
+    public bool Visible = true;
     private UIRenderer _renderable;
     private ClickAction _action;
     private bool _toDestroy = false;
@@ -34,16 +35,18 @@ public class UI
         Position = position;
         Height = height;
         Width = width;
-        _action = (scene, ui) => {};
+        _action = (scene, ui) => { };
     }
 
-    public void AddAction(ClickAction action){
+    public void AddAction(ClickAction action)
+    {
         _action = action;
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        _renderable?.Draw(spriteBatch, this);
+        if (Visible)
+            _renderable?.Draw(spriteBatch, this);
     }
 
     private bool BeingClicked(MouseState state)
@@ -59,10 +62,11 @@ public class UI
 
     public virtual void Update(Scene scene, GameTime time)
     {
+        if (!Visible) return;
         MouseState state = Mouse.GetState();
         if (BeingClicked(state))
         {
-            _action.Invoke(scene,this);
+            _action.Invoke(scene, this);
         }
     }
 
