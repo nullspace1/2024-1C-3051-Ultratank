@@ -57,9 +57,9 @@ public class WaveInfoScreen
 
     private void UpdateWaveCounter()
     {
-        int count = Int32.Parse(_waveCounterText.Text) - 1;
+        int count = int.Parse(_waveCounterText.Text) - 1;
         _waveCounterText.Text = count.ToString();
-        if (count >= 0)
+        if (count > 0)
             Timer.Timeout(1000, UpdateWaveCounter);
         else
             Timer.Timeout(1000, RemoveCounterUI);
