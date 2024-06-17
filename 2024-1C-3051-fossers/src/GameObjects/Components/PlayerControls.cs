@@ -48,15 +48,13 @@ public class PlayerControls : IComponent
         {
             Shoot(self, scene);
         }
-
-        rb.ApplyTorque(-rb.AngularVelocity * 100000);
     }
 
     public void Shoot(GameObject self, Scene scene)
     {
         if (IsReloading) return;
 
-        GameObject bullet = CreateBullet(self);
+        GameObject bullet = CreateBullet((Player)self);
         _shootSoundEffect.Play();
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_tankCannon.Forward * BulletForce);
@@ -65,10 +63,14 @@ public class PlayerControls : IComponent
         Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
     }
 
-    public GameObject CreateBullet(GameObject self)
+    public GameObject CreateBullet(Player self)
     {
         GameObject bullet = new(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(0.9f, 0.1f, Color.Red));
-        bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c => { }), Vector3.Zero, 5, 0, 0));
+        bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
+        {
+            if (c.Entity.HasTag("enemy"))
+                ((Enemy)c.Entity).Health -= self.Damage;
+        }), Vector3.Zero, 5, 0, 0));
         bullet.AddComponent(new LightComponent(Color.White, Vector3.Zero));
         bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
         bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200;
