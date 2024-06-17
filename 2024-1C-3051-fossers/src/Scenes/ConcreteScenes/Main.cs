@@ -62,6 +62,7 @@ public class MainScene : Scene
 
 
 
+        new WaveInfoScreen(this).Initialize();
         AddSceneProcessor(new WaveProcessor(player));
         Camera.Follow(player);
     }

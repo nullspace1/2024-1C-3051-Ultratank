@@ -9,5 +9,11 @@ public static class Constants
             public const string RELOADING = "player_reloading";
             public const string HEALTH_CHANGED = "player_health_changed";
         }
+
+        public static class Wave
+        {
+            public const string NEW_WAVE = "wave_new";
+            public const string ENEMIES_LEFT = "wave_enemies_left";
+        }
     }
 }

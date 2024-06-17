@@ -9,11 +9,16 @@ using WarSteel.Utils;
 
 public class Enemy : GameObject
 {
+    public bool isDead = false;
     private float _health = 100;
     public float Health
     {
         get => _health;
-        set => _health = value;
+        set
+        {
+            _health = value;
+            if (_health <= 0 && !isDead) OnDie();
+        }
     }
     private float _damage;
     private Player _player;
@@ -29,9 +34,9 @@ public class Enemy : GameObject
     public bool _isReloading = false;
     public int _reloadingTimeInMs = 3000;
     public float _bulletForce = 36000;
+    private Scene _scene;
 
-
-    public Enemy(Vector3 pos, float damage, Player player) : base(new string[] { }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"))
+    public Enemy(Vector3 pos, float damage, Player player) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"))
     {
         _turretTransform = new(Transform, Vector3.Zero);
         _cannonTransform = new(_turretTransform, Vector3.Zero);
@@ -43,10 +48,16 @@ public class Enemy : GameObject
         AddComponent(_rb);
     }
 
+    public override void Initialize(Scene scene)
+    {
+        base.Initialize(scene);
+        _scene = scene;
+    }
+
     public override void Update(Scene scene, GameTime gameTime)
     {
         base.Update(scene, gameTime);
-
+        if (isDead) return;
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         Vector3 directionToPlayer = _player.Transform.AbsolutePosition - Transform.AbsolutePosition;
@@ -112,5 +123,11 @@ public class Enemy : GameObject
     {
         _turretTransform.Orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, direction, Vector3.UnitY));
         _cannonTransform.Orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, direction, Vector3.UnitY));
+    }
+
+    private void OnDie()
+    {
+        _scene.GetSceneProcessor<WaveProcessor>().EnemiesLeft -= 1;
+        isDead = true;
     }
 }

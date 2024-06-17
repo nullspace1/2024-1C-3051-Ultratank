@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Scenes;
+using WarSteel.Utils;
 
 public class WaveProcessor : ISceneProcessor
 {
@@ -10,22 +11,22 @@ public class WaveProcessor : ISceneProcessor
     public int WaveNumber
     {
         get => _waveNumber;
-        // Trigger event to update UI
         set
         {
             _waveNumber = value;
-            // Update UI here if necessary
+            WaveEvents.TriggerNewWave(value);
         }
     }
 
     public int EnemiesLeft
     {
         get => _enemiesLeft;
-        // Trigger event to update UI
         set
         {
             _enemiesLeft = value;
-            // Update UI here if necessary
+            WaveEvents.TriggerEnemiesLeft(value);
+            if (_enemiesLeft <= 0)
+                Timer.Timeout(4000, StartNextWave);
         }
     }
 
@@ -44,12 +45,13 @@ public class WaveProcessor : ISceneProcessor
         StartNextWave();
     }
 
-    public void Update(Scene scene, GameTime gameTime) { }
-
     public void Draw(Scene scene) { }
+
+    public void Update(Scene scene, GameTime gameTime) { }
 
     private void StartNextWave()
     {
+        _scene.RemoveGameObjectsByTag("enemy");
         _player.Damage += WaveNumber * 2;
         WaveNumber++;
         EnemiesLeft = GetEnemiesToSpawn();
@@ -66,6 +68,6 @@ public class WaveProcessor : ISceneProcessor
 
     private int GetEnemiesToSpawn()
     {
-        return WaveNumber * 5;
+        return WaveNumber;
     }
 }
