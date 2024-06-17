@@ -17,6 +17,7 @@ public class Enemy : GameObject
         set
         {
             _health = value;
+            _healthBarUI._healthBar.SetHealth(value);
             if (_health <= 0 && !isDead) OnDie();
         }
     }
@@ -35,6 +36,7 @@ public class Enemy : GameObject
     public int _reloadingTimeInMs = 3000;
     public float _bulletForce = 36000;
     private Scene _scene;
+    private EnemyHealthBar _healthBarUI;
 
     public Enemy(Vector3 pos, float damage, Player player) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"))
     {
@@ -51,13 +53,17 @@ public class Enemy : GameObject
     public override void Initialize(Scene scene)
     {
         base.Initialize(scene);
+        _healthBarUI = new(scene, this);
         _scene = scene;
     }
 
     public override void Update(Scene scene, GameTime gameTime)
     {
         base.Update(scene, gameTime);
+        _healthBarUI.CalculateHealthPos();
+
         if (isDead) return;
+
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         Vector3 directionToPlayer = _player.Transform.AbsolutePosition - Transform.AbsolutePosition;
@@ -129,5 +135,11 @@ public class Enemy : GameObject
     {
         _scene.GetSceneProcessor<WaveProcessor>().EnemiesLeft -= 1;
         isDead = true;
+    }
+
+    public override void OnDestroy(Scene scene)
+    {
+        _healthBarUI.Remove();
+        base.OnDestroy(scene);
     }
 }

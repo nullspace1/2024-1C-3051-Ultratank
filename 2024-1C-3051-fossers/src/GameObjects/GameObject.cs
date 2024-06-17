@@ -80,7 +80,7 @@ public class GameObject
         }
     }
 
-    public void OnDestroy(Scene scene)
+    public virtual void OnDestroy(Scene scene)
     {
         foreach (var m in _components.Values)
         {
