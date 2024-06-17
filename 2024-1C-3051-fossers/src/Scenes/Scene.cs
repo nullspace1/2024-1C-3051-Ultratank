@@ -100,7 +100,7 @@ public abstract class Scene
             entity.Draw(this);
         }
 
-         SpriteBatch.Begin();
+        SpriteBatch.Begin();
 
         foreach (var ui in _UIs)
         {
@@ -124,7 +124,7 @@ public abstract class Scene
 
         foreach (var ui in new List<UI>(_UIs))
         {
-            ui.Update(this, gameTime);
+            ui?.Update(this, gameTime);
         }
 
         foreach (var processor in _sceneProcessors.Values)
@@ -150,7 +150,7 @@ public abstract class Scene
 
         foreach (var ui in new List<UI>(_UIs))
         {
-            if (ui.IsDestroyed())
+            if (ui == null || ui.IsDestroyed())
             {
                 _UIs.Remove(ui);
             }
