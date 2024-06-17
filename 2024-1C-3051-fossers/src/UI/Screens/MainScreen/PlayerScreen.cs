@@ -13,6 +13,9 @@ public class PlayerScreen
     private TextUI _reloadingTimeUIText;
     private float _reloadingTime;
     private float _currentReloadTime;
+
+    private TextUI _dmgText;
+
     Vector2 screenCenter;
     private Scene _scene;
 
@@ -32,13 +35,17 @@ public class PlayerScreen
         UI healthBarBG = new(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-bg"));
         _healthBar = new(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-fill"));
 
+        _dmgText = new Paragraph(GetDmgText(0));
+        UI dmg = new UI(new(screenCenter.X, screenHeight - 120), _dmgText);
+
         // add ui elements
         _scene.AddUI(healthBarBG);
         _scene.AddUI(_healthBar);
+        _scene.AddUI(dmg);
 
-        // subscribe to player events and update the ui accordingly
         PlayerEvents.SubscribeToReload(OnPlayerStartedReloading);
         PlayerEvents.SubscribeToHealthChanged(OnPlayerHealthUpdated);
+        PlayerEvents.SubscribeToDamageChanged(OnPlayerDmgUpdated);
     }
 
     private string GetReloadingText()
@@ -81,5 +88,15 @@ public class PlayerScreen
 
         // Update the health bar width
         _healthBar.Width = newHealthBarWidth;
+    }
+
+    private string GetDmgText(float dmg)
+    {
+        return "Dmg: " + dmg;
+    }
+
+    private void OnPlayerDmgUpdated(float dmg)
+    {
+        _dmgText.Text = GetDmgText(dmg);
     }
 }

@@ -17,11 +17,15 @@ public class Player : GameObject
             PlayerEvents.TriggerHealthChanged(value);
         }
     }
-    private float _damage;
+    private float _damage = 10;
     public float Damage
     {
         get => _damage;
-        set => _damage = value;
+        set
+        {
+            _damage = value;
+            PlayerEvents.TriggerDamageChanged(value);
+        }
     }
 
     public Player(Scene scene, Vector3 pos) : base(new string[] { }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"))

@@ -22,4 +22,14 @@ public static class PlayerEvents
     {
         EventManager.Instance.StartListening(Constants.Events.Player.HEALTH_CHANGED, cb);
     }
+
+    public static void TriggerDamageChanged(float dmg)
+    {
+        EventManager.Instance.TriggerEvent(Constants.Events.Player.DMG_CHANGED, dmg);
+    }
+
+    public static void SubscribeToDamageChanged(Action<float> cb)
+    {
+        EventManager.Instance.StartListening(Constants.Events.Player.DMG_CHANGED, cb);
+    }
 }
