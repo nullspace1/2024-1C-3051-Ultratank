@@ -27,6 +27,14 @@ public class GameObject
         _defaultRenderer = renderer;
     }
 
+    public GameObject(string[] tags, Transform transform, Model model) : base()
+    {
+        Id = Guid.NewGuid().ToString();
+        _tags = tags;
+        Transform = transform;
+        Model = model;
+    }
+
     public GameObject(string[] tags, Model model) : base()
     {
         Id = Guid.NewGuid().ToString();
@@ -50,7 +58,7 @@ public class GameObject
         return _components.TryGetValue(typeof(T), out var pr);
     }
 
-    public void Initialize(Scene scene)
+    public virtual void Initialize(Scene scene)
     {
         foreach (var c in _components.Values)
         {
@@ -58,20 +66,20 @@ public class GameObject
         }
     }
 
-    public void Draw(Scene scene, GameObjectRenderer renderer = null)
+    public virtual void Draw(Scene scene, GameObjectRenderer renderer = null)
     {
         GameObjectRenderer activeRenderer = renderer ?? _defaultRenderer;
-        activeRenderer.Draw(this,scene);
+        activeRenderer.Draw(this, scene);
     }
 
-    public void Update(Scene scene, GameTime gameTime)
+    public virtual void Update(Scene scene, GameTime gameTime)
     {
         foreach (var m in _components.Values)
         {
             m.OnUpdate(this, gameTime, scene);
         }
     }
-    
+
     public void OnDestroy(Scene scene)
     {
         foreach (var m in _components.Values)
@@ -80,8 +88,10 @@ public class GameObject
         }
     }
 
-    public bool HasTag(string tag){
-        foreach(var t in _tags){
+    public bool HasTag(string tag)
+    {
+        foreach (var t in _tags)
+        {
             if (t == tag) return true;
         }
         return false;
