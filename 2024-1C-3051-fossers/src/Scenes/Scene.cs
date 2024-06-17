@@ -57,7 +57,7 @@ public abstract class Scene
 
     public void RemoveUI(UI ui)
     {
-        _UIs.Remove(ui);
+        if (ui != null) _UIs.Remove(ui);
     }
 
     public void RemoveUI(List<UI> UIs)
@@ -69,6 +69,15 @@ public abstract class Scene
     {
         entity.Initialize(this);
         _gameObjects.Add(entity.Id, entity);
+    }
+
+    public void RemoveGameObjectsByTag(string tag)
+    {
+        foreach (var e in _gameObjects.Values)
+        {
+            if (e.HasTag(tag))
+                e.Destroy();
+        }
     }
 
     public T GetSceneProcessor<T>() where T : class, ISceneProcessor
@@ -86,6 +95,20 @@ public abstract class Scene
         return list;
     }
 
+    public List<GameObject> GetEntitiesByTag(string tag)
+    {
+        List<GameObject> list = new();
+        foreach (var e in _gameObjects.Values)
+        {
+            if (e.HasTag(tag))
+                list.Add(e);
+        }
+
+        return list;
+    }
+
+
+
     public abstract void Initialize();
 
     public void Draw()
@@ -94,11 +117,14 @@ public abstract class Scene
         {
             sceneProcessor.Draw(this);
         }
-
-        foreach (var entity in _gameObjects.Values)
+        // needs to copy the gameobjects to prevent cs failing due to modifying the collection while iterating here
+        // typically this would happen after destroying an element in the update method.
+        List<GameObject> gb = new(_gameObjects.Values);
+        foreach (var entity in gb)
         {
             entity.Draw(this);
         }
+
 
         SpriteBatch.Begin();
 
