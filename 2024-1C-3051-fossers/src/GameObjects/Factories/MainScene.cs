@@ -20,7 +20,7 @@ class MainSceneFactory
         _scene = scene;
     }
 
-    public GameObject PlayerTank(Vector3 position)
+    public Player PlayerTank(Vector3 position)
     {
         return new Player(_scene, position);
     }
@@ -37,14 +37,14 @@ class MainSceneFactory
 
     public GameObject Rock(Vector3 position, RockSize size)
     {
-       return RockFactory.Generate(new string[] {GROUND}, position, size);
+        return RockFactory.Generate(new string[] { GROUND }, position, size);
     }
 
     public GameObject Bush(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
         GameObjectRenderer renderer = new Default(0.5f, 0.5f, Color.Red);
-        GameObject bush = new(new string[] { GROUND }, new Transform(), model,renderer);
+        GameObject bush = new(new string[] { GROUND }, new Transform(), model, renderer);
         bush.Transform.Position = position;
         return bush;
     }
@@ -53,7 +53,7 @@ class MainSceneFactory
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
         GameObjectRenderer renderer = new Default(0.5f, 0.5f, Color.Gray);
-        GameObject ground = new(new string[] { GROUND }, new Transform(),model, renderer);
+        GameObject ground = new(new string[] { GROUND }, new Transform(), model, renderer);
         ground.Transform.Position = position;
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));
         return ground;
