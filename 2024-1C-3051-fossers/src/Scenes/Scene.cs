@@ -211,13 +211,14 @@ public abstract class Scene
         }
     }
 
-    public void Unload()
+    public virtual void Unload()
     {
         _gameObjects.Clear();
         _UIs.Clear();
         _sceneProcessors.Clear();
         Camera = null;
         _isPaused = false;
+        AudioManager.Instance.StopAllSounds();
     }
 
     public void ResetGraphicsDevice()

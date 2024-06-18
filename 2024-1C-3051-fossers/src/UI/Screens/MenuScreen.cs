@@ -10,18 +10,10 @@ using WarSteel.Managers;
 public class MenuScreen
 {
     Scene _scene;
-    static SoundEffectInstance song;
 
     public MenuScreen(Scene scene)
     {
         _scene = scene;
-
-        if (song == null)
-        {
-            song = ContentRepoManager.Instance().GetSoundEffect("start-song").CreateInstance();
-            song.IsLooped = true;
-        }
-
     }
 
     public void Initialize()
@@ -29,8 +21,6 @@ public class MenuScreen
 
         Vector2 screenCenter = Screen.GetScreenCenter(_scene.GraphicsDeviceManager);
         int screenWidth = Screen.GetScreenWidth(_scene.GraphicsDeviceManager);
-
-        // song.Play();
 
         UI background = new(new Vector2(screenCenter.X, screenCenter.Y), screenWidth, screenWidth, new Image("UI/menu-bg"));
         _scene.AddUI(background);
@@ -55,7 +45,7 @@ public class MenuScreen
 
         UI startButton = new(GetBtnPos(0), 300, 60, new PrimaryBtn("Start"), (Scene scene, UI ui) =>
         {
-            song.Stop();
+            AudioManager.Instance.StopSound(Audios.MENU_SONG);
             SceneManager.Instance().SetCurrentScene(ScenesNames.MAIN);
         });
 

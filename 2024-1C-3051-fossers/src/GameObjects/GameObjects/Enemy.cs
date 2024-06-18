@@ -36,6 +36,8 @@ public class Enemy : GameObject
         _damage = damage;
         _wave = wave;
 
+        AudioManager.Instance.AddSoundEffect(Audios.ENEMY_DIED, ContentRepoManager.Instance().GetSoundEffect("enemy_died"));
+
         AddComponent(rb);
         AddComponent(ai);
         AddComponent(_healthBar);
@@ -45,6 +47,7 @@ public class Enemy : GameObject
     private void OnDie()
     {
         _wave.EnemyDie();
+        AudioManager.Instance.PlaySound(Audios.ENEMY_DIED);
         isDead = true;
     }
 }
