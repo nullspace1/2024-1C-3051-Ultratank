@@ -7,27 +7,30 @@ using WarSteel.Utils;
 using Microsoft.Xna.Framework.Audio;
 using WarSteel.Managers;
 
-public class MenuScreen {
+public class MenuScreen
+{
     Scene _scene;
     static SoundEffectInstance song;
 
-    public MenuScreen(Scene scene){
+    public MenuScreen(Scene scene)
+    {
         _scene = scene;
-        
+
         if (song == null)
         {
             song = ContentRepoManager.Instance().GetSoundEffect("start-song").CreateInstance();
             song.IsLooped = true;
         }
-      
+
     }
 
-    public void Initialize() {
+    public void Initialize()
+    {
 
         Vector2 screenCenter = Screen.GetScreenCenter(_scene.GraphicsDeviceManager);
         int screenWidth = Screen.GetScreenWidth(_scene.GraphicsDeviceManager);
 
-        song.Play();
+        // song.Play();
 
         UI background = new(new Vector2(screenCenter.X, screenCenter.Y), screenWidth, screenWidth, new Image("UI/menu-bg"));
         _scene.AddUI(background);
@@ -67,6 +70,8 @@ public class MenuScreen {
             _scene.RemoveUI(startMenu);
             _scene.AddUI(exitMenu);
         });
+
+        UI controlsBg = new UI(screenCenter, 500, 400, new Image("UI/primary-btn"));
 
         UI headerControls = new(new Vector2(screenCenter.X, 100), new Header("Tank Controls"));
 
@@ -115,6 +120,7 @@ public class MenuScreen {
         });
 
         controlsMenu.AddRange(new UI[]{
+            controlsBg,
             headerControls,
             w,
             s,
