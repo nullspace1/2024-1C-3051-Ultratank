@@ -19,11 +19,13 @@ public class Game : Microsoft.Xna.Framework.Game
 
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        // Graphics.IsFullScreen = true;
         Window.AllowUserResizing = true;
-        Graphics.PreferredBackBufferWidth = 1280;
-        Graphics.PreferredBackBufferHeight = 720;
-
+        int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+        int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        Graphics.PreferredBackBufferWidth = screenWidth;
+        Graphics.PreferredBackBufferHeight = screenHeight;
+        if (!Constants.DEBUG_MODE)
+            Graphics.IsFullScreen = true;
     }
 
     protected override void Initialize()
