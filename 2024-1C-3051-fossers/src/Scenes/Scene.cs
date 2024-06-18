@@ -73,15 +73,15 @@ public abstract class Scene
         _UIs.AddRange(UIs);
     }
 
-    public bool HasUI(UI ui){
+    public bool HasUI(UI ui)
+    {
         return _UIs.Contains(ui);
     }
 
     public void RemoveUI(UI ui)
     {
-        if (_UIs.Contains(ui)){
-        _UIs.Remove(ui);
-        }
+        if (_UIs.Contains(ui))
+            _UIs.Remove(ui);
     }
 
     public void RemoveUI(List<UI> UIs)
@@ -147,7 +147,7 @@ public abstract class Scene
     {
 
 
-      
+
         // needs to copy the gameobjects to prevent cs failing due to modifying the collection while iterating here
         // typically this would happen after destroying an element in the update method.
         List<GameObject> gb = new(_gameObjects.Values);
@@ -156,12 +156,12 @@ public abstract class Scene
             entity.Draw(this);
         }
 
-          foreach (var sceneProcessor in _sceneProcessors.Values)
+        foreach (var sceneProcessor in _sceneProcessors.Values)
         {
             sceneProcessor.Draw(this);
         }
 
-        
+
         SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, null, null, null, null);
 
         foreach (var ui in _UIs)
