@@ -163,8 +163,9 @@ public abstract class Scene
 
 
         SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, null, null, null, null);
+        List<UI> uis = new(_UIs);
 
-        foreach (var ui in _UIs)
+        foreach (var ui in uis)
         {
             ui?.Draw(SpriteBatch);
         }

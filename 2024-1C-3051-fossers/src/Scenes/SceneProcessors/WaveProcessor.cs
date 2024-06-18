@@ -73,11 +73,9 @@ public class WaveProcessor : ISceneProcessor
         return WaveNumber;
     }
 
-
     public void EnemyDie()
     {
         EnemiesLeft--;
         EnemiesKilled++;
-        // play sound
     }
 }

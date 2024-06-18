@@ -17,7 +17,7 @@ public class MainScene : Scene
 {
     private PauseScreen _pauseScreen;
     private bool _checkEsc = true;
-    private int _escDelay = 100;
+    private int _escDelay = 150;
 
     public MainScene(GraphicsDeviceManager Graphics, SpriteBatch SpriteBatch) : base(Graphics, SpriteBatch)
     {
@@ -62,10 +62,6 @@ public class MainScene : Scene
             AddGameObject(factory.Bush(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand)));
         for (int i = 0; i < numTress; i++)
             AddGameObject(factory.Tree(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand)));
-        for (int i = 0; i < numRocks; i++)
-            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.SMALL));
-        for (int i = 0; i < numRocks; i++)
-            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.MEDIUM));
         for (int i = 0; i < numRocks; i++)
             AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.LARGE));
 

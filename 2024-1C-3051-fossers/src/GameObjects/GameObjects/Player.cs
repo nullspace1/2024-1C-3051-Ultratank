@@ -19,7 +19,7 @@ public class Player : GameObject
             if (_health <= 0) OnDie();
         }
     }
-    private float _damage = 10;
+    private float _damage = 25;
     public float Damage
     {
         get => _damage;
