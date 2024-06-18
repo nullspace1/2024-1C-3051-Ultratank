@@ -73,6 +73,11 @@ public abstract class Scene
         _UIs.AddRange(UIs);
     }
 
+    public bool HasUI(UI ui)
+    {
+        return _UIs.Contains(ui);
+    }
+
     public void RemoveUI(UI ui)
     {
         if (_UIs.Contains(ui))
@@ -104,7 +109,7 @@ public abstract class Scene
         return _sceneProcessors.TryGetValue(typeof(T), out var processor) ? processor as T : default;
     }
 
-    public List<GameObject> GetEntities()
+    public List<GameObject> GetGameObjects()
     {
         List<GameObject> list = new();
         foreach (var e in _gameObjects.Values)
@@ -140,16 +145,20 @@ public abstract class Scene
 
     public void Draw()
     {
-        foreach (var sceneProcessor in _sceneProcessors.Values)
-        {
-            sceneProcessor.Draw(this);
-        }
+
+
+
         // needs to copy the gameobjects to prevent cs failing due to modifying the collection while iterating here
         // typically this would happen after destroying an element in the update method.
         List<GameObject> gb = new(_gameObjects.Values);
         foreach (var entity in gb)
         {
             entity.Draw(this);
+        }
+
+        foreach (var sceneProcessor in _sceneProcessors.Values)
+        {
+            sceneProcessor.Draw(this);
         }
 
 
@@ -164,6 +173,8 @@ public abstract class Scene
         SpriteBatch.End();
 
         ResetGraphicsDevice();
+
+
     }
 
     public virtual void Update(GameTime gameTime)

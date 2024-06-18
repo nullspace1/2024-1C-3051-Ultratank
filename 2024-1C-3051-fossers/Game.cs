@@ -24,6 +24,10 @@ public class Game : Microsoft.Xna.Framework.Game
         int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
         Graphics.PreferredBackBufferWidth = screenWidth;
         Graphics.PreferredBackBufferHeight = screenHeight;
+        Graphics.PreparingDeviceSettings += (object s, PreparingDeviceSettingsEventArgs args) =>
+{
+args.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+};
         if (!Constants.DEBUG_MODE)
             Graphics.IsFullScreen = true;
     }

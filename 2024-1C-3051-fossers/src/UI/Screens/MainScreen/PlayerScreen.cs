@@ -56,7 +56,7 @@ public class PlayerScreen
     private void UpdateReloadingTimeText()
     {
         _currentReloadTime -= 10 / 1000f;
-        if (_currentReloadTime <= 0)
+        if (_currentReloadTime <= 0 && _scene.HasUI(_reloadingTimeUI))
         {
             _scene.RemoveUI(_reloadingTimeUI);
             return;

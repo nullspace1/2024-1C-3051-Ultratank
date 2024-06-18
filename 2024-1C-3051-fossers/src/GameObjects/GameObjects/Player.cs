@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
+using WarSteel.Common.Shaders;
 using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
@@ -30,12 +31,13 @@ public class Player : GameObject
     }
     Scene _scene;
 
-    public Player(Scene scene, Vector3 pos) : base(new string[] { "player" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"))
+    public Player(Scene scene, Vector3 pos) : base(new string[] { "player" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new Default(Color.Blue))
     {
         _scene = scene;
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
-        _defaultRenderer = new TankRenderable(turretTransform, cannonTransform);
+        Model.SetTransformToPart("Turret",turretTransform);
+        Model.SetTransformToPart("Cannon",cannonTransform);
 
         AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f));
         AddComponent(new PlayerControls(cannonTransform));

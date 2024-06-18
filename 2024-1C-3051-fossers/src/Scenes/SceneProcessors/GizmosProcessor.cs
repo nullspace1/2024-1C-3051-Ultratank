@@ -11,7 +11,7 @@ public class GizmosProcessor : ISceneProcessor
 
     public void Draw(Scene scene)
     {
-        scene.GetEntities().ForEach(e =>
+        scene.GetGameObjects().ForEach(e =>
         {
             if (e.HasComponent<DynamicBody>())
             {
@@ -20,7 +20,7 @@ public class GizmosProcessor : ISceneProcessor
 
         });
 
-        scene.GetEntities().ForEach(e =>
+        scene.GetGameObjects().ForEach(e =>
        {
 
            if (e.HasComponent<StaticBody>())

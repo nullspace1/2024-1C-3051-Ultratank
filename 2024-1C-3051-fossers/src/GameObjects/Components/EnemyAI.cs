@@ -92,11 +92,12 @@ public class EnemyAI : IComponent
 
         _isReloading = true;
         Timer.Timeout(_reloadingTimeInMs, () => _isReloading = false);
+        Timer.Timeout(_reloadingTimeInMs, () => bullet.Destroy());
     }
 
     private GameObject CreateBullet(Enemy self, float damage)
     {
-        GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(0.9f, 0.1f, Color.Red));
+        GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(Color.Red));
         bullet.Transform.Position = _cannonTransform.AbsolutePosition - _cannonTransform.Forward * 500 + _cannonTransform.Up * 200;
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
@@ -106,7 +107,7 @@ public class EnemyAI : IComponent
                 bullet.Destroy();
             }
         }), Vector3.Zero, 5, 0, 0));
-        bullet.AddComponent(new LightComponent(Color.White, Vector3.Zero));
+        bullet.AddComponent(new LightComponent(Color.White));
         return bullet;
     }
 

@@ -37,14 +37,14 @@ public class MainScene : Scene
         Model model = ContentRepoManager.Instance().GetModel("SkyBox/cube");
         TextureCube skyboxTexture = ContentRepoManager.Instance().GetTextureCube("sun-in-space");
         GameObjectRenderer skyboxRenderer = new SkyBoxShader(skyboxTexture);
-        GameObject skybox = new(Array.Empty<string>(), new Transform(), model, skyboxRenderer);
+        GameObject skybox = new(new string[] { "skybox" }, new Transform(), model, skyboxRenderer);
 
-        AddSceneProcessor(new LightProcessor(Color.White, new Vector3(0, 10000, 0)));
+        AddSceneProcessor(new LightProcessor(GraphicsDeviceManager.GraphicsDevice));
         AddSceneProcessor(new PhysicsProcessor());
         AddSceneProcessor(new GizmosProcessor());
         AddSceneProcessor(new SkyBoxProcessor(skybox));
 
-        GetSceneProcessor<LightProcessor>().AddLightSource(new LightSource(Color.White, new Vector3(0, 1000, 0)));
+        GetSceneProcessor<LightProcessor>().AddLight(new Light(new Vector3(0, 1000, 0), Color.White));
 
         Player player = factory.PlayerTank(new Vector3(0, 100, 0));
         PlayerScreen playerScreen = new(this);
@@ -54,7 +54,7 @@ public class MainScene : Scene
         AddGameObject(player);
         Random rand = new();
 
-        int numTress = 100;
+        int numTress = 50;
         int numBushes = 25;
         int numRocks = 25;
 

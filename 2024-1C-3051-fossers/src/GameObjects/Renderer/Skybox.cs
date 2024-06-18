@@ -18,6 +18,11 @@ class SkyBoxShader : GameObjectRenderer
 
     public override void Draw(GameObject gameObject, Scene scene)
     {
+        
+        GraphicsDevice gDevice = scene.GraphicsDeviceManager.GraphicsDevice;
+        RasterizerState state_r = gDevice.RasterizerState;
+        gDevice.RasterizerState = RasterizerState.CullNone;
+
         Transform cameraTransform = scene.GetCamera().Transform;
         _effect.Parameters["World"].SetValue(Matrix.CreateScale(100000) * Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
         _effect.Parameters["SkyBoxTexture"].SetValue(_texture);
@@ -25,16 +30,15 @@ class SkyBoxShader : GameObjectRenderer
         _effect.Parameters["View"].SetValue(scene.GetCamera().View);
         _effect.Parameters["Projection"].SetValue(scene.GetCamera().Projection);
 
-        var modelMeshesBaseTransforms = new Matrix[gameObject.Model.Bones.Count];
-        gameObject.Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-        
-        foreach (var modelMesh in gameObject.Model.Meshes)
+        foreach (var modelMesh in gameObject.Model.GetMeshes())
         {
             foreach (var part in modelMesh.MeshParts)
                 part.Effect = _effect;
 
             modelMesh.Draw();
         }
-        
+
+        gDevice.RasterizerState = state_r;
+
     }
 }

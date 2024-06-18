@@ -28,7 +28,7 @@ class MainSceneFactory
     public GameObject Tree(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/SimpleTree");
-        GameObjectRenderer renderer = new Default(0.5f, 0.5f, Color.Brown);
+        GameObjectRenderer renderer = new Default(Color.Brown);
         GameObject tree = new(new string[] { GROUND }, new Transform(), model, renderer);
         tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(0, 500, 0)));
         tree.Transform.Position = position;
@@ -43,7 +43,7 @@ class MainSceneFactory
     public GameObject Bush(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
-        GameObjectRenderer renderer = new Default(0.5f, 0.5f, Color.Red);
+        GameObjectRenderer renderer = new Default(Color.Red);
         GameObject bush = new(new string[] { GROUND }, new Transform(), model, renderer);
         bush.Transform.Position = position;
         return bush;
@@ -52,7 +52,7 @@ class MainSceneFactory
     public GameObject Ground(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        GameObjectRenderer renderer = new Default(0.5f, 0.5f, Color.Gray);
+        GameObjectRenderer renderer = new Default( Color.Gray);
         GameObject ground = new(new string[] { GROUND }, new Transform(), model, renderer);
         ground.Transform.Position = position;
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));

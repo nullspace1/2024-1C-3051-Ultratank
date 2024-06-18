@@ -75,6 +75,10 @@ public class UI
         _toDestroy = true;
     }
 
+    public void Recreate(){
+        _toDestroy = false;
+    }
+
     public bool IsDestroyed()
     {
         return _toDestroy;

@@ -55,6 +55,7 @@ public class WaveProcessor : ISceneProcessor
     {
         _scene.RemoveGameObjectsByTag("enemy");
         _player.Damage += WaveNumber * 2;
+        _player.Health = 100;
         WaveNumber++;
         EnemiesLeft = GetEnemiesToSpawn();
         Random rand = new();
