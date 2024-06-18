@@ -68,8 +68,10 @@ public class PlayerControls : IComponent
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
             if (c.Entity.HasTag("enemy"))
+            {
                 ((Enemy)c.Entity).Health -= self.Damage;
                 bullet.Destroy();
+            }
         }), Vector3.Zero, 5, 0, 0));
         bullet.AddComponent(new LightComponent(Color.White));
         bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
