@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
+using WarSteel.Common.Shaders;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
@@ -11,8 +12,8 @@ public class GameObject
 {
     private Dictionary<Type, IComponent> _components = new();
     public Transform Transform { get; }
-    public Model Model { get; set; }
-    protected GameObjectRenderer _defaultRenderer;
+    public ObjectModel Model { get; set; }
+    private GameObjectRenderer _defaultRenderer;
 
     private string[] _tags { get; }
     private bool _toDestroy = false;
@@ -23,29 +24,17 @@ public class GameObject
         Id = Guid.NewGuid().ToString();
         _tags = tags;
         Transform = transform;
-        Model = model;
+        Model = new ObjectModel(model);
         _defaultRenderer = renderer;
-    }
-
-    public GameObject(string[] tags, Transform transform, Model model) : base()
-    {
-        Id = Guid.NewGuid().ToString();
-        _tags = tags;
-        Transform = transform;
-        Model = model;
-    }
-
-    public GameObject(string[] tags, Model model) : base()
-    {
-        Id = Guid.NewGuid().ToString();
-        _tags = tags;
-        Transform = new();
-        Model = model;
     }
 
     public void AddComponent(IComponent c)
     {
         _components.Add(c.GetType(), c);
+    }
+
+    public void RemoveComponent<T>() where T: class, IComponent{
+        _components.Remove(typeof(T));
     }
 
     public T GetComponent<T>() where T : class, IComponent
@@ -58,12 +47,7 @@ public class GameObject
         return _components.TryGetValue(typeof(T), out var pr);
     }
 
-    public void RemoveComponent<T>() where T : class, IComponent
-    {
-        _components.Remove(typeof(T));
-    }
-
-    public virtual void Initialize(Scene scene)
+    public void Initialize(Scene scene)
     {
         foreach (var c in _components.Values)
         {
@@ -71,21 +55,21 @@ public class GameObject
         }
     }
 
-    public virtual void Draw(Scene scene, GameObjectRenderer renderer = null)
+    public void Draw(Scene scene, GameObjectRenderer renderer = null)
     {
         GameObjectRenderer activeRenderer = renderer ?? _defaultRenderer;
-        activeRenderer.Draw(this, scene);
+        activeRenderer.Draw(this,scene);
     }
 
-    public virtual void Update(Scene scene, GameTime gameTime)
+    public void Update(Scene scene, GameTime gameTime)
     {
         foreach (var m in _components.Values)
         {
             m.OnUpdate(this, gameTime, scene);
         }
     }
-
-    public virtual void OnDestroy(Scene scene)
+    
+    public void OnDestroy(Scene scene)
     {
         foreach (var m in _components.Values)
         {
@@ -93,10 +77,8 @@ public class GameObject
         }
     }
 
-    public bool HasTag(string tag)
-    {
-        foreach (var t in _tags)
-        {
+    public bool HasTag(string tag){
+        foreach(var t in _tags){
             if (t == tag) return true;
         }
         return false;

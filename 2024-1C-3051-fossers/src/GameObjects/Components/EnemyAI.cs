@@ -96,12 +96,13 @@ public class EnemyAI : IComponent
 
     private GameObject CreateBullet(float damage)
     {
-        GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(0.9f, 0.1f, Color.Red));
+        GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(Color.Red));
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
             if (c.Entity.HasTag("player")) _player.Health -= damage;
+            bullet.Destroy();
         }), Vector3.Zero, 5, 0, 0));
-        bullet.AddComponent(new LightComponent(Color.White, Vector3.Zero));
+        bullet.AddComponent(new LightComponent(Color.White));
         bullet.Transform.Position = _cannonTransform.AbsolutePosition + _cannonTransform.Forward * 500 + _cannonTransform.Up * 200;
         return bullet;
     }

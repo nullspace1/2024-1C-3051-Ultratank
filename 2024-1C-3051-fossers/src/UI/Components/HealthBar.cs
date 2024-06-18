@@ -50,7 +50,5 @@ public class HealthBar
     {
         _healthBar.Destroy();
         _healthBarBg.Destroy();
-        _scene.RemoveUI(_healthBarBg);
-        _scene.RemoveUI(_healthBar);
     }
 }

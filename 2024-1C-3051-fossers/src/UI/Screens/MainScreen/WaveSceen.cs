@@ -51,8 +51,8 @@ public class WaveInfoScreen
 
     private void RemoveCounterUI()
     {
-        _scene.RemoveUI(_waveCounterUI);
-        _scene.RemoveUI(_waveStartsInUI);
+        _waveCounterUI.Destroy();
+        _waveCounterUI.Destroy();
     }
 
     private void UpdateWaveCounter()

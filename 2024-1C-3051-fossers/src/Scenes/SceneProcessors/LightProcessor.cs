@@ -11,107 +11,155 @@ namespace WarSteel.Scenes.SceneProcessors;
 class LightProcessor : ISceneProcessor
 {
 
-    private Color _ambientLight;
-
-    private Vector3 _position;
-
-    public Transform LightPosition;
-
-    public Matrix Projection;
-
-    private List<LightSource> _sources;
-    private List<LightSource> _staticSources;
-
-    public RenderTarget2D Render;
-
     private GraphicsDevice _device;
 
-    public int ShadowMapSize = 2048;
+    private List<Light> _lights = new();
 
-    private Shadow _shadowShader;
+    private Dictionary<Light, Texture2D> _textures = new();
 
-    public LightProcessor(Color ambientLight, Vector3 ambientLightPosition)
+    private RenderTarget2D auxRenderTarget;
+
+    public LightProcessor(GraphicsDevice device)
     {
-        _ambientLight = ambientLight;
-        _position = ambientLightPosition;
-        _sources = new List<LightSource>();
-        _staticSources = new List<LightSource>();
+        _device = device;
     }
+
 
     public void Initialize(Scene scene)
     {
-        Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, 1, 0.1f, 100000);
-        LightPosition = new Transform()
-        {
-            Position = new Vector3(0, 10000, 0)
-        };
-        Render = new RenderTarget2D(scene.GraphicsDeviceManager.GraphicsDevice, ShadowMapSize, ShadowMapSize, false,
-                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
-
-        _shadowShader = new Shadow(ShadowMapSize);
-        _device = scene.GraphicsDeviceManager.GraphicsDevice;
-        LightPosition.LookAt(Vector3.Zero);
-    }
-
-    public void Draw(Scene scene)
-    {
-        _device.DepthStencilState = DepthStencilState.Default;
-        _device.SetRenderTarget(Render);
-        _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
-        foreach (var r in scene.GetEntities())
-        {
-            r.Draw(scene, _shadowShader);
-        }
-
-        _device.SetRenderTarget(null);
-        scene.GraphicsDeviceManager.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-    
-
+        auxRenderTarget = new RenderTarget2D(
+             _device,
+             _device.Viewport.Width,
+             _device.Viewport.Height,
+             false, // Mipmap
+             SurfaceFormat.Color, // Surface format for color rendering
+             DepthFormat.Depth24, // Depth buffer format
+             0, // Mip levels
+             RenderTargetUsage.PlatformContents
+         );
     }
 
     public void Update(Scene scene, GameTime time)
     {
-        List<GameObject> entities = scene.GetEntities().FindAll(e => e.GetComponent<LightComponent>() != default);
-        _sources = entities.ConvertAll(e => e.GetComponent<LightComponent>().GetLightSource());
     }
 
-    public List<LightSource> GetLightSources()
+    public void Draw(Scene scene)
     {
-        List<LightSource> allSources = new();
-        allSources.AddRange(_sources);
-        allSources.AddRange(_staticSources);
-        return allSources;
+
+        _textures.Clear();
+        _lights.ForEach(l => _textures.Add(l, l.GetDepthMap(_device, scene)));
+
+
+        _device.SetRenderTarget(auxRenderTarget);
+
+        _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(0, 0, 0, 1), 1, 0);
+
+        _device.BlendState = BlendState.Opaque;
+
+        foreach (var o in scene.GetGameObjects())
+        {
+            foreach (var l in _lights)
+            {
+                o.Draw(scene, new LightRender(l, _textures[l],true));
+            }
+        }
+
+        _device.BlendState = BlendState.Additive;
+
+        foreach (var o in scene.GetGameObjects())
+        {
+            foreach (var l in _lights)
+            {
+
+
+                o.Draw(scene, new LightRender(l, _textures[l],false));
+
+            }
+        }
+
+        _device.SetRenderTarget(null);
+
+        _device.BlendState = BlendState.AlphaBlend;
+
+        scene.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+        scene.SpriteBatch.Draw(auxRenderTarget, Vector2.Zero, Color.White * 0.3f); // Adjust transparency (0.8f for 80% opacity)
+        scene.SpriteBatch.End();
+
+        // Reset graphics device state if needed
+        scene.ResetGraphicsDevice();
+
     }
 
-    public void AddLightSource(LightSource s)
+    public void AddLight(Light light)
     {
-        _staticSources.Add(s);
+        light.renderTarget = new RenderTarget2D(_device, 2048 * 2, 2048 * 2, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+        _lights.Add(light);
     }
 
-    public Color GetAmbientColor()
-    {
-        return _ambientLight;
+    public void RemoveLight(Light light){
+        light.renderTarget.Dispose();
+        _lights.Remove(light);
     }
 
-    public Vector3 GetAmbientLightDirection()
+
+
+}
+
+public class Light
+{
+
+    public Transform Transform;
+    public Color Color;
+    public Matrix Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.Pi - 0.05f, 1, 0.1f, 10000);
+    public RenderTarget2D renderTarget;
+
+    public Light(Transform transform, Color color)
     {
-        return Vector3.Normalize(LightPosition.Position);
+        Transform = transform;
+        Color = color;
+        renderTarget = null;
+
     }
 
-    public RenderTarget2D GetRenderTarget()
+    public Light(Vector3 position, Color color)
     {
-        return Render;
+        Transform = new Transform
+        {
+            Position = position
+        };
+        Color = color;
+        renderTarget = null;
     }
 
-    public Matrix GetLightViewProjection()
+    public RenderTarget2D GetDepthMap(GraphicsDevice device, Scene scene)
     {
-        return LightPosition.View * Projection;
+
+
+        device.SetRenderTarget(renderTarget);
+        device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+
+        Matrix downViewProjection = GetDownViewProjection();
+
+        Shadow renderer = new(downViewProjection, new Vector3(1, 0, 0));
+
+        foreach (var e in scene.GetGameObjects())
+        {
+            e.Draw(scene, renderer);
+        }
+
+        return renderTarget;
+
     }
 
-    public Vector2 GetShadowMapSize()
+    public Matrix GetDownViewProjection()
     {
-        return Vector2.One * ShadowMapSize;
+        return Transform.GetLookAt(Vector3.Zero) * Projection;
+    }
+
+    public Matrix GetTopViewProjection()
+    {
+        return Transform.GetLookAt(Vector3.Up) * Projection;
     }
 
 }

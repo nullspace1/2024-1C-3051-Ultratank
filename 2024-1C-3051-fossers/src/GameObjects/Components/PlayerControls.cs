@@ -64,13 +64,14 @@ public class PlayerControls : IComponent
 
     public GameObject CreateBullet(Player self)
     {
-        GameObject bullet = new(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(0.9f, 0.1f, Color.Red));
+        GameObject bullet = new(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(Color.Red));
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
             if (c.Entity.HasTag("enemy"))
                 ((Enemy)c.Entity).Health -= self.Damage;
+                bullet.Destroy();
         }), Vector3.Zero, 5, 0, 0));
-        bullet.AddComponent(new LightComponent(Color.White, Vector3.Zero));
+        bullet.AddComponent(new LightComponent(Color.White));
         bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
         bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200;
         return bullet;
