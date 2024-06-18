@@ -51,11 +51,11 @@
 /processorParam:TextureFormat=Compressed
 /build:3D/geometries/sphere.fbx
 
-#begin Audio/ambient.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
+#begin Audio/ambient.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
 /processorParam:Quality=Best
-/build:Audio/ambient.wav
+/build:Audio/ambient.mp3
 
 #begin Audio/button-click.wav
 /importer:WavImporter

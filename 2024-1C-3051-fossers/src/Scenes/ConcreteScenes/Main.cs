@@ -21,12 +21,15 @@ public class MainScene : Scene
 
     public MainScene(GraphicsDeviceManager Graphics, SpriteBatch SpriteBatch) : base(Graphics, SpriteBatch)
     {
+
     }
 
     public override void Initialize()
     {
         MainSceneFactory factory = new(this);
         _pauseScreen = new(this);
+        AudioManager.Instance.AddSong(Audios.AMBIENT, ContentRepoManager.Instance().GetSong("ambient"));
+        AudioManager.Instance.PlaySong(Audios.AMBIENT);
 
         Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
         SetCamera(Camera);
@@ -69,6 +72,8 @@ public class MainScene : Scene
         new WaveInfoScreen(this).Initialize();
         AddSceneProcessor(new WaveProcessor(player));
         Camera.Follow(player);
+
+
     }
 
     public override void Update(GameTime time)
