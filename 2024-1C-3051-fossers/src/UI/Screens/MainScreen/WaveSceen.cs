@@ -52,7 +52,7 @@ public class WaveInfoScreen
     private void RemoveCounterUI()
     {
         _waveCounterUI.Destroy();
-        _waveCounterUI.Destroy();
+        _waveStartsInUI.Destroy();
     }
 
     private void UpdateWaveCounter()
