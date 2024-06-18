@@ -17,6 +17,24 @@ public abstract class Scene
     public SpriteBatch SpriteBatch;
     public Camera Camera;
 
+    private bool _isPaused = false;
+    public bool IsPaused { get => _isPaused; }
+
+    public void Pause()
+    {
+        _isPaused = true;
+    }
+
+    public void Resume()
+    {
+        _isPaused = false;
+    }
+
+    public void TogglePause()
+    {
+        _isPaused = !_isPaused;
+    }
+
     public Scene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch)
     {
         GraphicsDeviceManager = graphics;
@@ -57,7 +75,7 @@ public abstract class Scene
 
     public void RemoveUI(UI ui)
     {
-        if (ui != null) _UIs.Remove(ui);
+        _UIs.Remove(ui);
     }
 
     public void RemoveUI(List<UI> UIs)
@@ -103,11 +121,19 @@ public abstract class Scene
             if (e.HasTag(tag))
                 list.Add(e);
         }
-
         return list;
     }
 
+    public T GetEntityByTag<T>(string tag) where T : GameObject
+    {
+        foreach (var e in _gameObjects.Values)
+        {
+            if (e.HasTag(tag))
+                return (T)e;
+        }
 
+        return null;
+    }
 
     public abstract void Initialize();
 
@@ -126,11 +152,11 @@ public abstract class Scene
         }
 
 
-        SpriteBatch.Begin();
+        SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, null, null, null, null);
 
         foreach (var ui in _UIs)
         {
-            ui.Draw(SpriteBatch);
+            ui?.Draw(SpriteBatch);
         }
 
         SpriteBatch.End();
@@ -138,19 +164,21 @@ public abstract class Scene
         ResetGraphicsDevice();
     }
 
-    public void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime)
     {
+        foreach (var ui in new List<UI>(_UIs))
+        {
+            ui?.Update(this, gameTime);
+        }
+
+        if (_isPaused)
+            return;
 
         Camera?.Update(this, gameTime);
 
         foreach (var entity in new List<GameObject>(_gameObjects.Values))
         {
             entity.Update(this, gameTime);
-        }
-
-        foreach (var ui in new List<UI>(_UIs))
-        {
-            ui?.Update(this, gameTime);
         }
 
         foreach (var processor in _sceneProcessors.Values)
@@ -189,6 +217,7 @@ public abstract class Scene
         _UIs.Clear();
         _sceneProcessors.Clear();
         Camera = null;
+        _isPaused = false;
     }
 
     public void ResetGraphicsDevice()

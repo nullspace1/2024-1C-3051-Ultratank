@@ -49,4 +49,15 @@ public class SceneManager
         CurrentScene().Unload();
         CurrentScene().Initialize();
     }
+
+
+    public void Pause()
+    {
+        CurrentScene().Pause();
+    }
+
+    public void Resume()
+    {
+        CurrentScene().Resume();
+    }
 }
