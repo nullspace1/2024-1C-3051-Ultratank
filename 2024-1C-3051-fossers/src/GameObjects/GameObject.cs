@@ -58,6 +58,11 @@ public class GameObject
         return _components.TryGetValue(typeof(T), out var pr);
     }
 
+    public void RemoveComponent<T>() where T : class, IComponent
+    {
+        _components.Remove(typeof(T));
+    }
+
     public virtual void Initialize(Scene scene)
     {
         foreach (var c in _components.Values)

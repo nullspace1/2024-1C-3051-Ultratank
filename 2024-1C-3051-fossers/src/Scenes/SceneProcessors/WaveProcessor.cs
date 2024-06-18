@@ -30,6 +30,8 @@ public class WaveProcessor : ISceneProcessor
         }
     }
 
+    public int EnemiesKilled = 0;
+
     private Scene _scene;
     private Player _player;
 
@@ -69,5 +71,12 @@ public class WaveProcessor : ISceneProcessor
     private int GetEnemiesToSpawn()
     {
         return WaveNumber;
+    }
+
+
+    public void EnemyDie()
+    {
+        EnemiesLeft--;
+        EnemiesKilled++;
     }
 }

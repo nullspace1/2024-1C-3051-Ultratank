@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -133,7 +132,7 @@ public class Enemy : GameObject
 
     private void OnDie()
     {
-        _scene.GetSceneProcessor<WaveProcessor>().EnemiesLeft -= 1;
+        _scene.GetSceneProcessor<WaveProcessor>().EnemyDie();
         isDead = true;
     }
 

@@ -50,6 +50,11 @@ public class Camera
         _previousMouseState = Mouse.GetState();
     }
 
+    public void StopFollowing()
+    {
+        _followed = null;
+    }
+
     public void Update(Scene scene, GameTime gameTime)
     {
         if (_followed != null)
