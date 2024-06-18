@@ -10,6 +10,7 @@ public class Button : UIRenderer
     public string Text;
     private SpriteFont _font;
     private float _fontSize;
+    private Color _color;
 
     public Button(Texture2D texture, float fontSize, string text)
     {
@@ -17,7 +18,19 @@ public class Button : UIRenderer
         Text = text;
         _fontSize = fontSize;
         _font = ContentRepoManager.Instance().GetSpriteFont("tenada/Tenada");
+        _color = Color.White;
     }
+
+    public Button(Texture2D texture, float fontSize, string text, Color color)
+    {
+        _texture = texture;
+        Text = text;
+        _fontSize = fontSize;
+        _font = ContentRepoManager.Instance().GetSpriteFont("tenada/Tenada");
+        _color = color;
+    }
+
+
 
     public void Draw(SpriteBatch spriteBatch, UI ui)
     {
@@ -29,7 +42,7 @@ public class Button : UIRenderer
         float fontSize = 0.5f;
         Vector2 textSize = _font.MeasureString(Text) * _fontSize;
         Vector2 textPosition = new(center.X - textSize.X / 2, center.Y - textSize.Y / 2);
-        spriteBatch.DrawString(_font, Text, textPosition, Color.White, 0f, Vector2.Zero, fontSize, SpriteEffects.None, 0f);
+        spriteBatch.DrawString(_font, Text, textPosition, _color, 0f, Vector2.Zero, fontSize, SpriteEffects.None, 0f);
     }
-    
+
 }

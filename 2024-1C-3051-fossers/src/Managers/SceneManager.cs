@@ -43,4 +43,10 @@ public class SceneManager
             CurrentScene().Initialize();
         }
     }
+
+    public void RestartScene()
+    {
+        CurrentScene().Unload();
+        CurrentScene().Initialize();
+    }
 }
