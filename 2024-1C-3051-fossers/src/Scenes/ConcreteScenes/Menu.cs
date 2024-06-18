@@ -15,7 +15,7 @@ public class MenuScene : Scene
     {
         MenuScreen screen = new(this);
         AudioManager.Instance.AddSoundEffect(Audios.MENU_SONG, ContentRepoManager.Instance().GetSoundEffect("start-song"));
-        AudioManager.Instance.PlaySound(Audios.MENU_SONG, true);
+        // AudioManager.Instance.PlaySound(Audios.MENU_SONG, true);
         screen.Initialize();
     }
 }

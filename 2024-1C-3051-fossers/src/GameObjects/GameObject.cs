@@ -67,7 +67,7 @@ public class GameObject
     {
         foreach (var c in _components.Values)
         {
-            c.OnStart(this, scene);
+            c?.OnStart(this, scene);
         }
     }
 
