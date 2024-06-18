@@ -1,4 +1,3 @@
-
 using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
@@ -14,11 +13,11 @@ public class EnemyAI : IComponent
     private float _attackRange = 3000f;
     private float _speed = 10000f;
     private bool _canMove = true;
-    private float _delayBeforeMove = 1000f;
-    private float _currentDelay = 0;
+    private int _delayBeforeMove = 1000;
     public bool _isReloading = false;
     public int _reloadingTimeInMs = 3000;
     public float _bulletForce = 36000;
+    private float _maxForce = 5000;
 
     private Player _player;
 
@@ -50,29 +49,34 @@ public class EnemyAI : IComponent
         Vector3 directionToPlayer = _player.Transform.AbsolutePosition - self.Transform.AbsolutePosition;
         float distanceToPlayer = directionToPlayer.Length();
 
-        if (distanceToPlayer > 0)
+        if (_canMove && distanceToPlayer > 0)
         {
-            if (!_canMove)
-            {
-                _currentDelay += deltaTime;
-                if (_currentDelay >= _delayBeforeMove)
-                {
-                    _canMove = true;
-                }
-            }
+            Timer.Timeout(_delayBeforeMove, () => _canMove = true);
 
             directionToPlayer.Normalize();
 
             if (distanceToPlayer <= _chaseRange && distanceToPlayer >= _attackRange)
             {
-                _rb.ApplyForce(directionToPlayer * _speed);
-            }
+                RotateTowardsPlayer(self, directionToPlayer);
+                RotateTurret(self, directionToPlayer);
+                Vector3 desiredVelocity = self.Transform.Forward * _speed;
+                Vector3 currentVelocity = _rb.Velocity;
+                Vector3 force = desiredVelocity - currentVelocity;
 
-            if (distanceToPlayer <= _attackRange)
-            {
-                RotateTurretAndCannon(directionToPlayer);
-                Shoot(scene, self);
+                if (force.Length() > _maxForce)
+                {
+                    force.Normalize();
+                    force *= _maxForce;
+                }
+
+                _rb.ApplyForce(force);
             }
+        }
+
+        if (distanceToPlayer <= _attackRange)
+        {
+            RotateTurret(self, directionToPlayer);
+            Shoot(scene, self);
         }
     }
 
@@ -80,12 +84,8 @@ public class EnemyAI : IComponent
     {
         if (_isReloading) return;
 
-        GameObject bullet = CreateBullet(self.Damage);
+        GameObject bullet = CreateBullet(self, self.Damage);
         scene.AddGameObject(bullet);
-
-        // Calculate direction towards the player
-        Vector3 directionToPlayer = _player.Transform.AbsolutePosition - self.Transform.AbsolutePosition;
-        directionToPlayer.Normalize();
 
         // Apply force to the bullet in the direction towards the player
         bullet.GetComponent<DynamicBody>().ApplyForce(-_cannonTransform.Forward * _bulletForce);
@@ -94,23 +94,35 @@ public class EnemyAI : IComponent
         Timer.Timeout(_reloadingTimeInMs, () => _isReloading = false);
     }
 
-    private GameObject CreateBullet(float damage)
+    private GameObject CreateBullet(Enemy self, float damage)
     {
         GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(Color.Red));
+        bullet.Transform.Position = _cannonTransform.AbsolutePosition - _cannonTransform.Forward * 500 + _cannonTransform.Up * 200;
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
-            if (c.Entity.HasTag("player")) _player.Health -= damage;
-            bullet.Destroy();
+            if (c.Entity.HasTag("player"))
+            {
+                _player.Health -= damage;
+                bullet.Destroy();
+            }
         }), Vector3.Zero, 5, 0, 0));
         bullet.AddComponent(new LightComponent(Color.White));
-        bullet.Transform.Position = _cannonTransform.AbsolutePosition + _cannonTransform.Forward * 500 + _cannonTransform.Up * 200;
         return bullet;
     }
 
-    private void RotateTurretAndCannon(Vector3 direction)
+    private void RotateTurret(Enemy self, Vector3 direction)
     {
-        _turretTransform.Orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, direction, Vector3.UnitY));
-        _cannonTransform.Orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, direction, Vector3.UnitY));
+        Vector3 absPosition = _player.Transform.AbsolutePosition + _player.GetComponent<DynamicBody>().Velocity * 0.2f;
+        absPosition.Y = self.Transform.AbsolutePosition.Y + 10;
+        _turretTransform.LookAt(absPosition);
+        _turretTransform.Orientation *= Quaternion.CreateFromAxisAngle(_turretTransform.Up, MathHelper.ToRadians(180));
+    }
+
+    private void RotateTowardsPlayer(Enemy self, Vector3 direction)
+    {
+        Vector3 tankForward = new Vector3(direction.X, 0, direction.Z);
+        Quaternion tankTargetRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, tankForward, Vector3.UnitY));
+        self.Transform.Orientation = Quaternion.Lerp(self.Transform.Orientation, tankTargetRotation, 0.1f);
     }
 
     public void Destroy(GameObject self, Scene scene) { }

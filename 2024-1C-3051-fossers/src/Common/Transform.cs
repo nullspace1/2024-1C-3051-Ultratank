@@ -81,6 +81,11 @@ public class Transform
         return Parent == null ? Vector3.Transform(point, World) : Parent.LocalToWorldPosition(Vector3.Transform(point, World));
     }
 
+    public Vector3 WorldToLocalPosition(Vector3 point)
+    {
+        return Vector3.Transform(point, Matrix.Invert(World));
+    }
+
     public Quaternion LocalToWorldOrientation(Quaternion orientation)
     {
         return Parent == null ? orientation * Orientation : Parent.LocalToWorldOrientation(orientation * Orientation);
@@ -98,11 +103,10 @@ public class Transform
 
     public void LookAt(Vector3 point)
     {
-
         Matrix view = GetLookAt(point);
         view.Translation = Vector3.Zero;
-        Orientation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(view));
-
+        Quaternion orientation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(view));
+        Orientation = (Parent == null) ? orientation : Parent.WorldToLocalOrientation(orientation);
     }
 
     public Matrix GetLookAt(Vector3 point)
@@ -125,10 +129,4 @@ public class Transform
 
         return rotationMatrix;
     }
-
-
-
 }
-
-
-
