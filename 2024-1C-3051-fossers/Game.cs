@@ -35,6 +35,7 @@ public class Game : Microsoft.Xna.Framework.Game
         SceneManager.SetUpInstance(ScenesNames.MENU);
         SceneManager = SceneManager.Instance();
         SpriteBatch = new SpriteBatch(GraphicsDevice);
+        GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
         SceneManager.AddScene(ScenesNames.MENU, new MenuScene(Graphics, SpriteBatch));
         SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics, SpriteBatch));
@@ -55,13 +56,7 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-        {
-            SceneManager.SetCurrentScene(ScenesNames.MENU);
-        }
         SceneManager.CurrentScene().Update(gameTime);
-
-
         base.Update(gameTime);
     }
 

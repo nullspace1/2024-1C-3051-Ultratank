@@ -8,11 +8,17 @@ using WarSteel.Managers;
 using WarSteel.Common.Shaders;
 using System;
 using WarSteel.Entities.Map;
+using Microsoft.Xna.Framework.Input;
+using WarSteel.Utils;
 
 namespace WarSteel.Scenes.Main;
 
 public class MainScene : Scene
 {
+    private PauseScreen _pauseScreen;
+    private bool _checkEsc = true;
+    private int _escDelay = 100;
+
     public MainScene(GraphicsDeviceManager Graphics, SpriteBatch SpriteBatch) : base(Graphics, SpriteBatch)
     {
     }
@@ -20,7 +26,7 @@ public class MainScene : Scene
     public override void Initialize()
     {
         MainSceneFactory factory = new(this);
-
+        _pauseScreen = new(this);
 
         Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
         SetCamera(Camera);
@@ -60,10 +66,30 @@ public class MainScene : Scene
         for (int i = 0; i < numRocks; i++)
             AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.LARGE));
 
-
-
         new WaveInfoScreen(this).Initialize();
         AddSceneProcessor(new WaveProcessor(player));
         Camera.Follow(player);
+    }
+
+    public override void Update(GameTime time)
+    {
+        if (_checkEsc && Keyboard.GetState().IsKeyDown(Keys.Escape))
+        {
+            if (!IsPaused)
+            {
+                Pause();
+                _pauseScreen.Initialize();
+            }
+            else
+            {
+                Resume();
+                _pauseScreen.Destroy();
+            }
+
+            _checkEsc = false;
+            Timer.Timeout(_escDelay, () => _checkEsc = true);
+        }
+
+        base.Update(time);
     }
 }
