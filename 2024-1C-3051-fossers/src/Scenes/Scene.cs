@@ -75,7 +75,8 @@ public abstract class Scene
 
     public void RemoveUI(UI ui)
     {
-        _UIs.Remove(ui);
+        if (_UIs.Contains(ui))
+            _UIs.Remove(ui);
     }
 
     public void RemoveUI(List<UI> UIs)
