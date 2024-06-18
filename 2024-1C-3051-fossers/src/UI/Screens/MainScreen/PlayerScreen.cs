@@ -67,11 +67,12 @@ public class PlayerScreen
 
     private void OnPlayerStartedReloading(int reloadingTimeInMs)
     {
+        int screenHeight = Screen.GetScreenHeight(_scene.GraphicsDeviceManager);
         _scene.RemoveUI(_reloadingTimeUI);
         _reloadingTime = reloadingTimeInMs / 1000;
         _currentReloadTime = _reloadingTime;
         _reloadingTimeUIText = new Paragraph(GetReloadingText());
-        _reloadingTimeUI = new UI(new(screenCenter.X, screenCenter.Y), _reloadingTimeUIText);
+        _reloadingTimeUI = new UI(new(screenCenter.X, screenHeight - 240), _reloadingTimeUIText);
         _scene.AddUI(_reloadingTimeUI);
 
         Timer.Timeout(10, UpdateReloadingTimeText);
@@ -79,14 +80,9 @@ public class PlayerScreen
 
     private void OnPlayerHealthUpdated(float health)
     {
-        // Calculate the width of the health bar based on the player's health percentage
-        float healthPercentage = health / 100f; // Calculate health percentage
-        int newHealthBarWidth = (int)(_healthBarWidth * healthPercentage); // Calculate new width
-
-        // Ensure the width does not go below 0
+        float healthPercentage = health / 100f;
+        int newHealthBarWidth = (int)(_healthBarWidth * healthPercentage);
         newHealthBarWidth = Math.Max(0, newHealthBarWidth);
-
-        // Update the health bar width
         _healthBar.Width = newHealthBarWidth;
     }
 
