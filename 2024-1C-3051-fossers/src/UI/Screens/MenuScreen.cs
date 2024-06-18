@@ -61,7 +61,7 @@ public class MenuScreen
             _scene.AddUI(exitMenu);
         });
 
-        UI controlsBg = new UI(screenCenter, 500, 400, new Image("UI/primary-btn"));
+        UI controlsBg = new(screenCenter, 500, 400, new Image("UI/primary-btn"));
 
         UI headerControls = new(new Vector2(screenCenter.X, 100), new Header("Tank Controls"));
 

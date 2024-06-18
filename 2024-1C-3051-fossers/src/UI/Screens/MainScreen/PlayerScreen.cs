@@ -36,7 +36,7 @@ public class PlayerScreen
         _healthBar = new(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-fill"));
 
         _dmgText = new Paragraph(GetDmgText(0));
-        UI dmg = new UI(new(screenCenter.X, screenHeight - 120), _dmgText);
+        UI dmg = new(new(screenCenter.X, screenHeight - 120), _dmgText);
 
         // add ui elements
         _scene.AddUI(healthBarBG);
@@ -58,7 +58,7 @@ public class PlayerScreen
         _currentReloadTime -= 10 / 1000f;
         if (_currentReloadTime <= 0 && _scene.HasUI(_reloadingTimeUI))
         {
-            _scene.RemoveUI(_reloadingTimeUI);
+            _reloadingTimeUI?.Destroy();
             return;
         }
         _reloadingTimeUIText.Text = GetReloadingText();
@@ -68,7 +68,7 @@ public class PlayerScreen
     private void OnPlayerStartedReloading(int reloadingTimeInMs)
     {
         int screenHeight = Screen.GetScreenHeight(_scene.GraphicsDeviceManager);
-        _scene.RemoveUI(_reloadingTimeUI);
+        _reloadingTimeUI?.Destroy();
         _reloadingTime = reloadingTimeInMs / 1000;
         _currentReloadTime = _reloadingTime;
         _reloadingTimeUIText = new Paragraph(GetReloadingText());

@@ -64,7 +64,7 @@ public class WaveProcessor : ISceneProcessor
         for (int i = 0; i < EnemiesLeft; i++)
         {
             Vector3 spawnPosition = VectorUtils.GetRandomVec3Pos(new(0, 100, 0), rand);
-            Enemy enemy = new Enemy(spawnPosition, WaveNumber * 5, this);
+            Enemy enemy = new(spawnPosition, WaveNumber * 5, this);
             _scene.AddGameObject(enemy);
         }
     }

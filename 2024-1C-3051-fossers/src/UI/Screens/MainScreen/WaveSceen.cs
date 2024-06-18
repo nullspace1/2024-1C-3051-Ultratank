@@ -21,10 +21,10 @@ public class WaveInfoScreen
     public void Initialize()
     {
         _waveText = new Paragraph(GetWaveText(0));
-        UI waveUI = new UI(new(75, 50), _waveText);
+        UI waveUI = new(new(75, 50), _waveText);
 
         _enemiesLeftText = new Paragraph(GetEnemiesLeftText(0));
-        UI enemiesLeftUI = new UI(new(125, 90), _enemiesLeftText);
+        UI enemiesLeftUI = new(new(125, 90), _enemiesLeftText);
 
         _scene.AddUI(waveUI);
         _scene.AddUI(enemiesLeftUI);

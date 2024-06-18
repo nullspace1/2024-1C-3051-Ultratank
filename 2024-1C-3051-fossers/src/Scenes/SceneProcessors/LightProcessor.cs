@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Entities;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 
 namespace WarSteel.Scenes.SceneProcessors;
@@ -33,7 +36,7 @@ class LightProcessor : ISceneProcessor
              _device.Viewport.Height,
              false, // Mipmap
              SurfaceFormat.Color, // Surface format for color rendering
-             DepthFormat.Depth24, // Depth buffer format
+             DepthFormat.Depth16, // Depth buffer format
              0, // Mip levels
              RenderTargetUsage.PlatformContents
          );
@@ -49,6 +52,10 @@ class LightProcessor : ISceneProcessor
         _textures.Clear();
         _lights.ForEach(l => _textures.Add(l, l.GetDepthMap(_device, scene)));
 
+        foreach (var light in _lights)
+        {
+            _textures[light] = light.GetDepthMap(_device, scene);
+        }
 
         _device.SetRenderTarget(auxRenderTarget);
 
@@ -60,7 +67,7 @@ class LightProcessor : ISceneProcessor
         {
             foreach (var l in _lights)
             {
-                o.Draw(scene, new LightRender(l, _textures[l],true));
+                o.Draw(scene, new LightRender(l, _textures[l], true));
             }
         }
 
@@ -72,7 +79,7 @@ class LightProcessor : ISceneProcessor
             {
 
 
-                o.Draw(scene, new LightRender(l, _textures[l],false));
+                o.Draw(scene, new LightRender(l, _textures[l], false));
 
             }
         }
@@ -92,12 +99,13 @@ class LightProcessor : ISceneProcessor
 
     public void AddLight(Light light)
     {
-        light.renderTarget = new RenderTarget2D(_device, 2048 * 2, 2048 * 2, false,
-                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+        light.renderTarget = new RenderTarget2D(_device, 2048, 2048, false,
+                SurfaceFormat.Single, DepthFormat.Depth16, 0, RenderTargetUsage.PlatformContents);
         _lights.Add(light);
     }
 
-    public void RemoveLight(Light light){
+    public void RemoveLight(Light light)
+    {
         light.renderTarget.Dispose();
         _lights.Remove(light);
     }
@@ -154,12 +162,7 @@ public class Light
 
     public Matrix GetDownViewProjection()
     {
-        return Transform.GetLookAt(Vector3.Zero) * Projection;
-    }
-
-    public Matrix GetTopViewProjection()
-    {
-        return Transform.GetLookAt(Vector3.Up) * Projection;
+        return Matrix.CreateLookAt(Transform.AbsolutePosition, Transform.AbsolutePosition - Vector3.Up, Vector3.UnitX) * Projection;
     }
 
 }

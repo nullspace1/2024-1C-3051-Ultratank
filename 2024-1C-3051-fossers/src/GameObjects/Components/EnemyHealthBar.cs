@@ -39,7 +39,7 @@ public class EnemyHealthBar : IComponent
         Vector3 screenPosition = GetEnemyScreenPos(absolutePos, scene);
         if (IsEnemyInView(scene, absolutePos, screenPosition))
         {
-            Vector2 offset = new Vector2(0, -20);
+            Vector2 offset = new(0, -20);
             Vector2 newPosition = new Vector2(screenPosition.X, screenPosition.Y) + offset;
             _healthBar.SetPosition(newPosition);
             _healthBar.SetVisibility(true);

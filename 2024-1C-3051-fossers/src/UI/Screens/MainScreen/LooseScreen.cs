@@ -28,7 +28,7 @@ public class LooseScreen
             return new Vector2(screenCenter.X, screenCenter.Y - 2 * margin + margin * pos);
         }
 
-        UI bg = new UI(screenCenter, 500, 350, new Image("UI/primary-btn"));
+        UI bg = new(screenCenter, 500, 350, new Image("UI/primary-btn"));
 
         UI header = new(new Vector2(screenCenter.X, 100), new Header("You died"));
 

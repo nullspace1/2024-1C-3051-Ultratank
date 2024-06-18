@@ -39,12 +39,12 @@ public class MainScene : Scene
         GameObjectRenderer skyboxRenderer = new SkyBoxShader(skyboxTexture);
         GameObject skybox = new(new string[] { "skybox" }, new Transform(), model, skyboxRenderer);
 
-        AddSceneProcessor(new LightProcessor(GraphicsDeviceManager.GraphicsDevice));
+        var processor = new LightProcessor(GraphicsDeviceManager.GraphicsDevice);
+        processor.AddLight(new Light(new Vector3(0, 1000, 0), Color.White));
+        AddSceneProcessor(processor);
         AddSceneProcessor(new PhysicsProcessor());
         AddSceneProcessor(new GizmosProcessor());
         AddSceneProcessor(new SkyBoxProcessor(skybox));
-
-        GetSceneProcessor<LightProcessor>().AddLight(new Light(new Vector3(0, 1000, 0), Color.White));
 
         Player player = factory.PlayerTank(new Vector3(0, 100, 0));
         PlayerScreen playerScreen = new(this);
@@ -54,8 +54,8 @@ public class MainScene : Scene
         AddGameObject(player);
         Random rand = new();
 
-        int numTress = 50;
-        int numBushes = 25;
+        int numTress = 10;
+        int numBushes = 3;
         int numRocks = 25;
 
         for (int i = 0; i < numBushes; i++)

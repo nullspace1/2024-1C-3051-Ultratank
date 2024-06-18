@@ -42,12 +42,17 @@ public class EnemyAI : IComponent
     {
         Enemy self = (Enemy)_self;
 
+
+
         if (self.isDead) return;
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         Vector3 directionToPlayer = _player.Transform.AbsolutePosition - self.Transform.AbsolutePosition;
         float distanceToPlayer = directionToPlayer.Length();
+        directionToPlayer.Normalize();
+
+        RotateTowardsPlayer(self, directionToPlayer);
 
         if (_canMove && distanceToPlayer > 0)
         {
@@ -55,9 +60,12 @@ public class EnemyAI : IComponent
 
             directionToPlayer.Normalize();
 
-            if (distanceToPlayer <= _chaseRange && distanceToPlayer >= _attackRange)
+      
+
+
+            if (distanceToPlayer <= _chaseRange && distanceToPlayer >= _attackRange && Vector3.Dot(self.Transform.Forward, _player.Transform.Forward) > 0.9)
             {
-                RotateTowardsPlayer(self, directionToPlayer);
+                  RotateTowardsPlayer(self, directionToPlayer);
                 RotateTurret(self, directionToPlayer);
                 Vector3 desiredVelocity = self.Transform.Forward * _speed;
                 Vector3 currentVelocity = _rb.Velocity;
@@ -66,7 +74,7 @@ public class EnemyAI : IComponent
                 if (force.Length() > _maxForce)
                 {
                     force.Normalize();
-                    force *= _maxForce;
+                    force *= -_maxForce;
                 }
 
                 _rb.ApplyForce(force);
@@ -97,7 +105,7 @@ public class EnemyAI : IComponent
 
     private GameObject CreateBullet(Enemy self, float damage)
     {
-        GameObject bullet = new GameObject(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(Color.Red));
+        GameObject bullet = new(new string[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Default(Color.Red));
         bullet.Transform.Position = _cannonTransform.AbsolutePosition - _cannonTransform.Forward * 500 + _cannonTransform.Up * 200;
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
@@ -121,9 +129,7 @@ public class EnemyAI : IComponent
 
     private void RotateTowardsPlayer(Enemy self, Vector3 direction)
     {
-        Vector3 tankForward = new Vector3(direction.X, 0, direction.Z);
-        Quaternion tankTargetRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, tankForward, Vector3.UnitY));
-        self.Transform.Orientation = Quaternion.Lerp(self.Transform.Orientation, tankTargetRotation, 0.1f);
+        self.GetComponent<DynamicBody>().ApplyTorque(self.Transform.Up * 500000 * Vector3.Dot(direction - self.Transform.Forward, self.Transform.Right));
     }
 
     public void Destroy(GameObject self, Scene scene) { }

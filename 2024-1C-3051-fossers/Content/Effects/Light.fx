@@ -55,9 +55,7 @@ output.LightSpacePos = mul(output.WorldPosition, DownLightViewProjection); // Tr
     return output;
 }
 
-float GetDepth(float depth){
-    return (depth - 0.1) / (10000 - 0.1);
-}
+
 
 float4 LightPS(in LightVertexShaderOutput input) : SV_TARGET
 {
@@ -78,7 +76,7 @@ float4 LightPS(in LightVertexShaderOutput input) : SV_TARGET
 
 
     float shadow = 0.0;
-    float2 texelSize = float2(1.0 / 4096, 1.0 / 4096);
+    float2 texelSize = float2(1.0 / 2048, 1.0 / 2048);
 
     for (int x = -1; x <= 1; ++x)
     {
