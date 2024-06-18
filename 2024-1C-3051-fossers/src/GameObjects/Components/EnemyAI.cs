@@ -92,6 +92,7 @@ public class EnemyAI : IComponent
 
         _isReloading = true;
         Timer.Timeout(_reloadingTimeInMs, () => _isReloading = false);
+        Timer.Timeout(_reloadingTimeInMs, () => bullet.Destroy());
     }
 
     private GameObject CreateBullet(Enemy self, float damage)
