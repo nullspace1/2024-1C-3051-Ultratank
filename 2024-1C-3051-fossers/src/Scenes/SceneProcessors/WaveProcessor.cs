@@ -79,4 +79,9 @@ public class WaveProcessor : ISceneProcessor
         EnemiesLeft--;
         EnemiesKilled++;
     }
+
+    public float GetScore()
+    {
+        return EnemiesKilled + WaveNumber;
+    }
 }

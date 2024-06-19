@@ -36,19 +36,19 @@ public class Player : GameObject
         _scene = scene;
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
-        Model.SetTransformToPart("Turret",turretTransform);
-        Model.SetTransformToPart("Cannon",cannonTransform);
+        Model.SetTransformToPart("Turret", turretTransform);
+        Model.SetTransformToPart("Cannon", cannonTransform);
 
         AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f));
         AddComponent(new PlayerControls(cannonTransform));
-        AddComponent(new TurretController(turretTransform, scene.GetCamera(), 3f));
+        AddComponent(new TurretController(turretTransform, scene.GetCamera(), 1f));
         AddComponent(new CannonController(cannonTransform, scene.GetCamera()));
     }
 
     public void OnDie()
     {
         WaveProcessor wave = _scene.GetSceneProcessor<WaveProcessor>();
-        new LooseScreen(_scene).Initialize(wave.EnemiesLeft, wave.WaveNumber, wave.EnemiesLeft + wave.WaveNumber);
+        new LooseScreen(_scene).Initialize(wave.EnemiesLeft, wave.WaveNumber, wave.GetScore());
         RemoveComponent<PlayerControls>();
         _scene.Camera.StopFollowing();
     }
