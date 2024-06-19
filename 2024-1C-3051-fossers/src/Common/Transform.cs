@@ -60,12 +60,12 @@ public class Transform
         Parent = null;
     }
 
-    public Transform(Transform transform, Vector3 pos)
+    public Transform(Transform parent, Vector3 pos)
     {
         Dimensions = Vector3.One;
         Position = pos;
         Orientation = Quaternion.Identity;
-        Parent = transform;
+        Parent = parent;
     }
 
     public void RotateEuler(Vector3 eulerAngles) => Orientation = Quaternion.CreateFromYawPitchRoll(
