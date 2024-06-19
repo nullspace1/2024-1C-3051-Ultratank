@@ -66,7 +66,7 @@ public class CannonController : IComponent
         Quaternion desiredWorldOrientation = cameraOrientation;
         Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(desiredWorldOrientation);
         Vector3 forward = Vector3.Transform(Vector3.Forward, localOrientation);
-        float pitch = MathHelper.Clamp(-(float)Math.Atan2(forward.Y, forward.Z) - 0.1f, -MathF.PI / 4, 0.1f);
+        float pitch = MathHelper.Clamp(-(float)Math.Atan2(forward.Y, forward.Z) - 0.1f, -MathF.PI / 4, -0.01f);
 
         Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
         _transform.Orientation = pitchRotation;
