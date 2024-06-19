@@ -128,7 +128,7 @@ public class WheelsController : IComponent
 
     private void CalculateRotationY(bool isRight)
     {
-        float angle = isRight ? _rotationSpeedY : -_rotationSpeedY;
+        float angle = isRight ? -_rotationSpeedY : _rotationSpeedY;
         float currentRotationAngle = _rotationAngle + angle;
 
         if (currentRotationAngle > _maxRotationAngleY)
