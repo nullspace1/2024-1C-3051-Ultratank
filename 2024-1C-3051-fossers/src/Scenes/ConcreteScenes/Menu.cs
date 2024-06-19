@@ -21,7 +21,8 @@ public class MenuScene : Scene
     {
         MenuScreen screen = new(this);
         AudioManager.Instance.AddSoundEffect(Audios.MENU_SONG, ContentRepoManager.Instance().GetSoundEffect("start-song"));
-        // AudioManager.Instance.PlaySound(Audios.MENU_SONG, true);
+        AudioManager.Instance.SetVolume(Audios.MENU_SONG, 0.5f);
+        AudioManager.Instance.PlaySound(Audios.MENU_SONG, true);
         screen.Initialize();
 
         Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);

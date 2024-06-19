@@ -28,8 +28,9 @@ public class MainScene : Scene
     {
         MapFactory factory = new(this);
         _pauseScreen = new(this);
-        AudioManager.Instance.AddSong(Audios.AMBIENT, ContentRepoManager.Instance().GetSong("ambient"));
-        AudioManager.Instance.PlaySong(Audios.AMBIENT);
+        AudioManager.Instance.AddSoundEffect(Audios.AMBIENT, ContentRepoManager.Instance().GetSoundEffect("ambient"));
+        AudioManager.Instance.SetVolume(Audios.AMBIENT, 0.05f);
+        AudioManager.Instance.PlaySound(Audios.AMBIENT, true);
 
         Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
         SetCamera(Camera);
