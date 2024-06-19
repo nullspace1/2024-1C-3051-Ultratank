@@ -24,7 +24,7 @@ public class Enemy : GameObject
     private float _damage;
     public float Damage { get => _damage; }
 
-    public Enemy(Vector3 pos, float damage, WaveProcessor wave) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"),new Default(Color.Red))
+    public Enemy(Vector3 pos, float damage, WaveProcessor wave) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new Default(Color.Red))
     {
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
@@ -33,8 +33,8 @@ public class Enemy : GameObject
         EnemyAI ai = new(turretTransform, cannonTransform);
         _healthBar = new();
 
-        Model.SetTransformToPart("Turret",turretTransform);
-        Model.SetTransformToPart("Cannon",cannonTransform);
+        Model.SetTransformToPart("Turret", turretTransform);
+        Model.SetTransformToPart("Cannon", cannonTransform);
         _damage = damage;
         _wave = wave;
 
