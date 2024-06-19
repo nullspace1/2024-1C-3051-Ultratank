@@ -18,6 +18,7 @@ public class EnemyAI : IComponent
     public int _reloadingTimeInMs = 3000;
     public float _bulletForce = 36000;
     private float _maxForce = 5000;
+    private GameObject _lastBullet;
 
     private Player _player;
 
@@ -60,12 +61,12 @@ public class EnemyAI : IComponent
 
             directionToPlayer.Normalize();
 
-      
+
 
 
             if (distanceToPlayer <= _chaseRange && distanceToPlayer >= _attackRange && Vector3.Dot(self.Transform.Forward, _player.Transform.Forward) > 0.9)
             {
-                  RotateTowardsPlayer(self, directionToPlayer);
+                RotateTowardsPlayer(self, directionToPlayer);
                 RotateTurret(self, directionToPlayer);
                 Vector3 desiredVelocity = self.Transform.Forward * _speed;
                 Vector3 currentVelocity = _rb.Velocity;
@@ -91,8 +92,9 @@ public class EnemyAI : IComponent
     public void Shoot(Scene scene, Enemy self)
     {
         if (_isReloading) return;
-
+        _lastBullet?.Destroy();
         GameObject bullet = CreateBullet(self, self.Damage);
+        _lastBullet = bullet;
         scene.AddGameObject(bullet);
 
         // Apply force to the bullet in the direction towards the player
@@ -100,7 +102,6 @@ public class EnemyAI : IComponent
 
         _isReloading = true;
         Timer.Timeout(_reloadingTimeInMs, () => _isReloading = false);
-        Timer.Timeout(_reloadingTimeInMs, () => bullet.Destroy());
     }
 
     private GameObject CreateBullet(Enemy self, float damage)

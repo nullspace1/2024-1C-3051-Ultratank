@@ -15,6 +15,7 @@ public class PlayerControls : IComponent
     float BulletForce = 36000;
     bool IsReloading = false;
     int ReloadingTimeInMs = 1000;
+    private GameObject _lastBullet;
 
     Transform _tankCannon;
 
@@ -52,8 +53,9 @@ public class PlayerControls : IComponent
     public void Shoot(GameObject self, Scene scene)
     {
         if (IsReloading) return;
-
+        _lastBullet?.Destroy();
         GameObject bullet = CreateBullet((Player)self);
+        _lastBullet = bullet;
         AudioManager.Instance.PlaySound(Audios.SHOOT);
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_tankCannon.Forward * BulletForce);
@@ -76,7 +78,6 @@ public class PlayerControls : IComponent
         bullet.AddComponent(new LightComponent(Color.White));
         bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
         bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200;
-        Timer.Timeout(ReloadingTimeInMs, () => bullet.Destroy());
         return bullet;
     }
 
