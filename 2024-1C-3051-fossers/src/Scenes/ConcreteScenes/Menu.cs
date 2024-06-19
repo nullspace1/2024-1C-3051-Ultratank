@@ -29,7 +29,7 @@ public class MenuScene : Scene
 
         MapFactory factory = new(this);
         Model model = ContentRepoManager.Instance().GetModel("SkyBox/cube");
-        TextureCube skyboxTexture = ContentRepoManager.Instance().GetTextureCube("sun-in-space");
+        TextureCube skyboxTexture = ContentRepoManager.Instance().GetTextureCube("skybox");
         GameObjectRenderer skyboxRenderer = new SkyBoxShader(skyboxTexture);
         GameObject skybox = new(new string[] { "skybox" }, new Transform(), model, skyboxRenderer);
 
