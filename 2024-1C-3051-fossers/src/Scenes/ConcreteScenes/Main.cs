@@ -26,7 +26,7 @@ public class MainScene : Scene
 
     public override void Initialize()
     {
-        MainSceneFactory factory = new(this);
+        MapFactory factory = new(this);
         _pauseScreen = new(this);
         AudioManager.Instance.AddSong(Audios.AMBIENT, ContentRepoManager.Instance().GetSong("ambient"));
         AudioManager.Instance.PlaySong(Audios.AMBIENT);
@@ -54,8 +54,8 @@ public class MainScene : Scene
         AddGameObject(player);
         Random rand = new();
 
-        int numTress = 10;
-        int numBushes = 3;
+        int numTress = 50;
+        int numBushes = 50;
         int numRocks = 25;
 
         for (int i = 0; i < numBushes; i++)
@@ -68,8 +68,6 @@ public class MainScene : Scene
         new WaveInfoScreen(this).Initialize();
         AddSceneProcessor(new WaveProcessor(player));
         Camera.Follow(player);
-
-
     }
 
     public override void Update(GameTime time)

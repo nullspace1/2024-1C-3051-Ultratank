@@ -11,13 +11,13 @@ using WarSteel.Scenes.Main;
 using WarSteel.Utils;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-class MainSceneFactory
+class MapFactory
 {
 
     private Scene _scene;
     private string GROUND = "ground";
 
-    public MainSceneFactory(Scene scene)
+    public MapFactory(Scene scene)
     {
         _scene = scene;
     }
