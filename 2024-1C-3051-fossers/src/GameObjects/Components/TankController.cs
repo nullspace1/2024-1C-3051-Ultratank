@@ -71,5 +71,95 @@ public class CannonController : IComponent
         Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
         _transform.Orientation = pitchRotation;
     }
+}
 
+public class WheelsController : IComponent
+{
+    private Transform[] _transforms;
+    private float _rotationAngle;
+    private float _rotationSpeedY = 0.5f;
+    private float _maxRotationAngleY = 10f;
+
+    public Transform WheelTransform { get => _transforms[0]; }
+
+    public bool IsMovingForwards = false;
+    public bool IsMovingBackwards = false;
+    public bool IsRotatingLeft = false;
+    public bool IsRotatingRight = false;
+
+    public float Angle { get => _rotationAngle; }
+
+    public WheelsController(ObjectModel tankModel, Transform tankTransform)
+    {
+        int numWheels = 20;
+        _transforms = new Transform[numWheels];
+        _rotationAngle = 0;
+
+        for (int i = 0; i < numWheels; i++)
+        {
+            _transforms[i] = new Transform(tankTransform, Vector3.Zero);
+            tankModel.SetTransformToPart("Wheel" + (i + 1), _transforms[i]);
+        }
+    }
+
+    public void OnStart(GameObject self, Scene scene)
+    {
+    }
+
+    public void RotateRight()
+    {
+        CalculateRotationY(true);
+    }
+
+    public void RotateLeft()
+    {
+        CalculateRotationY(false);
+    }
+
+    public void RotateForwards()
+    {
+        CalculateRotationX(true);
+    }
+
+    public void RotateBackwards()
+    {
+        CalculateRotationX(false);
+    }
+
+    private void CalculateRotationY(bool isRight)
+    {
+        float angle = isRight ? _rotationSpeedY : -_rotationSpeedY;
+        float currentRotationAngle = _rotationAngle + angle;
+
+        if (currentRotationAngle > _maxRotationAngleY)
+        {
+            currentRotationAngle = _maxRotationAngleY;
+        }
+        else if (currentRotationAngle < -_maxRotationAngleY)
+        {
+            currentRotationAngle = -_maxRotationAngleY;
+        }
+
+        float toRotate = currentRotationAngle - _rotationAngle;
+        _rotationAngle = currentRotationAngle;
+
+        foreach (Transform wheelTransform in _transforms)
+        {
+            wheelTransform.RotateEuler(wheelTransform.Up * toRotate);
+        }
+    }
+
+    private void CalculateRotationX(bool isForwards)
+    {
+        foreach (Transform wheelTransform in _transforms)
+        {
+            // wheelTransform.RotateEuler(wheelTransform.Right * rotationDelta);
+        }
+    }
+
+    public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
+    {
+    }
+
+    public void Destroy(GameObject self, Scene scene) { }
 }

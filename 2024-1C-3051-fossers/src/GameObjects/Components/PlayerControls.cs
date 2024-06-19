@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -16,6 +15,7 @@ public class PlayerControls : IComponent
     bool IsReloading = false;
     int ReloadingTimeInMs = 1000;
     private GameObject _lastBullet;
+    private WheelsController _wheelsController;
 
     Transform _tankCannon;
 
@@ -25,25 +25,43 @@ public class PlayerControls : IComponent
         AudioManager.Instance.AddSoundEffect(Audios.SHOOT, ContentRepoManager.Instance().GetSoundEffect("tank-shot"));
     }
 
+
+    public void OnStart(GameObject self, Scene scene)
+    {
+        rb = self.GetComponent<DynamicBody>();
+        _wheelsController = self.GetComponent<WheelsController>();
+    }
+
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {
+        Transform wheel = _wheelsController.WheelTransform;
+        bool isMoving = false;
+
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
-            // model is reversed
-            rb.ApplyForce(self.Transform.Backward * 2 * 2000);
+            isMoving = true;
+            _wheelsController.RotateForwards();
+            rb.ApplyForce(wheel.Backward * 2 * 2000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
-            rb.ApplyForce(self.Transform.Forward * 2 * 2000);
+
+            isMoving = true;
+            _wheelsController.RotateBackwards();
+            rb.ApplyForce(wheel.Forward * 2 * 2000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
-            rb.ApplyTorque(self.Transform.Up * 15 * 32050f);
+            _wheelsController.RotateLeft();
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
-            rb.ApplyTorque(self.Transform.Down * 15 * 32050f);
+            _wheelsController.RotateRight();
         }
+
+        if (isMoving)
+            rb.ApplyTorque(self.Transform.Up * _wheelsController.Angle * 2 * 20050f);
+
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
             Shoot(self, scene);
@@ -77,13 +95,8 @@ public class PlayerControls : IComponent
         }), Vector3.Zero, 5, 0, 0));
         bullet.AddComponent(new LightComponent(Color.White));
         bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
-        bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200;
+        bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 1000 + _tankCannon.Up * 200;
         return bullet;
-    }
-
-    public void OnStart(GameObject self, Scene scene)
-    {
-        rb = self.GetComponent<DynamicBody>();
     }
 
     public void Destroy(GameObject self, Scene scene) { }

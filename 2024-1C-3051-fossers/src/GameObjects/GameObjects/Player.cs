@@ -40,9 +40,10 @@ public class Player : GameObject
         Model.SetTransformToPart("Cannon", cannonTransform);
 
         AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f));
-        AddComponent(new PlayerControls(cannonTransform));
-        AddComponent(new TurretController(turretTransform, scene.GetCamera(), 1f));
+        AddComponent(new TurretController(turretTransform, scene.GetCamera(), 3f));
         AddComponent(new CannonController(cannonTransform, scene.GetCamera()));
+        AddComponent(new PlayerControls(cannonTransform));
+        AddComponent(new WheelsController(Model, Transform));
     }
 
     public void OnDie()
