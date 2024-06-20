@@ -31,7 +31,7 @@ public class PhysicsProcessor : ISceneProcessor
 
     }
 
-    public void Draw(Scene scene) {}
+    public void Draw(Scene scene) { }
 
     public void Initialize(Scene scene)
     {
@@ -195,11 +195,28 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
         RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);
         RigidBody B = _processor.GetRigidBodyFromCollision(pair.B);
-        A.Collider.OnCollide(new Collision(B.Entity));
-        B.Collider.OnCollide(new Collision(A.Entity));
 
+        ExtractAndNotifyContactPoints(ref manifold, A, B);
 
         return true;
+    }
+
+    private void ExtractAndNotifyContactPoints<TManifold>(ref TManifold manifold, RigidBody A, RigidBody B) where TManifold : unmanaged, IContactManifold<TManifold>
+    {
+        for (int i = 0; i < manifold.Count; i++)
+        {
+            Vector3 offset, normal;
+            float depth;
+            int featureId;
+            manifold.GetContact(i, out offset, out normal, out depth, out featureId);
+
+            Microsoft.Xna.Framework.Vector3 xnaOffset = new Microsoft.Xna.Framework.Vector3(offset.X, offset.Y, offset.Z);
+            Microsoft.Xna.Framework.Vector3 contactPositionA = A.Transform.LocalToWorldPosition(xnaOffset);
+            Microsoft.Xna.Framework.Vector3 contactPositionB = B.Transform.LocalToWorldPosition(xnaOffset);
+
+            A.Collider.OnCollide(new Collision(B.Entity, contactPositionA));
+            B.Collider.OnCollide(new Collision(A.Entity, contactPositionB));
+        }
     }
 
     public bool ConfigureContactManifold(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB, ref ConvexContactManifold manifold)
