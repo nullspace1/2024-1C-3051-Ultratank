@@ -51,6 +51,8 @@ public class AudioManager
 
     public void PlaySound(Audios name, bool isLoop = false)
     {
+        if (!Constants.PLAY_SOUND)
+            return;
         if (_soundEffects.ContainsKey(name))
         {
             _soundEffects[name].IsLooped = isLoop;
@@ -60,6 +62,9 @@ public class AudioManager
 
     public void PlaySong(Audios name)
     {
+        if (!Constants.PLAY_SOUND)
+            return;
+
         if (_songs.ContainsKey(name))
         {
             MediaPlayer.Play(_songs[name]);
@@ -80,6 +85,9 @@ public class AudioManager
 
     public void StopSound(Audios name)
     {
+        if (!Constants.PLAY_SOUND)
+            return;
+
         if (_soundEffects.ContainsKey(name))
         {
             _soundEffects[name].Stop();
