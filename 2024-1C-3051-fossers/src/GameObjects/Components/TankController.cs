@@ -78,7 +78,7 @@ public class WheelsController : IComponent
     private Transform[] _transforms;
     private float _rotationAngle;
     private float _rotationSpeedY = 0.5f;
-    private float _maxRotationAngleY = 10f;
+    private const float _maxRotationAngleY = 10f;
 
     public Transform WheelTransform { get => _transforms[0]; }
 
@@ -126,18 +126,28 @@ public class WheelsController : IComponent
         CalculateRotationX(false);
     }
 
-    private void CalculateRotationY(bool isRight)
+    public void ResetWheels()
+    {
+        if (_rotationAngle == 0) return;
+
+        if (_rotationAngle < 0)
+            CalculateRotationY(false, 0);
+        else
+            CalculateRotationY(true, 0);
+    }
+
+    private void CalculateRotationY(bool isRight, float maxRotationAngle = _maxRotationAngleY)
     {
         float angle = isRight ? -_rotationSpeedY : _rotationSpeedY;
         float currentRotationAngle = _rotationAngle + angle;
 
-        if (currentRotationAngle > _maxRotationAngleY)
+        if (!isRight && currentRotationAngle > maxRotationAngle)
         {
-            currentRotationAngle = _maxRotationAngleY;
+            currentRotationAngle = maxRotationAngle;
         }
-        else if (currentRotationAngle < -_maxRotationAngleY)
+        else if (isRight && currentRotationAngle < -maxRotationAngle)
         {
-            currentRotationAngle = -_maxRotationAngleY;
+            currentRotationAngle = -maxRotationAngle;
         }
 
         float toRotate = currentRotationAngle - _rotationAngle;

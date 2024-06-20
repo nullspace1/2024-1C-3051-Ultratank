@@ -38,6 +38,7 @@ public class PlayerControls : IComponent
     {
         Transform wheel = _wheelsController.WheelTransform;
         bool isMoving = false;
+        bool isRotating = false;
 
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
@@ -47,22 +48,25 @@ public class PlayerControls : IComponent
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
-
             isMoving = true;
             _wheelsController.RotateBackwards();
             rb.ApplyForce(Vector3.Normalize(wheel.Forward) * _forwardForce);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
+            isRotating = true;
             _wheelsController.RotateLeft();
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
+            isRotating = true;
             _wheelsController.RotateRight();
         }
 
         if (isMoving)
             rb.ApplyTorque(Vector3.Normalize(self.Transform.Up) * _wheelsController.Angle * _torqueForce);
+        if (!isRotating)
+            _wheelsController.ResetWheels();
 
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
