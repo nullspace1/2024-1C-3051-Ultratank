@@ -93,6 +93,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/Default.fx
 
+#begin Effects/Dent.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Dent.fx
+
 #begin Effects/Gizmos.fx
 /importer:EffectImporter
 /processor:EffectProcessor

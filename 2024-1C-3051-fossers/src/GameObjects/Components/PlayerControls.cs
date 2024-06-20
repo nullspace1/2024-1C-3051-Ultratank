@@ -91,7 +91,9 @@ public class PlayerControls : IComponent
         {
             if (c.Entity.HasTag("enemy"))
             {
-                ((Enemy)c.Entity).Health -= self.Damage;
+                Enemy enemy = (Enemy)c.Entity;
+                enemy.Health -= self.Damage;
+                enemy.AddImpact(c.ImpactPoint);
                 bullet.Destroy();
             }
         }), Vector3.Zero, 5, 0, 0));

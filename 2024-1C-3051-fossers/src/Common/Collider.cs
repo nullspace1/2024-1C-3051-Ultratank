@@ -15,10 +15,12 @@ using WarSteel.Managers.Gizmos;
 public class Collision
 {
     public GameObject Entity;
+    public Vector3 ImpactPoint;
 
-    public Collision(GameObject entity)
+    public Collision(GameObject entity, Vector3 impactPoint)
     {
         Entity = entity;
+        ImpactPoint = impactPoint;
     }
 }
 

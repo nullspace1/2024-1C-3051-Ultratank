@@ -13,7 +13,7 @@ public class GameObject
     private Dictionary<Type, IComponent> _components = new();
     public Transform Transform { get; }
     public ObjectModel Model { get; set; }
-    private GameObjectRenderer _defaultRenderer;
+    protected GameObjectRenderer _defaultRenderer;
 
     private string[] _tags { get; }
     private bool _toDestroy = false;

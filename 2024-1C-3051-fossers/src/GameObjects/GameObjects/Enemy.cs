@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -8,6 +9,7 @@ public class Enemy : GameObject
 {
     private EnemyHealthBar _healthBar;
     private WaveProcessor _wave;
+    private List<Vector3> _impacts;
 
     public bool isDead = false;
     private float _health = 100;
@@ -24,8 +26,10 @@ public class Enemy : GameObject
     private float _damage;
     public float Damage { get => _damage; }
 
-    public Enemy(Vector3 pos, float damage, WaveProcessor wave) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new Default(Color.Red))
+    public Enemy(Vector3 pos, float damage, WaveProcessor wave) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), null)
     {
+        _impacts = new List<Vector3>();
+        _defaultRenderer = new Dent(Color.Red, _impacts);
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
 
@@ -45,6 +49,13 @@ public class Enemy : GameObject
         AddComponent(_healthBar);
     }
 
+    public void AddImpact(Vector3 impact)
+    {
+        if (_impacts.Count <= 5)
+        {
+            _impacts.Add(impact);
+        }
+    }
 
     private void OnDie()
     {
