@@ -47,12 +47,12 @@ public abstract class RigidBody : IComponent
         self.Transform.Parent = _transform;
         self.Transform.Position = -Offset;
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
-        processor.AddBody(this);
+        processor?.AddBody(this);
     }
 
     public virtual void LoadContent(GameObject self) { }
 
-    public virtual void OnUpdate(GameObject self, GameTime gameTime, Scene scene){}
+    public virtual void OnUpdate(GameObject self, GameTime gameTime, Scene scene) { }
 
     public virtual void DrawGizmos(Gizmos gizmos)
     {
@@ -187,9 +187,9 @@ public class DynamicBody : RigidBody
 
             new BodyActivityDescription(1000f)
         );
-        
-        bodyDescription.Velocity.Linear = new(_velocity.X,_velocity.Y,_velocity.Z);
-        bodyDescription.Velocity.Angular = new(_angularVelocity.X,_angularVelocity.Y,_angularVelocity.Z);
+
+        bodyDescription.Velocity.Linear = new(_velocity.X, _velocity.Y, _velocity.Z);
+        bodyDescription.Velocity.Angular = new(_angularVelocity.X, _angularVelocity.Y, _angularVelocity.Z);
 
         processor.AddDynamic(this, bodyDescription);
     }
@@ -198,7 +198,7 @@ public class DynamicBody : RigidBody
     {
         processor.RemoveDynamicBody(this);
     }
-    
+
 }
 
 

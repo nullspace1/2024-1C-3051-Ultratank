@@ -16,6 +16,8 @@ public class PlayerControls : IComponent
     int ReloadingTimeInMs = 1000;
     private GameObject _lastBullet;
     private WheelsController _wheelsController;
+    private float _forwardForce = 100000f;
+    private float _torqueForce = 1000000f;
 
     Transform _tankCannon;
 
@@ -41,14 +43,14 @@ public class PlayerControls : IComponent
         {
             isMoving = true;
             _wheelsController.RotateForwards();
-            rb.ApplyForce(wheel.Backward * 2 * 2000);
+            rb.ApplyForce(Vector3.Normalize(wheel.Backward) * _forwardForce);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
 
             isMoving = true;
             _wheelsController.RotateBackwards();
-            rb.ApplyForce(wheel.Forward * 2 * 2000);
+            rb.ApplyForce(Vector3.Normalize(wheel.Forward) * _forwardForce);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
@@ -60,7 +62,7 @@ public class PlayerControls : IComponent
         }
 
         if (isMoving)
-            rb.ApplyTorque(self.Transform.Up * _wheelsController.Angle * 2 * 20050f);
+            rb.ApplyTorque(Vector3.Normalize(self.Transform.Up) * _wheelsController.Angle * _torqueForce);
 
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {

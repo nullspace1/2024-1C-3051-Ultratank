@@ -29,7 +29,7 @@ public class Enemy : GameObject
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
 
-        RigidBody rb = new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f);
+        RigidBody rb = new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 2f);
         EnemyAI ai = new(turretTransform, cannonTransform);
         _healthBar = new();
 

@@ -33,7 +33,8 @@ public class GameObject
         _components.Add(c.GetType(), c);
     }
 
-    public void RemoveComponent<T>() where T: class, IComponent{
+    public void RemoveComponent<T>() where T : class, IComponent
+    {
         _components.Remove(typeof(T));
     }
 
@@ -58,7 +59,7 @@ public class GameObject
     public void Draw(Scene scene, GameObjectRenderer renderer = null)
     {
         GameObjectRenderer activeRenderer = renderer ?? _defaultRenderer;
-        activeRenderer.Draw(this,scene);
+        activeRenderer.Draw(this, scene);
     }
 
     public void Update(Scene scene, GameTime gameTime)
@@ -68,7 +69,7 @@ public class GameObject
             m.OnUpdate(this, gameTime, scene);
         }
     }
-    
+
     public void OnDestroy(Scene scene)
     {
         foreach (var m in _components.Values)
@@ -77,8 +78,10 @@ public class GameObject
         }
     }
 
-    public bool HasTag(string tag){
-        foreach(var t in _tags){
+    public bool HasTag(string tag)
+    {
+        foreach (var t in _tags)
+        {
             if (t == tag) return true;
         }
         return false;
