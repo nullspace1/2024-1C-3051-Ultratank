@@ -39,11 +39,9 @@ public class MainScene : Scene
         GameObjectRenderer skyboxRenderer = new SkyBoxShader(skyboxTexture);
         GameObject skybox = new(new string[] { "skybox" }, new Transform(), model, skyboxRenderer);
 
-        var processor = new LightProcessor(GraphicsDeviceManager.GraphicsDevice);
-        processor.AddLight(new Light(new Vector3(0, 1000, 0), Color.White));
+        var processor = new LightProcessor(GraphicsDeviceManager.GraphicsDevice,Color.Red,new Vector3(0,0.5f,0.5f));
         AddSceneProcessor(processor);
         AddSceneProcessor(new PhysicsProcessor());
-        AddSceneProcessor(new GizmosProcessor());
         AddSceneProcessor(new SkyBoxProcessor(skybox));
 
         Player player = factory.PlayerTank(new Vector3(0, 100, 0));

@@ -30,6 +30,7 @@ public class Default : GameObjectRenderer
     public override void Draw(GameObject gameObject, Scene scene)
     {
 
+        LightProcessor lightProcessor = scene.GetSceneProcessor<LightProcessor>();
 
         foreach (var m in gameObject.Model.GetMeshes())
         {
@@ -38,8 +39,18 @@ public class Default : GameObjectRenderer
 
                 p.Effect = _effect;
             }
+
             Matrix world = gameObject.Model.GetPartTransform(m, gameObject.Transform);
             _effect.Parameters["WorldViewProjection"].SetValue(world * scene.Camera.View * scene.Camera.Projection);
+            _effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
+             _effect.Parameters["WorldLightViewProjection"].SetValue(world * lightProcessor.LightViewProjection);
+             _effect.Parameters["LightDirection"].SetValue(lightProcessor.LightDirection);
+            _effect.Parameters["ShadowDepth"].SetValue(lightProcessor.ShadowMapRenderTarget);
+             _effect.Parameters["TextureSize"].SetValue(lightProcessor.ShadowMapSize);
+            _effect.Parameters["DiffuseCoefficient"].SetValue(1f);
+            // _effect.Parameters["NearPlaneDistance"].SetValue(lightProcessor.NearPlaneDistance);
+            _effect.Parameters["FarPlaneDistance"].SetValue(lightProcessor.FarPlaneDistance);
+            
             if (_texture == null)
             {
                 _effect.Parameters["Color"].SetValue(_color.ToVector3());
@@ -50,6 +61,7 @@ public class Default : GameObjectRenderer
                 _effect.Parameters["Texture"].SetValue(_texture);
                 _effect.Parameters["HasTexture"].SetValue(true);
             }
+
             m.Draw();
         }
 

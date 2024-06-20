@@ -73,7 +73,7 @@ public class PlayerControls : IComponent
                 bullet.Destroy();
             }
         }), Vector3.Zero, 5, 0, 0));
-        bullet.AddComponent(new LightComponent(Color.White));
+        bullet.AddComponent(new LightComponent(Color.Blue));
         bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
         bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200;
         Timer.Timeout(ReloadingTimeInMs, () => bullet.Destroy());

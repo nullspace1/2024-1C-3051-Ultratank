@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,6 +13,14 @@ public class ContentRepoManager
     private const string ContentFolderAudio = "Audio/";
     private const string ContentFolderSpriteFonts = "SpriteFonts/";
     private const string ContentFolderTextures = "Textures/";
+
+    private Dictionary<string, Model> modelCache = new Dictionary<string, Model>();
+    private Dictionary<string, Effect> effectCache = new Dictionary<string, Effect>();
+    private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
+    private Dictionary<string, TextureCube> textureCubeCache = new Dictionary<string, TextureCube>();
+    private Dictionary<string, SpriteFont> spriteFontCache = new Dictionary<string, SpriteFont>();
+    private Dictionary<string, SoundEffect> soundEffectCache = new Dictionary<string, SoundEffect>();
+    private Dictionary<string, Song> songCache = new Dictionary<string, Song>();
 
     private ContentManager _manager;
 
@@ -34,36 +43,71 @@ public class ContentRepoManager
 
     public Effect GetEffect(string effect)
     {
-        return _manager.Load<Effect>(ContentFolderEffects + effect);
+        if (!effectCache.TryGetValue(effect, out var loadedEffect))
+        {
+            loadedEffect = _manager.Load<Effect>(ContentFolderEffects + effect);
+            effectCache[effect] = loadedEffect;
+        }
+        return loadedEffect;
     }
 
     public Model GetModel(string model)
     {
-        return _manager.Load<Model>(ContentFolder3D + model);
+        if (!modelCache.TryGetValue(model, out var loadedModel))
+        {
+            loadedModel = _manager.Load<Model>(ContentFolder3D + model);
+            modelCache[model] = loadedModel;
+        }
+        return loadedModel;
     }
 
     public Texture2D GetTexture(string texture)
     {
-        return _manager.Load<Texture2D>(ContentFolderTextures + texture);
+        if (!textureCache.TryGetValue(texture, out var loadedTexture))
+        {
+            loadedTexture = _manager.Load<Texture2D>(ContentFolderTextures + texture);
+            textureCache[texture] = loadedTexture;
+        }
+        return loadedTexture;
     }
 
     public TextureCube GetTextureCube(string texture)
     {
-        return _manager.Load<TextureCube>(ContentFolderTextures + texture);
+        if (!textureCubeCache.TryGetValue(texture, out var loadedTextureCube))
+        {
+            loadedTextureCube = _manager.Load<TextureCube>(ContentFolderTextures + texture);
+            textureCubeCache[texture] = loadedTextureCube;
+        }
+        return loadedTextureCube;
     }
 
     public SpriteFont GetSpriteFont(string font)
     {
-        return _manager.Load<SpriteFont>(ContentFolderSpriteFonts + font);
+        if (!spriteFontCache.TryGetValue(font, out var loadedSpriteFont))
+        {
+            loadedSpriteFont = _manager.Load<SpriteFont>(ContentFolderSpriteFonts + font);
+            spriteFontCache[font] = loadedSpriteFont;
+        }
+        return loadedSpriteFont;
     }
 
     public SoundEffect GetSoundEffect(string audio)
     {
-        return _manager.Load<SoundEffect>(ContentFolderAudio + audio);
+        if (!soundEffectCache.TryGetValue(audio, out var loadedSoundEffect))
+        {
+            loadedSoundEffect = _manager.Load<SoundEffect>(ContentFolderAudio + audio);
+            soundEffectCache[audio] = loadedSoundEffect;
+        }
+        return loadedSoundEffect;
     }
 
     public Song GetSong(string song)
     {
-        return _manager.Load<Song>(ContentFolderAudio + song);
+        if (!songCache.TryGetValue(song, out var loadedSong))
+        {
+            loadedSong = _manager.Load<Song>(ContentFolderAudio + song);
+            songCache[song] = loadedSong;
+        }
+        return loadedSong;
     }
 }

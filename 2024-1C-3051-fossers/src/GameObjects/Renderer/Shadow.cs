@@ -13,11 +13,16 @@ public class Shadow : GameObjectRenderer
 
 
     private Matrix _viewProjection;
-    private Vector3 _mask;
-    public Shadow(Matrix viewProjection,Vector3 mask) : base(ContentRepoManager.Instance().GetEffect("ShadowMap"))
+    private float _nearPlaneDistance = 1;
+
+    private float _farPlaneDistance = 1;
+
+
+    public Shadow(Matrix viewProjection, float nearPlaneDistance, float farPlaneDistance) : base(ContentRepoManager.Instance().GetEffect("ShadowMap"))
     {
         _viewProjection = viewProjection;
-        _mask = mask;
+        _nearPlaneDistance = nearPlaneDistance;
+        _farPlaneDistance = farPlaneDistance;
     }
 
 
@@ -31,8 +36,10 @@ public class Shadow : GameObjectRenderer
                 part.Effect = _effect;
             }
             _effect.Parameters["WorldViewProjection"].SetValue(gameObject.Model.GetPartTransform(modelMesh,gameObject.Transform) * _viewProjection);
-            // _effect.Parameters["Mask"].SetValue(_mask);
+            _effect.Parameters["FarPlaneDistance"].SetValue(_farPlaneDistance);
+            // _effect.Parameters["NearPlaneDistance"].SetValue(_nearPlaneDistance);
             modelMesh.Draw();
         }
+
     }
 }

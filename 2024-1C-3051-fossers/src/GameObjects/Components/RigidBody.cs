@@ -11,7 +11,6 @@ namespace WarSteel.Entities;
 public abstract class RigidBody : IComponent
 {
     private Transform _transform;
-
     private GameObject _entity;
     protected Collider _collider;
     public Vector3 Offset;
@@ -40,23 +39,20 @@ public abstract class RigidBody : IComponent
     public virtual void OnStart(GameObject self, Scene scene)
     {
         _entity = self;
-        _transform = new Transform
-        {
-            Position = self.Transform.LocalToWorldPosition(Offset)
-        };
-        self.Transform.Parent = _transform;
-        self.Transform.Position = -Offset;
+        _transform = self.Transform;
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
         processor.AddBody(this);
     }
 
     public virtual void LoadContent(GameObject self) { }
 
-    public virtual void OnUpdate(GameObject self, GameTime gameTime, Scene scene){}
+    public virtual void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
+    {
+    }
 
     public virtual void DrawGizmos(Gizmos gizmos)
     {
-        _collider.ColliderShape.DrawGizmos(_transform.Position, gizmos);
+        _collider.ColliderShape.DrawGizmos(_transform.Position + Vector3.Transform(Offset,Matrix.CreateFromQuaternion(Transform.Orientation)), gizmos);
     }
 
     public void Destroy(GameObject self, Scene scene)
@@ -73,19 +69,20 @@ public abstract class RigidBody : IComponent
 
 public class StaticBody : RigidBody
 {
+
+    public StaticHandle Handle;
     public StaticBody(Collider collider, Vector3 offset) : base(collider, offset) { }
 
     public override void Build(PhysicsProcessor processor)
     {
         TypedIndex index = processor.AddShape(_collider);
-        Vector3 position = Transform.Position;
+        Vector3 position = Transform.Position + Offset;
         StaticDescription staticDescription = new(
             new System.Numerics.Vector3(position.X, position.Y, position.Z),
             index
         );
         processor.AddStatic(this, staticDescription);
     }
-
 
     public override void RemoveSelf(PhysicsProcessor processor)
     {
@@ -96,6 +93,7 @@ public class StaticBody : RigidBody
 
 public class DynamicBody : RigidBody
 {
+    public BodyHandle Handle;
     private Vector3 _velocity;
     private Vector3 _angularVelocity;
     private float _mass;
@@ -119,7 +117,6 @@ public class DynamicBody : RigidBody
         get => _angularVelocity;
         set => _angularVelocity = value;
     }
-
 
     public float Mass
     {
@@ -157,6 +154,13 @@ public class DynamicBody : RigidBody
 
     public override void OnUpdate(GameObject self, GameTime time, Scene scene)
     {
+        PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
+
+        BodyReference desc = processor.Simulation.Bodies[Handle];
+
+        Transform.Position = desc.Pose.Position - Vector3.Transform(Offset,Matrix.CreateFromQuaternion(Transform.Orientation));
+        Transform.Orientation = desc.Pose.Orientation;
+
         _forces *= 0;
         _torques *= 0;
         base.OnUpdate(self, time, scene);
@@ -187,9 +191,9 @@ public class DynamicBody : RigidBody
 
             new BodyActivityDescription(1000f)
         );
-        
-        bodyDescription.Velocity.Linear = new(_velocity.X,_velocity.Y,_velocity.Z);
-        bodyDescription.Velocity.Angular = new(_angularVelocity.X,_angularVelocity.Y,_angularVelocity.Z);
+
+        bodyDescription.Velocity.Linear = new(_velocity.X, _velocity.Y, _velocity.Z);
+        bodyDescription.Velocity.Angular = new(_angularVelocity.X, _angularVelocity.Y, _angularVelocity.Z);
 
         processor.AddDynamic(this, bodyDescription);
     }
@@ -198,7 +202,7 @@ public class DynamicBody : RigidBody
     {
         processor.RemoveDynamicBody(this);
     }
-    
+
 }
 
 

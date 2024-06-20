@@ -9,6 +9,8 @@
 
 
 float4x4 WorldViewProjection;
+float NearPlaneDistance;
+float FarPlaneDistance;
 
 struct DepthPassVertexShaderInput
 {
@@ -30,7 +32,7 @@ DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
 }
 
 float GetDepth(float depth){
-    return (depth) / (10000);
+    return depth / FarPlaneDistance;
 }
 
 

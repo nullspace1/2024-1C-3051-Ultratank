@@ -18,19 +18,14 @@ public class TurretController : IComponent
         _rotationSpeed = rotationSpeed;
     }
 
-    public void OnStart(GameObject self, Scene scene)
-    {
-    }
-
-    public void Destroy(GameObject self, Scene scene) { }
+    public void OnStart(GameObject self, Scene scene){}
+    public void Destroy(GameObject self, Scene scene){}
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        Quaternion cameraOrientation = _camera.Transform.Orientation;
-        Quaternion desiredWorldOrientation = cameraOrientation;
 
-        Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(desiredWorldOrientation);
+        Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(_camera.Transform.Orientation);
 
         Vector3 forward = Vector3.Transform(Vector3.Forward, localOrientation);
         float yaw = (float)Math.Atan2(forward.X, forward.Z);
@@ -38,9 +33,6 @@ public class TurretController : IComponent
 
         _transform.Orientation = Quaternion.Slerp(_transform.Orientation, yawRotation, _rotationSpeed * dt);
     }
-
-    public void LoadContent(GameObject self) { }
-
 }
 
 public class CannonController : IComponent
@@ -54,20 +46,15 @@ public class CannonController : IComponent
         _camera = camera;
     }
 
-    public void OnStart(GameObject self, Scene scene)
-    {
-    }
+    public void OnStart(GameObject self, Scene scene){}
 
-    public void Destroy(GameObject self, Scene scene) { }
+    public void Destroy(GameObject self, Scene scene){}
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {
-        Quaternion cameraOrientation = _camera.Transform.Orientation;
-        Quaternion desiredWorldOrientation = cameraOrientation;
-        Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(desiredWorldOrientation);
+        Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(_camera.Transform.Orientation);
         Vector3 forward = Vector3.Transform(Vector3.Forward, localOrientation);
         float pitch = MathHelper.Clamp(-(float)Math.Atan2(forward.Y, forward.Z) - 0.1f, -MathF.PI / 4, 0.1f);
-
         Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
         _transform.Orientation = pitchRotation;
     }

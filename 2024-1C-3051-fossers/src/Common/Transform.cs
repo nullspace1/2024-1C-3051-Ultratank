@@ -1,4 +1,5 @@
 using System;
+using BepuPhysics;
 using Microsoft.Xna.Framework;
 
 namespace WarSteel.Common;
@@ -11,6 +12,7 @@ public class Transform
     public Vector3 Position;
     public Quaternion Orientation;
     public Transform Parent;
+
 
     public Matrix World
     {
@@ -67,14 +69,6 @@ public class Transform
         Orientation = Quaternion.Identity;
         Parent = transform;
     }
-
-    public void RotateEuler(Vector3 eulerAngles) => Orientation = Quaternion.CreateFromYawPitchRoll(
-        MathHelper.ToRadians(eulerAngles.Y),
-        MathHelper.ToRadians(eulerAngles.X),
-        MathHelper.ToRadians(eulerAngles.Z)
-    ) * Orientation;
-
-    public void RotateQuaternion(Quaternion quaternion) => Orientation = quaternion * Orientation;
 
     public Vector3 LocalToWorldPosition(Vector3 point)
     {

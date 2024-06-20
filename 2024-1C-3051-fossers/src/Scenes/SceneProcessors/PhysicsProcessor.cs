@@ -16,26 +16,21 @@ using Vector3 = System.Numerics.Vector3;
 
 public class PhysicsProcessor : ISceneProcessor
 {
-    private Simulation _simulation;
+    public Simulation Simulation;
 
-    private List<(StaticBody, StaticHandle)> _staticBodies = new();
-    private List<(DynamicBody, BodyHandle)> _dynamicBodies = new();
+    private List<StaticBody> _staticBodies = new();
+    private List<DynamicBody> _dynamicBodies = new();
 
     public PhysicsProcessor()
     {
         BufferPool bufferPool = new();
-        SolveDescription solveDescription = new(30, 5);
-
-
-        _simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), solveDescription);
-
+        SolveDescription solveDescription = new(15, 5);
+        Simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), solveDescription);
     }
 
     public void Draw(Scene scene) {}
 
-    public void Initialize(Scene scene)
-    {
-    }
+    public void Initialize(Scene scene){}
 
     public void AddBody(RigidBody r)
     {
@@ -44,12 +39,12 @@ public class PhysicsProcessor : ISceneProcessor
 
     public void RemoveDynamicBody(DynamicBody r)
     {
-        foreach (var (b, h) in _dynamicBodies)
+        foreach (var b in _dynamicBodies)
         {
             if (b == r)
             {
-                _simulation.Bodies.Remove(h);
-                _dynamicBodies.Remove((b, h));
+                Simulation.Bodies.Remove(b.Handle);
+                _dynamicBodies.Remove(b);
                 break;
             }
         }
@@ -58,12 +53,12 @@ public class PhysicsProcessor : ISceneProcessor
 
     public void RemoveStaticBody(StaticBody r)
     {
-        foreach (var (b, h) in _staticBodies)
+        foreach (var b in _staticBodies)
         {
             if (b == r)
             {
-                _simulation.Statics.Remove(h);
-                _staticBodies.Remove((b, h));
+                Simulation.Statics.Remove(r.Handle);
+                _staticBodies.Remove(b);
                 break;
             }
         }
@@ -76,16 +71,14 @@ public class PhysicsProcessor : ISceneProcessor
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         dt = dt == 0 ? 0.0001f : dt;
 
-        _simulation.Timestep(dt);
+        Simulation.Timestep(dt);
 
 
-        foreach (var (r, k) in _dynamicBodies)
+        foreach (var r in _dynamicBodies)
         {
-            BodyReference body = _simulation.Bodies[k];
-            body.Awake = true;
 
-            r.Transform.Position = body.Pose.Position;
-            r.Transform.Orientation = body.Pose.Orientation;
+            BodyReference body = Simulation.Bodies[r.Handle];
+            body.Awake = true;
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
@@ -101,18 +94,18 @@ public class PhysicsProcessor : ISceneProcessor
 
         if (shape is Box boxShape)
         {
-            return _simulation.Shapes.Add(boxShape);
+            return Simulation.Shapes.Add(boxShape);
         }
 
         if (shape is Sphere sphereShape)
         {
-            return _simulation.Shapes.Add(sphereShape);
+            return Simulation.Shapes.Add(sphereShape);
         }
 
 
         if (shape is ConvexHull hullShape)
         {
-            return _simulation.Shapes.Add(hullShape);
+            return Simulation.Shapes.Add(hullShape);
         }
 
 
@@ -122,30 +115,32 @@ public class PhysicsProcessor : ISceneProcessor
 
     internal void AddStatic(StaticBody body, StaticDescription staticDescription)
     {
-        StaticHandle handle = _simulation.Statics.Add(staticDescription);
-        _staticBodies.Add((body, handle));
+        StaticHandle handle = Simulation.Statics.Add(staticDescription);
+        body.Handle = handle;
+        _staticBodies.Add(body);
     }
 
     internal void AddDynamic(DynamicBody body, BodyDescription bodyDescription)
     {
-        BodyHandle handle = _simulation.Bodies.Add(bodyDescription);
-        _dynamicBodies.Add((body, handle)); ;
+        BodyHandle handle = Simulation.Bodies.Add(bodyDescription);
+        body.Handle = handle;
+        _dynamicBodies.Add(body); ;
     }
 
     internal DynamicBody FindDynamic(BodyHandle handle)
     {
-        foreach (var (a, b) in _dynamicBodies)
+        foreach (var b in _dynamicBodies)
         {
-            if (handle == b) return a;
+            if (handle == b.Handle) return b;
         }
         return null;
     }
 
     internal StaticBody FindStatic(StaticHandle handle)
     {
-        foreach (var (a, b) in _staticBodies)
+        foreach (var a in _staticBodies)
         {
-            if (handle == b) return a;
+            if (handle == a.Handle) return a;
         }
         return null;
     }
@@ -191,7 +186,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
     {
         pairMaterial.FrictionCoefficient = 0.9f;
         pairMaterial.MaximumRecoveryVelocity = 100000f;
-        pairMaterial.SpringSettings = new SpringSettings(30, 3);
+        pairMaterial.SpringSettings = new SpringSettings(30, 10);
 
         RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);
         RigidBody B = _processor.GetRigidBodyFromCollision(pair.B);

@@ -10,13 +10,12 @@ namespace WarSteel.Scenes;
 
 public abstract class Scene
 {
-    private Dictionary<string, GameObject> _gameObjects = new();
+    private List<GameObject> _gameObjects = new();
     private List<UI> _UIs = new();
     private Dictionary<Type, ISceneProcessor> _sceneProcessors = new();
     public GraphicsDeviceManager GraphicsDeviceManager;
     public SpriteBatch SpriteBatch;
     public Camera Camera;
-
     private bool _isPaused = false;
     public bool IsPaused { get => _isPaused; }
 
@@ -92,12 +91,12 @@ public abstract class Scene
     public void AddGameObject(GameObject entity)
     {
         entity.Initialize(this);
-        _gameObjects.Add(entity.Id, entity);
+        _gameObjects.Add(entity);
     }
 
     public void RemoveGameObjectsByTag(string tag)
     {
-        foreach (var e in _gameObjects.Values)
+        foreach (var e in _gameObjects)
         {
             if (e.HasTag(tag))
                 e.Destroy();
@@ -112,7 +111,7 @@ public abstract class Scene
     public List<GameObject> GetGameObjects()
     {
         List<GameObject> list = new();
-        foreach (var e in _gameObjects.Values)
+        foreach (var e in _gameObjects)
         {
             list.Add(e);
         }
@@ -122,7 +121,7 @@ public abstract class Scene
     public List<GameObject> GetEntitiesByTag(string tag)
     {
         List<GameObject> list = new();
-        foreach (var e in _gameObjects.Values)
+        foreach (var e in _gameObjects)
         {
             if (e.HasTag(tag))
                 list.Add(e);
@@ -132,7 +131,7 @@ public abstract class Scene
 
     public T GetEntityByTag<T>(string tag) where T : GameObject
     {
-        foreach (var e in _gameObjects.Values)
+        foreach (var e in _gameObjects)
         {
             if (e.HasTag(tag))
                 return (T)e;
@@ -146,11 +145,7 @@ public abstract class Scene
     public void Draw()
     {
 
-
-
-        // needs to copy the gameobjects to prevent cs failing due to modifying the collection while iterating here
-        // typically this would happen after destroying an element in the update method.
-        List<GameObject> gb = new(_gameObjects.Values);
+        List<GameObject> gb = new(_gameObjects);
         foreach (var entity in gb)
         {
             entity.Draw(this);
@@ -189,7 +184,7 @@ public abstract class Scene
 
         Camera?.Update(this, gameTime);
 
-        foreach (var entity in new List<GameObject>(_gameObjects.Values))
+        foreach (var entity in new List<GameObject>(_gameObjects))
         {
             entity.Update(this, gameTime);
         }
@@ -206,12 +201,12 @@ public abstract class Scene
     private void CheckDeletedEntities()
     {
 
-        foreach (var entity in new Dictionary<string, GameObject>(_gameObjects).Values)
+        foreach (var entity in new List<GameObject>(_gameObjects))
         {
             if (entity.IsDestroyed())
             {
                 entity.OnDestroy(this);
-                _gameObjects.Remove(entity.Id);
+                _gameObjects.Remove(entity);
             }
         }
 
