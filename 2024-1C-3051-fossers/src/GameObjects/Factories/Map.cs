@@ -29,13 +29,14 @@ class MapFactory
 
     public GameObject Tree(Vector3 position)
     {
-        Model model = ContentRepoManager.Instance().GetModel("Map/SimpleTree");
-        GameObjectRenderer renderer = new Default(Color.Brown);
-        GameObject tree = new(new string[] { GROUND }, new Transform(), model, renderer);
+        Model model = ContentRepoManager.Instance().GetModel("Map/Trees/1");
+        GameObjectRenderer renderer = new Default(new Color(101, 67, 33));
+        GameObject tree = new(new string[] { GROUND }, new Transform(null, new(0, 0, 0)), model, renderer);
         Random rand = new();
-        tree.Transform.Dimensions = tree.Transform.Dimensions * (float)Crypto.GetRandomNumber(0.9, 1.5);
-        tree.Transform.RotateEuler(tree.Transform.Up * (float)Crypto.GetRandomNumber(0, 360));
-        tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(0, 500, 0)));
+        float scaleFactor = (float)Crypto.GetRandomNumber(0.9, 1.5);
+        tree.Transform.Dimensions = tree.Transform.Dimensions;
+        // tree.Transform.RotateEuler(tree.Transform.Up * (float)Crypto.GetRandomNumber(0, 360));
+        tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(-100, 500, -150)));
         tree.Transform.Position = position;
         return tree;
     }
@@ -48,7 +49,7 @@ class MapFactory
     public GameObject Bush(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
-        GameObjectRenderer renderer = new Default(Color.Red);
+        GameObjectRenderer renderer = new Default(new Color(34, 139, 34));
         GameObject bush = new(new string[] { GROUND }, new Transform(), model, renderer);
         bush.Transform.Position = position;
         return bush;
