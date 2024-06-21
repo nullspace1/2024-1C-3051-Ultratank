@@ -54,6 +54,17 @@ public class MainScene : Scene
         AddGameObject(player);
         Random rand = new();
 
+        int numTress = 2;
+        int numBushes = 5;
+        int numRocks = 25;
+
+        for (int i = 0; i < numBushes; i++)
+            AddGameObject(factory.Bush(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand)));
+        for (int i = 0; i < numTress; i++)
+            AddGameObject(factory.Tree(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand)));
+        for (int i = 0; i < numRocks; i++)
+            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.LARGE));
+
         new WaveInfoScreen(this).Initialize();
         AddSceneProcessor(new WaveProcessor(player));
         Camera.Follow(player);

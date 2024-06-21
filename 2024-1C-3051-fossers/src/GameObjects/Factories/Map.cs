@@ -33,9 +33,10 @@ class MapFactory
         Renderer renderer = new Renderer(Color.Brown);
         GameObject tree = new(new string[] { GROUND }, new Transform(), model, renderer);
         Random rand = new();
-        tree.Transform.Dimensions = tree.Transform.Dimensions * (float)Crypto.GetRandomNumber(0.9, 1.5);
-        tree.Transform.RotateEuler(tree.Transform.Up * (float)Crypto.GetRandomNumber(0, 360));
-        tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(0, 500, 0)));
+        float scaleFactor = (float)Crypto.GetRandomNumber(0.9, 1.5);
+        tree.Transform.Dimensions = tree.Transform.Dimensions;
+        // tree.Transform.RotateEuler(tree.Transform.Up * (float)Crypto.GetRandomNumber(0, 360));
+        tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(-100, 500, -150)));
         tree.Transform.Position = position;
         return tree;
     }
