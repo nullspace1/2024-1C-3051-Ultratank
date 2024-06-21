@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
+using WarSteel.Common.Shaders;
 using WarSteel.Entities;
 
 
@@ -18,6 +19,8 @@ public abstract class Scene
     public Camera Camera;
     private bool _isPaused = false;
     public bool IsPaused { get => _isPaused; }
+
+    public SkyBox SkyBox;
 
     public void Pause()
     {
@@ -145,10 +148,12 @@ public abstract class Scene
     public void Draw()
     {
 
-        List<GameObject> gb = new(_gameObjects);
+        SkyBox.DrawSkyBox(this);
+
+        List<GameObject> gb = GetVisibleObjects(Camera.View * Camera.Projection);
         foreach (var entity in gb)
         {
-            entity.Draw(this);
+            entity.Renderer.DrawDefault(entity,this);
         }
 
         foreach (var sceneProcessor in _sceneProcessors.Values)
@@ -170,6 +175,18 @@ public abstract class Scene
         ResetGraphicsDevice();
 
 
+    }
+
+    public List<GameObject> GetVisibleObjects(Matrix viewProjection){
+        List<GameObject> visibleObjects = new();
+        foreach(var go in _gameObjects){
+            BoundingFrustum boundingFrustum = new(viewProjection);
+            BoundingSphere boundingSphere = go.GetBoundingSphere();
+            if (boundingFrustum.Contains(boundingSphere) != ContainmentType.Disjoint || go.AlwaysRender){
+                visibleObjects.Add(go);
+            }
+        }
+        return visibleObjects;
     }
 
     public virtual void Update(GameTime gameTime)

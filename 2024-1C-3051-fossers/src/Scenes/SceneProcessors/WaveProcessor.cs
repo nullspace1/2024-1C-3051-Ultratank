@@ -63,7 +63,7 @@ public class WaveProcessor : ISceneProcessor
         // Spawn new enemies
         for (int i = 0; i < EnemiesLeft; i++)
         {
-            Vector3 spawnPosition = VectorUtils.GetRandomVec3Pos(new(0, 100, 0), rand);
+            Vector3 spawnPosition = VectorUtils.GetRandomVec3Pos(new(0, 1000, 0), rand);
             Enemy enemy = new(spawnPosition, WaveNumber * 5, this);
             _scene.AddGameObject(enemy);
         }
@@ -78,5 +78,10 @@ public class WaveProcessor : ISceneProcessor
     {
         EnemiesLeft--;
         EnemiesKilled++;
+    }
+
+    public float GetScore()
+    {
+        return EnemiesKilled + WaveNumber;
     }
 }

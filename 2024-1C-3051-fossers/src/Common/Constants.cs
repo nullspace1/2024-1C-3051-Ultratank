@@ -3,6 +3,7 @@ using System;
 public static class Constants
 {
     public const bool DEBUG_MODE = true;
+    public const bool PLAY_SOUND = false;
 
     public static class Events
     {

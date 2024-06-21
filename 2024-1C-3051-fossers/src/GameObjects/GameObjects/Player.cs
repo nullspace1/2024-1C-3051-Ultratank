@@ -31,25 +31,29 @@ public class Player : GameObject
     }
     Scene _scene;
 
-    public Player(Scene scene, Vector3 pos) : base(new string[] { "player" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new Default(Color.Blue))
+    public Player(Scene scene, Vector3 pos) : base(new string[] { "player" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), new Renderer(Color.Blue))
     {
         _scene = scene;
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
-        Model.SetTransformToPart("Turret",turretTransform);
-        Model.SetTransformToPart("Cannon",cannonTransform);
+        Model.SetTransformToPart("Turret", turretTransform);
+        Model.SetTransformToPart("Cannon", cannonTransform);
 
-        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f));
-        AddComponent(new PlayerControls(cannonTransform));
+        AddComponent(new DynamicBody(new Collider(new ConvexShape(Model.GetModel(),Transform), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 2f));
         AddComponent(new TurretController(turretTransform, scene.GetCamera(), 3f));
         AddComponent(new CannonController(cannonTransform, scene.GetCamera()));
+        AddComponent(new PlayerControls(cannonTransform));
+        AddComponent(new WheelsController(Model, Transform));
     }
 
     public void OnDie()
     {
         WaveProcessor wave = _scene.GetSceneProcessor<WaveProcessor>();
-        new LooseScreen(_scene).Initialize(wave.EnemiesLeft, wave.WaveNumber, wave.EnemiesLeft + wave.WaveNumber);
+        new LooseScreen(_scene).Initialize(wave.EnemiesLeft, wave.WaveNumber, wave.GetScore());
         RemoveComponent<PlayerControls>();
         _scene.Camera.StopFollowing();
     }
+
+
+
 }

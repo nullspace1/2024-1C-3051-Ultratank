@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
+using WarSteel.Common.Shaders;
 using WarSteel.Scenes;
+using WarSteel.Scenes.SceneProcessors;
 
 namespace WarSteel.Entities;
 
@@ -12,19 +15,22 @@ public class GameObject
     private Dictionary<Type, IComponent> _components = new();
     public Transform Transform { get; }
     public ObjectModel Model { get; set; }
-    private GameObjectRenderer _defaultRenderer;
+    public Renderer Renderer;
 
     private string[] _tags { get; }
     private bool _toDestroy = false;
     public string Id { get; }
 
-    public GameObject(string[] tags, Transform transform, Model model, GameObjectRenderer renderer) : base()
+    public bool AlwaysRender;
+
+    public GameObject(string[] tags, Transform transform, Model model, Renderer renderer, bool alwaysRender = false) : base()
     {
         Id = Guid.NewGuid().ToString();
         _tags = tags;
         Transform = transform;
         Model = new ObjectModel(model);
-        _defaultRenderer = renderer;
+        Renderer = renderer;
+        AlwaysRender = alwaysRender;
     }
 
     public void AddComponent(IComponent c)
@@ -32,7 +38,8 @@ public class GameObject
         _components.Add(c.GetType(), c);
     }
 
-    public void RemoveComponent<T>() where T: class, IComponent{
+    public void RemoveComponent<T>() where T : class, IComponent
+    {
         _components.Remove(typeof(T));
     }
 
@@ -54,12 +61,6 @@ public class GameObject
         }
     }
 
-    public void Draw(Scene scene, GameObjectRenderer renderer = null)
-    {
-        GameObjectRenderer activeRenderer = renderer ?? _defaultRenderer;
-        activeRenderer.Draw(this,scene);
-    }
-
     public void Update(Scene scene, GameTime gameTime)
     {
         foreach (var m in _components.Values)
@@ -67,7 +68,7 @@ public class GameObject
             m.OnUpdate(this, gameTime, scene);
         }
     }
-    
+
     public void OnDestroy(Scene scene)
     {
         foreach (var m in _components.Values)
@@ -76,8 +77,10 @@ public class GameObject
         }
     }
 
-    public bool HasTag(string tag){
-        foreach(var t in _tags){
+    public bool HasTag(string tag)
+    {
+        foreach (var t in _tags)
+        {
             if (t == tag) return true;
         }
         return false;
@@ -92,5 +95,11 @@ public class GameObject
     {
         return _toDestroy;
     }
+
+    public BoundingSphere GetBoundingSphere(){
+        return new BoundingSphere(Transform.AbsolutePosition, Model.GetMinDistance());
+    }
+
+
 
 }

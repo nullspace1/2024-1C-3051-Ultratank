@@ -36,7 +36,7 @@ public class RockFactory
     public static GameObject Generate(string[] tags, Vector3 position, RockSize size)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue(size) + "Stone");
-        GameObjectRenderer renderable = new Default(Color.DarkGray);
+        Renderer renderable = new Renderer(Color.DarkGray);
         GameObject rock = new(tags, new Transform(), model,renderable);
         rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model, rock.Transform), (c) => { }), Vector3.Zero));
         rock.Transform.Position = position;

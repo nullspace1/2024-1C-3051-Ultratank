@@ -51,11 +51,11 @@
 /processorParam:TextureFormat=Compressed
 /build:3D/geometries/sphere.fbx
 
-#begin Audio/ambient.mp3
-/importer:Mp3Importer
-/processor:SongProcessor
+#begin Audio/ambient.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:Audio/ambient.mp3
+/build:Audio/ambient.wav
 
 #begin Audio/button-click.wav
 /importer:WavImporter
@@ -87,29 +87,23 @@
 /processorParam:Quality=Best
 /build:Audio/tank-shot.wav
 
-#begin Effects/Default.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/Default.fx
-
 #begin Effects/Gizmos.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Effects/Gizmos.fx
 
-#begin Effects/Light.fx
+#begin Effects/Shader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/Light.fx
+/build:Effects/Shader.fx
 
-#begin Effects/ShadowMap.fx
+#begin Effects/Shadow.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/ShadowMap.fx
+/build:Effects/Shadow.fx
 
 #begin Effects/SkyBox.fx
 /importer:EffectImporter
@@ -507,35 +501,11 @@
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
+/processorParam:PremultiplyAlpha=False
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
+/processorParam:TextureFormat=NoChange
 /build:Textures/skybox.dds
-
-#begin Textures/sun-in-space.dds
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=True
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/sun-in-space.dds
-
-#begin Textures/sunset.dds
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/sunset.dds
 
 #begin Textures/UI/health-bar-bg.jpg
 /importer:TextureImporter

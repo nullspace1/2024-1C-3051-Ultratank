@@ -62,12 +62,12 @@ public class Transform
         Parent = null;
     }
 
-    public Transform(Transform transform, Vector3 pos)
+    public Transform(Transform parent, Vector3 pos)
     {
         Dimensions = Vector3.One;
         Position = pos;
         Orientation = Quaternion.Identity;
-        Parent = transform;
+        Parent = parent;
     }
 
     public Vector3 LocalToWorldPosition(Vector3 point)
@@ -123,4 +123,11 @@ public class Transform
 
         return rotationMatrix;
     }
+
+      public void RotateEuler(Vector3 eulerAngles) => Orientation = Quaternion.CreateFromYawPitchRoll(
+        MathHelper.ToRadians(eulerAngles.Y),
+        MathHelper.ToRadians(eulerAngles.X),
+        MathHelper.ToRadians(eulerAngles.Z)
+    ) * Orientation;
+
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -8,6 +9,7 @@ public class Enemy : GameObject
 {
     private EnemyHealthBar _healthBar;
     private WaveProcessor _wave;
+    private List<Vector3> _impacts;
 
     public bool isDead = false;
     private float _health = 100;
@@ -24,17 +26,19 @@ public class Enemy : GameObject
     private float _damage;
     public float Damage { get => _damage; }
 
-    public Enemy(Vector3 pos, float damage, WaveProcessor wave) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"),new Default(Color.Red))
+    public Enemy(Vector3 pos, float damage, WaveProcessor wave) : base(new string[] { "enemy" }, new() { Position = pos }, ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer"), null)
     {
+        _impacts = new List<Vector3>();
+        Renderer = new Renderer(Color.Red);
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
 
-        RigidBody rb = new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 200, 0.9f, 2f);
+        RigidBody rb = new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 2f);
         EnemyAI ai = new(turretTransform, cannonTransform);
         _healthBar = new();
 
-        Model.SetTransformToPart("Turret",turretTransform);
-        Model.SetTransformToPart("Cannon",cannonTransform);
+        Model.SetTransformToPart("Turret", turretTransform);
+        Model.SetTransformToPart("Cannon", cannonTransform);
         _damage = damage;
         _wave = wave;
 

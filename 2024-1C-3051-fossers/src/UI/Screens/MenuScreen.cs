@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.UIKit;
 using WarSteel.Utils;
-using Microsoft.Xna.Framework.Audio;
-using WarSteel.Managers;
 
 public class MenuScreen
 {
@@ -22,8 +20,8 @@ public class MenuScreen
         Vector2 screenCenter = Screen.GetScreenCenter(_scene.GraphicsDeviceManager);
         int screenWidth = Screen.GetScreenWidth(_scene.GraphicsDeviceManager);
 
-        UI background = new(new Vector2(screenCenter.X, screenCenter.Y), screenWidth, screenWidth, new Image("UI/menu-bg"));
-        _scene.AddUI(background);
+        // UI background = new(new Vector2(screenCenter.X, screenCenter.Y), screenWidth, screenWidth, new Image("UI/menu-bg"));
+        // _scene.AddUI(background);
 
         Vector2 GetBtnPos(int pos)
         {

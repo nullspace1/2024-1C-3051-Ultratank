@@ -41,7 +41,7 @@ public abstract class RigidBody : IComponent
         _entity = self;
         _transform = self.Transform;
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
-        processor.AddBody(this);
+        processor?.AddBody(this);
     }
 
     public virtual void LoadContent(GameObject self) { }
@@ -195,6 +195,9 @@ public class DynamicBody : RigidBody
         bodyDescription.Velocity.Linear = new(_velocity.X, _velocity.Y, _velocity.Z);
         bodyDescription.Velocity.Angular = new(_angularVelocity.X, _angularVelocity.Y, _angularVelocity.Z);
 
+        bodyDescription.Velocity.Linear = new(_velocity.X, _velocity.Y, _velocity.Z);
+        bodyDescription.Velocity.Angular = new(_angularVelocity.X, _angularVelocity.Y, _angularVelocity.Z);
+
         processor.AddDynamic(this, bodyDescription);
     }
 
@@ -202,6 +205,7 @@ public class DynamicBody : RigidBody
     {
         processor.RemoveDynamicBody(this);
     }
+
 
 }
 

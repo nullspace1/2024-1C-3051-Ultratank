@@ -9,7 +9,6 @@
 
 
 float4x4 WorldViewProjection;
-float NearPlaneDistance;
 float FarPlaneDistance;
 
 struct DepthPassVertexShaderInput

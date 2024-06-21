@@ -7,29 +7,39 @@
     #define PS_SHADERMODEL ps_5_0
 #endif
 
-float4x4 WorldViewProjection;
+float4x4 World;
+float4x4 LightViewProjection;
+float4x4 CameraViewProjection;
 float4x4 InverseTransposeWorld;
-float4x4 WorldLightViewProjection;
+
 float3 LightDirection;
-Texture2D ShadowDepth;
+
 float TextureSize;
 
-Texture2D Texture;
+
 float3 Color;
 bool HasTexture;
 float DiffuseCoefficient;
 
 float FarPlaneDistance;
 float NearPlaneDistance;
+float3 ImpactPoints[5];
+int ImpactCount;
 
+float3 LightPosition;
+float3 LightColor;
+bool Depth;
+
+Texture2D Texture;
+Texture2D ShadowDepth;
 sampler2D shadowMapSampler = sampler_state
 {
     Texture = (ShadowDepth);
      MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Linear;
-    AddressU = Wrap;
-    AddressV = Wrap;
+    AddressU = Clamp;
+    AddressV = Clamp;
 };
 
 
@@ -57,21 +67,70 @@ struct VertexShaderOutput
     float2 UV : TEXCOORD0;
     float4 Normal : TEXCOORD1;
     float4 LightSpacePosition : TEXCOORD2;
+    float4 WorldPosition : TEXCOORD3;
 };
 
-VertexShaderOutput MainVS(in VertexShaderInput input)
-{
-    VertexShaderOutput output = (VertexShaderOutput)0;
-    output.Position = mul(input.Position, WorldViewProjection);
-    output.UV = input.UV;
-    output.Normal = mul(input.Normal,InverseTransposeWorld);
-    output.LightSpacePosition = mul(input.Position, WorldLightViewProjection);
-    return output;
-}
 
 float GetRealDistance(float dist){
     return dist * FarPlaneDistance;
 }
+
+
+VertexShaderOutput MainVS(in VertexShaderInput input)
+{
+    VertexShaderOutput output = (VertexShaderOutput)0;
+    output.UV = input.UV;
+    output.WorldPosition = mul(input.Position,World);
+    output.Normal = mul(input.Normal,InverseTransposeWorld);
+
+
+    float OFFSET = 10;
+    float3 normal = normalize(output.Normal.xyz);
+    float3 position = output.WorldPosition.xyz;
+    float distanceThreshold = 100;
+    float3 positionChange = normal * 20;
+
+    if (ImpactCount > 0) {
+        float dis0 = distance(position, ImpactPoints[0]);
+        if (dis0 < distanceThreshold) {
+            position -= positionChange;
+        }
+    }
+
+    if (ImpactCount > 1) {
+        float dis1 = distance(position, ImpactPoints[1]);
+        if (dis1 < distanceThreshold) {
+            position -= positionChange;
+        }
+    }
+
+    if (ImpactCount > 2) {
+        float dis2 = distance(position, ImpactPoints[2]);
+        if (dis2 < distanceThreshold) {
+            position -= positionChange;
+        }
+    }
+
+    if (ImpactCount > 3) {
+        float dis3 = distance(position, ImpactPoints[3]);
+        if (dis3 < distanceThreshold) {
+            position -= positionChange;
+        }
+    }
+
+    if (ImpactCount > 4) {
+        float dis3 = distance(position, ImpactPoints[4]);
+        if (dis3 < distanceThreshold) {
+            position -= positionChange;
+        }
+    }
+
+    output.Position = mul(float4(position,1),CameraViewProjection);
+    output.LightSpacePosition = mul(float4(position,1), LightViewProjection);
+
+    return output;
+}
+
 
 
 float4 MainPS(VertexShaderOutput input) : COLOR
@@ -113,6 +172,32 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 
     float4 color = float4(base.rgb * DiffuseCoefficient * NdotL * shadow, base.a);
     return color;
+}
+
+
+float4 LightPS(in VertexShaderOutput input) : SV_TARGET
+{
+    if (Depth == true) return float4(0,0,0,1);
+
+    float3 L = LightPosition - input.WorldPosition.xyz;
+    float distance = length(L);
+    L = normalize(L);
+    float3 N = normalize(input.Normal.xyz);
+    float NdotL = saturate(dot(L, N));
+
+    float4 color = float4(saturate(LightColor * NdotL), 1);
+
+    return color;
+}
+
+
+technique LightPass
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL MainVS();
+        PixelShader = compile PS_SHADERMODEL LightPS();
+    }
 }
 
 technique Default

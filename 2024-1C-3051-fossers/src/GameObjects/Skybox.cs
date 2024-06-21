@@ -6,17 +6,23 @@ using WarSteel.Scenes;
 
 namespace WarSteel.Common.Shaders;
 
-class SkyBoxShader : GameObjectRenderer
+public class SkyBox
 {
 
     private TextureCube _texture;
+    private Effect _effect;
 
-    public SkyBoxShader(TextureCube texture) : base(ContentRepoManager.Instance().GetEffect("SkyBox"))
+    private Model _model;
+    
+
+    public SkyBox(TextureCube texture)
     {
         _texture = texture;
+        _effect = ContentRepoManager.Instance().GetEffect("SkyBox");
+        _model = ContentRepoManager.Instance().GetModel("SkyBox/cube");
     }
 
-    public override void Draw(GameObject gameObject, Scene scene)
+    public void DrawSkyBox(Scene scene)
     {
         
         GraphicsDevice gDevice = scene.GraphicsDeviceManager.GraphicsDevice;
@@ -30,7 +36,7 @@ class SkyBoxShader : GameObjectRenderer
         _effect.Parameters["View"].SetValue(scene.GetCamera().View);
         _effect.Parameters["Projection"].SetValue(scene.GetCamera().Projection);
 
-        foreach (var modelMesh in gameObject.Model.GetMeshes())
+        foreach (var modelMesh in _model.Meshes)
         {
             foreach (var part in modelMesh.MeshParts)
                 part.Effect = _effect;

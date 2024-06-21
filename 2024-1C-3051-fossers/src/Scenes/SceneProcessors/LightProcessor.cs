@@ -28,9 +28,9 @@ class LightProcessor : ISceneProcessor
 
     public int ShadowMapSize = 2048;
 
-    private float _projectionTextureRatio = 6;
+    private float _projectionTextureRatio = 8;
 
-    public float FarPlaneDistance = 20000;
+    public float FarPlaneDistance = 60000;
     public float NearPlaneDistance = 1;
 
     private float lightDistance = 30000;
@@ -42,7 +42,7 @@ class LightProcessor : ISceneProcessor
     public LightProcessor(GraphicsDevice device, Color color, Vector3 direction)
     {
         _device = device;
-        LightViewProjection = Matrix.CreateLookAt(Vector3.Normalize(direction) * lightDistance, Vector3.Zero, Vector3.UnitX) * Matrix.CreateOrthographic(ShadowMapSize * _projectionTextureRatio, ShadowMapSize * _projectionTextureRatio , NearPlaneDistance, 100000);
+        LightViewProjection = Matrix.CreateLookAt(Vector3.Normalize(direction) * lightDistance, Vector3.Zero, Vector3.UnitY) * Matrix.CreateOrthographic(ShadowMapSize * _projectionTextureRatio, ShadowMapSize * _projectionTextureRatio , NearPlaneDistance, FarPlaneDistance);
         Color = color;
         LightDirection = direction;
     }
@@ -70,15 +70,15 @@ class LightProcessor : ISceneProcessor
     {
 
         _device.SetRenderTarget(ShadowMapRenderTarget);
-        _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(0, 0, 0, 1), 1, 0);
+        _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(0,0,0,1), 1, 0);
 
         foreach (var o in scene.GetGameObjects())
         {
-            o.Draw(scene, new Shadow(LightViewProjection, NearPlaneDistance, FarPlaneDistance));
+            o.Renderer.DrawShadowMap(o,LightViewProjection,FarPlaneDistance);
         }
 
         _device.SetRenderTarget(null);
-        _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(0, 0, 0, 1), 1, 0);
+        _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(0,0,0,1), 1, 0);
     }
 
     public void Draw(Scene scene)
@@ -89,21 +89,24 @@ class LightProcessor : ISceneProcessor
 
         _device.BlendState = BlendState.Opaque;
 
-        foreach (var o in scene.GetGameObjects())
+
+        List<GameObject> visibleObjects = scene.GetVisibleObjects(scene.Camera.View * scene.Camera.Projection);
+
+        foreach (var o in visibleObjects)
         {
             foreach (var l in _lights)
             {
-                o.Draw(scene, new LightRender(l, true));
+                o.Renderer.DrawLight(o,scene,l,true);
             }
         }
 
         _device.BlendState = BlendState.Additive;
 
-        foreach (var o in scene.GetGameObjects())
+        foreach (var o in visibleObjects)
         {
             foreach (var l in _lights)
             {
-                o.Draw(scene, new LightRender(l, false));
+                o.Renderer.DrawLight(o,scene,l,false);
             }
         }
 
