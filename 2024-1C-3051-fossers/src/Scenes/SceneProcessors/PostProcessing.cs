@@ -11,8 +11,6 @@ public class PostProcessing : ISceneProcessor
     private Effect _postProcessingEffect;
     private FullScreenQuad _quad;
 
-    private GraphicsDevice _device;
-
     public void Draw(Scene scene)
     {
         _postProcessingEffect.Parameters["Screen"].SetValue(ContentRepoManager.Instance().GlobalRenderTarget);;
@@ -23,7 +21,6 @@ public class PostProcessing : ISceneProcessor
     {
         _quad = new(scene.GraphicsDeviceManager.GraphicsDevice);
         _postProcessingEffect = ContentRepoManager.Instance().GetEffect("PostProcessing");
-        _device = scene.GraphicsDeviceManager.GraphicsDevice;
     }
 
     public void Update(Scene scene, GameTime gameTime)

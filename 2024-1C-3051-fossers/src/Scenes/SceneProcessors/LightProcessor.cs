@@ -92,66 +92,66 @@ class LightProcessor : ISceneProcessor
 
     public void Draw(Scene scene)
     {
-
         _device.SetRenderTarget(_dynamicLightsRenderTarget);
         _device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1, 0);
 
         _device.BlendState = BlendState.Opaque;
 
+        var visibleObjects = scene.GetVisibleObjects(scene.Camera.View * scene.Camera.Projection);
+        var visibleLights = new List<Light>();
 
-        List<GameObject> visibleObjects = scene.GetVisibleObjects(scene.Camera.View * scene.Camera.Projection);
-        List<Light> visibleLights = new();
-
-        BoundingFrustum frustum = new(scene.Camera.View * scene.Camera.Projection);
-        foreach( var l in _lights){
-            if (frustum.Contains(new BoundingSphere(l.Transform.Position,1)) != ContainmentType.Disjoint){
-                visibleLights.Add(l);
-            }
-        }
-
-
-        foreach (var o in visibleObjects)
+        var frustum = new BoundingFrustum(scene.Camera.View * scene.Camera.Projection);
+        foreach (var light in _lights)
         {
-            foreach (var l in visibleLights)
+            if (frustum.Contains(new BoundingSphere(light.Transform.Position, 100)) != ContainmentType.Disjoint)
             {
-                o.Renderer.DrawLight(o, scene, l, true);
+                visibleLights.Add(light);
             }
         }
 
-        _device.BlendState = BlendState.Additive;
-
-        foreach (var o in visibleObjects)
+        // Draw objects with lighting
+        foreach (var light in visibleLights)
         {
-            foreach (var l in visibleLights)
+            _device.BlendState = BlendState.Opaque;
+
+            foreach (var obj in visibleObjects)
             {
-                o.Renderer.DrawLight(o, scene, l, false);
+                obj.Renderer.DrawLight(obj, scene, light, true);
+            }
+
+            _device.BlendState = BlendState.Additive;
+
+            foreach (var obj in visibleObjects)
+            {
+                obj.Renderer.DrawLight(obj, scene, light, false);
             }
         }
 
-        
+        // Apply bloom effect
         _device.BlendState = BlendState.AlphaBlend;
         bloomEffect.Parameters["Screen"].SetValue(_dynamicLightsRenderTarget);
 
-        foreach (var l in visibleLights)
+        foreach (var light in visibleLights)
         {
-            Vector3 pos = _device.Viewport.Project(l.Transform.AbsolutePosition,scene.Camera.Projection,scene.Camera.View,Matrix.Identity);
-            bloomEffect.Parameters["LightScreenPosition"].SetValue(new Vector2(pos.X/_device.Viewport.Width,pos.Y/_device.Viewport.Height));
-            bloomEffect.Parameters["LightColor"].SetValue(l.Color.ToVector3());
-            bloomEffect.Parameters["Distance"].SetValue(1/(1-pos.Z) * 1/10000);
+            var pos = _device.Viewport.Project(light.Transform.AbsolutePosition, scene.Camera.Projection, scene.Camera.View, Matrix.Identity);
+            var lightScreenPos = new Vector2(pos.X / _device.Viewport.Width, pos.Y / _device.Viewport.Height);
+            var distance = 1 / (1 - pos.Z) * 0.0001f;
+
+            bloomEffect.Parameters["LightScreenPosition"].SetValue(lightScreenPos);
+            bloomEffect.Parameters["LightColor"].SetValue(light.Color.ToVector3());
+            bloomEffect.Parameters["Distance"].SetValue(distance);
             screenQuad.Draw(bloomEffect);
         }
 
-
-
+        // Final rendering
         _device.SetRenderTarget(ContentRepoManager.Instance().GlobalRenderTarget);
         _device.BlendState = BlendState.AlphaBlend;
 
         scene.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-        scene.SpriteBatch.Draw(_dynamicLightsRenderTarget, Vector2.Zero, Color.White * 0.2f); // Adjust transparency (0.6f for 60% opacity)
+        scene.SpriteBatch.Draw(_dynamicLightsRenderTarget, Vector2.Zero, Color.White * 0.2f);
         scene.SpriteBatch.End();
 
         scene.ResetGraphicsDevice();
-
     }
 
     public void AddLight(Light light)

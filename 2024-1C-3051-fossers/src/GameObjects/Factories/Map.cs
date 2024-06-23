@@ -29,13 +29,12 @@ class MapFactory
 
     public GameObject Tree(Vector3 position)
     {
-        Model model = ContentRepoManager.Instance().GetModel("Map/SimpleTree");
+        Model model = ContentRepoManager.Instance().GetModel("Map/Low_Poly_Tree_FBX");
         Renderer renderer = new(Color.Brown);
         GameObject tree = new(new string[] { GROUND }, new Transform(), model, renderer);
         Random rand = new();
         float scaleFactor = (float)Crypto.GetRandomNumber(0.9, 1.5);
         tree.Transform.Dimensions = tree.Transform.Dimensions;
-        // tree.Transform.RotateEuler(tree.Transform.Up * (float)Crypto.GetRandomNumber(0, 360));
         tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(-100, 500, -150)));
         tree.Transform.Position = position;
         return tree;

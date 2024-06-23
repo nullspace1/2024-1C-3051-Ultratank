@@ -43,6 +43,10 @@ public class Renderer
         }
     }
 
+    public void ClearImpacts(){
+        _impactPoints.Clear();
+    }
+
     public void DrawDefault(GameObject gameObject, Scene scene)
     {
 

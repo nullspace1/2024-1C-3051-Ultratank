@@ -35,7 +35,7 @@ public class MainScene : Scene
 
         SkyBox = new SkyBox(ContentRepoManager.Instance().GetTextureCube("skybox"));
 
-        Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 40000f);
+        Camera = new(new Vector3(0, 900, -200), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 50000f);
         SetCamera(Camera);
 
         var processor = new LightProcessor(GraphicsDeviceManager.GraphicsDevice, Color.Orange, new Vector3(0, 0.5f, 0.5f));
@@ -90,7 +90,7 @@ public class MainScene : Scene
                 occupiedPositions.Add(position);
                 GameObject obj = createObject(position);
                 obj.Transform.Orientation = Quaternion.CreateFromYawPitchRoll((float)rand.NextDouble() * 3,0,0);
-                AddGameObject(createObject(position));
+                AddGameObject(obj);
             }
         }
 

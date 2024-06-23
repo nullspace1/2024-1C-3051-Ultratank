@@ -20,17 +20,13 @@ public class RockFactory
 {
     private static string GetRockSizeStringValue(RockSize rockSize)
     {
-        switch (rockSize)
+        return rockSize switch
         {
-            case RockSize.SMALL:
-                return "Small";
-            case RockSize.MEDIUM:
-                return "Medium";
-            case RockSize.LARGE:
-                return "Large";
-            default:
-                return "Large";
-        }
+            RockSize.SMALL => "Small",
+            RockSize.MEDIUM => "Medium",
+            RockSize.LARGE => "Large",
+            _ => "Large",
+        };
     }
 
     public static GameObject Generate(string[] tags, Vector3 position, RockSize size)
