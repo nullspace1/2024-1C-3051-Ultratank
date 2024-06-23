@@ -20,7 +20,6 @@ public class GameObject
     private string[] _tags { get; }
     private bool _toDestroy = false;
     public string Id { get; }
-
     public bool AlwaysRender;
 
     public GameObject(string[] tags, Transform transform, Model model, Renderer renderer, bool alwaysRender = false) : base()

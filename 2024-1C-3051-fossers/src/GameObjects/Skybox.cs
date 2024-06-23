@@ -30,7 +30,7 @@ public class SkyBox
         gDevice.RasterizerState = RasterizerState.CullNone;
 
         Transform cameraTransform = scene.GetCamera().Transform;
-        _effect.Parameters["World"].SetValue(Matrix.CreateScale(100000) * Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
+        _effect.Parameters["World"].SetValue(Matrix.CreateScale(30000) * Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
         _effect.Parameters["SkyBoxTexture"].SetValue(_texture);
         _effect.Parameters["CameraPosition"].SetValue(cameraTransform.AbsolutePosition);
         _effect.Parameters["View"].SetValue(scene.GetCamera().View);

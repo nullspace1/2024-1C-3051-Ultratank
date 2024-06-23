@@ -29,11 +29,11 @@ public class MenuScene : Scene
         SetCamera(Camera);
 
         MapFactory factory = new(this);
-        
+
         SkyBox = new SkyBox(ContentRepoManager.Instance().GetTextureCube("skybox"));
 
-        var processor = new LightProcessor(GraphicsDeviceManager.GraphicsDevice,Color.Orange,new(0,1,2));
-        processor.AddLight(new Light(new Vector3(0, 1000, 0), Color.White));
+        var processor = new LightProcessor(GraphicsDeviceManager.GraphicsDevice, Color.Orange, new(0, 1, 2));
+
         AddSceneProcessor(processor);
         AddSceneProcessor(new PhysicsProcessor());
 
@@ -49,6 +49,6 @@ public class MenuScene : Scene
         for (int i = 0; i < numTress; i++)
             AddGameObject(factory.Tree(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand)));
         for (int i = 0; i < numRocks; i++)
-            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand), RockSize.LARGE));
+            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(new Vector3(0,100,0), rand), RockSize.LARGE));
     }
 }

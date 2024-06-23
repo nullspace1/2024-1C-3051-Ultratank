@@ -170,7 +170,9 @@ float4 MainPS(VertexShaderOutput input) : COLOR
         shadow += (lightSpacePos.z  - shadowBias - angleBias > depth) ? 0.5 * weights[i] : weights[i];
     }
 
-    float4 color = float4(base.rgb * DiffuseCoefficient * NdotL * shadow, base.a);
+float4 color = float4(base.rgb * NdotL * DiffuseCoefficient * shadow, base.a);
+
+
     return color;
 }
 

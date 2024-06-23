@@ -9,27 +9,31 @@ using WarSteel.Utils;
 
 public class EnemyAI : IComponent
 {
-    private float _chaseRange = 8000f;
+    private float _chaseRange = 32000f;
     private float _attackRange = 5000f;
-    private float _speed = 100000f;
     private bool _canMove = true;
     private int _delayBeforeMove = 1000;
     public bool _isReloading = false;
     public int _reloadingTimeInMs = 3000;
     public float _bulletForce = 36000;
-    private float _maxForce = 20000f;
+    private float _maxForce = 9000f * 9;
     private GameObject _lastBullet;
-
     private Player _player;
-
     private DynamicBody _rb;
     private Transform _turretTransform;
     private Transform _cannonTransform;
+
+    private float _stuckTime = 0;
+    private bool _flag = true;
+
+    private enum State { Idle, Chase, Attack, Retreat }
+    private State _currentState;
 
     public EnemyAI(Transform turretTransform, Transform cannonTransform)
     {
         _turretTransform = turretTransform;
         _cannonTransform = cannonTransform;
+        _currentState = State.Idle;
     }
 
     public void OnStart(GameObject self, Scene scene)
@@ -43,7 +47,11 @@ public class EnemyAI : IComponent
     {
         Enemy self = (Enemy)_self;
 
-
+        if (Vector3.Dot(self.Transform.Up, Vector3.Up) < 0.4f)
+        {
+            self.Health = 0;
+            return;
+        }
 
         if (self.isDead) return;
 
@@ -53,34 +61,68 @@ public class EnemyAI : IComponent
         float distanceToPlayer = directionToPlayer.Length();
         directionToPlayer.Normalize();
 
-        if (_canMove && distanceToPlayer > 0)
+        switch (_currentState)
         {
-            Timer.Timeout(_delayBeforeMove, () => _canMove = true);
-
-            directionToPlayer.Normalize();
-
-            if (distanceToPlayer <= _chaseRange && distanceToPlayer >= _attackRange)
-            {
-                RotateTowardsPlayer(self, directionToPlayer);
-                RotateTurret(self);
-                Vector3 desiredVelocity = self.Transform.Forward * _speed;
-                Vector3 currentVelocity = _rb.Velocity;
-                Vector3 force = desiredVelocity - currentVelocity;
-
-                if (force.Length() > _maxForce)
+            case State.Idle:
+                if (distanceToPlayer <= _chaseRange)
                 {
-                    force.Normalize();
-                    force *= -_maxForce;
+                    _currentState = State.Chase;
                 }
+                break;
 
-                _rb.ApplyForce(force);
-            }
-        }
+            case State.Chase:
+                if (_canMove && distanceToPlayer > _attackRange)
+                {
+                    Timer.Timeout(_delayBeforeMove, () => _canMove = true);
+                    RotateTurret(self, gameTime);
+                    RotateBody(self);
 
-        if (distanceToPlayer <= _attackRange)
-        {
-            RotateTurret(self);
-            Shoot(scene, self);
+                    if (_rb.Velocity.Length() < 100 && _flag)
+                    {
+                        if (_stuckTime == 0)
+                        {
+                            _stuckTime = gameTime.TotalGameTime.Seconds;
+                        }
+
+                        if (gameTime.TotalGameTime.Seconds - _stuckTime > 1)
+                        {
+                            _rb.ApplyForce(self.Transform.Forward * _maxForce * 20);
+                            _flag = false;
+                            Timer.Timeout(300,() => _flag = true);
+                        }
+                    }
+                    else {
+                        _stuckTime = 0;
+                    }
+
+                    if (_rb.Velocity.Length() < 300)
+                    {
+                        _rb.ApplyForce(-self.Transform.Forward * _maxForce);
+                    }
+                    else
+                    {
+                        _rb.ApplyForce(self.Transform.Forward * _maxForce);
+                    }
+
+                }
+                if (distanceToPlayer <= _attackRange)
+                {
+                    _currentState = State.Attack;
+                }
+                break;
+
+            case State.Attack:
+                RotateTurret(self, gameTime);
+                Shoot(scene, self);
+                if (distanceToPlayer > _attackRange)
+                {
+                    _currentState = State.Chase;
+                }
+                break;
+
+            case State.Retreat:
+                // Implement retreat logic if necessary
+                break;
         }
     }
 
@@ -113,22 +155,57 @@ public class EnemyAI : IComponent
             }
         }), Vector3.Zero, 5, 0, 0));
         bullet.AddComponent(new LightComponent(Color.White));
+        Timer.Timeout(3 * _reloadingTimeInMs, () => bullet.Destroy());
         return bullet;
     }
 
-    private void RotateTurret(Enemy self)
+    private void RotateTurret(Enemy self, GameTime gameTime)
     {
-        Vector3 absPosition = _player.Transform.AbsolutePosition + _player.GetComponent<DynamicBody>().Velocity * 0.2f;
-        absPosition.Y = self.Transform.AbsolutePosition.Y + 10;
-        _turretTransform.LookAt(absPosition);
-        _turretTransform.Orientation *= Quaternion.CreateFromAxisAngle(_turretTransform.Up, MathHelper.ToRadians(180));
+        float angle = CalculateAngle(self, _turretTransform);
+        float rotationSpeed = 2.0f;
+        Quaternion targetOrientation = angle == 0 ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Up, angle);
+        _turretTransform.Orientation = Quaternion.Slerp(_turretTransform.Orientation, _turretTransform.Orientation * targetOrientation, rotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
     }
 
-    private void RotateTowardsPlayer(Enemy self, Vector3 direction)
+    private void RotateBody(Enemy self)
     {
-        Vector3 tankForward = new Vector3(direction.X, 0, direction.Z);
-        Quaternion tankTargetRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateWorld(Vector3.Zero, tankForward, Vector3.UnitY));
-        self.Transform.Orientation = Quaternion.Lerp(self.Transform.Orientation, tankTargetRotation, 0.1f);
+        float angle = CalculateAngle(self, self.Transform);
+        if (angle > 0)
+        {
+            _rb.ApplyTorque(Vector3.Up * 9000000);
+        }
+        else if (angle < 0)
+        {
+            _rb.ApplyTorque(-Vector3.Up * 9000000);
+        }
+
+    }
+
+    private float CalculateAngle(Enemy self, Transform transform)
+    {
+        Vector3 direction = _player.Transform.AbsolutePosition + _player.GetComponent<DynamicBody>().Velocity * 0.2f;
+        direction.Y = self.Transform.AbsolutePosition.Y;
+        direction = 2 * self.Transform.AbsolutePosition - direction;
+
+        Vector3 forward = transform.Forward;
+        forward.Y = 0;
+        forward = Vector3.Normalize(forward);
+
+        Vector3 targetDirection = Vector3.Normalize(direction - self.Transform.AbsolutePosition);
+        targetDirection.Y = 0;
+        targetDirection = Vector3.Normalize(targetDirection);
+
+        float angle = (float)Math.Acos(Vector3.Dot(forward, targetDirection));
+
+        if (float.IsNaN(angle)) return 0;
+
+        Vector3 cross = Vector3.Cross(forward, targetDirection);
+        if (cross.Y < 0)
+        {
+            angle = -angle;
+        }
+
+        return angle;
     }
 
     public void Destroy(GameObject self, Scene scene) { }

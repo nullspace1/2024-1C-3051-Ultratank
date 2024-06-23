@@ -20,6 +20,7 @@ class LightComponent : IComponent {
     public void OnStart(GameObject self, Scene scene){
 
         CurrentLightSource = new Light(self.Transform,_color);
+        self.Renderer = new Common.Shaders.Renderer(Color.White);
         scene.GetSceneProcessor<LightProcessor>().AddLight(CurrentLightSource);
     }
 

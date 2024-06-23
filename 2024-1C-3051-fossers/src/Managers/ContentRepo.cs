@@ -14,13 +14,15 @@ public class ContentRepoManager
     private const string ContentFolderSpriteFonts = "SpriteFonts/";
     private const string ContentFolderTextures = "Textures/";
 
-    private Dictionary<string, Model> modelCache = new Dictionary<string, Model>();
-    private Dictionary<string, Effect> effectCache = new Dictionary<string, Effect>();
-    private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
-    private Dictionary<string, TextureCube> textureCubeCache = new Dictionary<string, TextureCube>();
-    private Dictionary<string, SpriteFont> spriteFontCache = new Dictionary<string, SpriteFont>();
-    private Dictionary<string, SoundEffect> soundEffectCache = new Dictionary<string, SoundEffect>();
-    private Dictionary<string, Song> songCache = new Dictionary<string, Song>();
+    private Dictionary<string, Model> modelCache = new();
+    private Dictionary<string, Effect> effectCache = new();
+    private Dictionary<string, Texture2D> textureCache = new();
+    private Dictionary<string, TextureCube> textureCubeCache = new();
+    private Dictionary<string, SpriteFont> spriteFontCache = new();
+    private Dictionary<string, SoundEffect> soundEffectCache = new();
+    private Dictionary<string, Song> songCache = new();
+
+    public RenderTarget2D GlobalRenderTarget;
 
     private ContentManager _manager;
 
@@ -31,11 +33,20 @@ public class ContentRepoManager
         get => _manager;
     }
 
-    public static void SetUpInstance(ContentManager manager)
+    public static void SetUpInstance(ContentManager manager, GraphicsDevice device)
     {
         _INSTANCE = new ContentRepoManager
         {
-            _manager = manager
+            _manager = manager,
+            GlobalRenderTarget = new RenderTarget2D(
+             device,
+             device.Viewport.Width,
+             device.Viewport.Height,
+             false, // Mipmap
+             SurfaceFormat.Color, // Surface format for color rendering
+             DepthFormat.Depth24, // Depth buffer format
+             0, // Mip levels
+             RenderTargetUsage.PlatformContents)
         };
     }
 

@@ -30,7 +30,7 @@ public class PhysicsProcessor : ISceneProcessor
 
     public void Draw(Scene scene) { }
 
-    public void Initialize(Scene scene){}
+    public void Initialize(Scene scene) { }
 
     public void AddBody(RigidBody r)
     {
@@ -81,9 +81,13 @@ public class PhysicsProcessor : ISceneProcessor
             body.Awake = true;
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
+
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
             body.ApplyLinearImpulse(-body.Velocity.Linear * r.Drag);
             body.ApplyAngularImpulse(-body.Velocity.Angular * r.AngularDrag);
+
+            r.Forces *= 0;
+            r.Torques *= 0;
 
         }
     }
@@ -205,7 +209,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
             int featureId;
             manifold.GetContact(i, out offset, out normal, out depth, out featureId);
 
-            Microsoft.Xna.Framework.Vector3 xnaOffset = new Microsoft.Xna.Framework.Vector3(offset.X, offset.Y, offset.Z);
+            Microsoft.Xna.Framework.Vector3 xnaOffset = new(offset.X, offset.Y, offset.Z);
             Microsoft.Xna.Framework.Vector3 contactPositionA = A.Transform.LocalToWorldPosition(xnaOffset);
             Microsoft.Xna.Framework.Vector3 contactPositionB = B.Transform.LocalToWorldPosition(xnaOffset);
 

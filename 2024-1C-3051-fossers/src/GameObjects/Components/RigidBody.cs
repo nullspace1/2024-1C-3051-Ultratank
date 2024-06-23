@@ -77,10 +77,7 @@ public class StaticBody : RigidBody
     {
         TypedIndex index = processor.AddShape(_collider);
         Vector3 position = Transform.Position + Offset;
-        StaticDescription staticDescription = new(
-            new System.Numerics.Vector3(position.X, position.Y, position.Z),
-            index
-        );
+        StaticDescription staticDescription = new(new System.Numerics.Vector3(position.X, position.Y, position.Z),new System.Numerics.Quaternion(Transform.Orientation.X,Transform.Orientation.Y,Transform.Orientation.Z,Transform.Orientation.W),index);
         processor.AddStatic(this, staticDescription);
     }
 
@@ -102,9 +99,9 @@ public class DynamicBody : RigidBody
 
     private float _angularDragCoeff = 0.3f;
 
-    private Vector3 _forces = Vector3.Zero;
+    public Vector3 Forces = Vector3.Zero;
 
-    private Vector3 _torques = Vector3.Zero;
+    public Vector3 Torques = Vector3.Zero;
 
     public Vector3 Velocity
     {
@@ -135,12 +132,12 @@ public class DynamicBody : RigidBody
 
     public Vector3 Force
     {
-        get => _forces;
+        get => Forces;
     }
 
     public Vector3 Torque
     {
-        get => _torques;
+        get => Torques;
     }
 
     public DynamicBody(Collider collider, Vector3 offset, float mass, float dragCoeff, float angularDragCoeff) : base(collider, offset)
@@ -161,19 +158,17 @@ public class DynamicBody : RigidBody
         Transform.Position = desc.Pose.Position - Vector3.Transform(Offset,Matrix.CreateFromQuaternion(Transform.Orientation));
         Transform.Orientation = desc.Pose.Orientation;
 
-        _forces *= 0;
-        _torques *= 0;
         base.OnUpdate(self, time, scene);
     }
 
     public void ApplyForce(Vector3 force)
     {
-        _forces += force;
+        Forces += force;
     }
 
     public void ApplyTorque(Vector3 torque)
     {
-        _torques += torque;
+        Torques += torque;
     }
 
 

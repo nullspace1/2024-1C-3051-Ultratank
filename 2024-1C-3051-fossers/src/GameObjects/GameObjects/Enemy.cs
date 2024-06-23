@@ -33,7 +33,6 @@ public class Enemy : GameObject
         Transform turretTransform = new(Transform, Vector3.Zero);
         Transform cannonTransform = new(turretTransform, Vector3.Zero);
 
-        RigidBody rb = new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 2f);
         EnemyAI ai = new(turretTransform, cannonTransform);
         _healthBar = new();
 
@@ -43,8 +42,8 @@ public class Enemy : GameObject
         _wave = wave;
 
         AudioManager.Instance.AddSoundEffect(Audios.ENEMY_DIED, ContentRepoManager.Instance().GetSoundEffect("enemy_died"));
-
-        AddComponent(rb);
+        
+        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 0.2f));
         AddComponent(ai);
         AddComponent(_healthBar);
     }

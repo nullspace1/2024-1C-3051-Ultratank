@@ -30,7 +30,7 @@ class MapFactory
     public GameObject Tree(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/SimpleTree");
-        Renderer renderer = new Renderer(Color.Brown);
+        Renderer renderer = new(Color.Brown);
         GameObject tree = new(new string[] { GROUND }, new Transform(), model, renderer);
         Random rand = new();
         float scaleFactor = (float)Crypto.GetRandomNumber(0.9, 1.5);
@@ -49,7 +49,7 @@ class MapFactory
     public GameObject Bush(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
-       Renderer renderer = new Renderer(Color.Red);
+       Renderer renderer = new(Color.Red);
         GameObject bush = new(new string[] { GROUND }, new Transform(), model, renderer);
         bush.Transform.Position = position;
         return bush;
@@ -58,7 +58,7 @@ class MapFactory
     public GameObject Ground(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        Renderer renderer = new Renderer(Color.Gray);
+        Renderer renderer = new(Color.Gray);
         GameObject ground = new(new string[] { GROUND }, new Transform(), model, renderer,true);
         ground.Transform.Position = position;
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));
