@@ -21,10 +21,8 @@ public abstract class Scene
     public Camera Camera;
     private bool _isPaused = false;
     public bool IsPaused { get => _isPaused; }
-
-
-
     public SkyBox SkyBox;
+
 
     public void Pause()
     {
@@ -46,8 +44,6 @@ public abstract class Scene
         GraphicsDeviceManager = graphics;
         SpriteBatch = spriteBatch;
         Camera = new Camera(Vector3.Zero, GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
-       
-
     }
 
     public void SetCamera(Camera camera)
@@ -153,6 +149,8 @@ public abstract class Scene
 
     public void Draw()
     {
+
+        ResetGraphicsDevice();
 
         SkyBox.DrawSkyBox(this);
 

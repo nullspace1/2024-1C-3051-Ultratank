@@ -35,9 +35,12 @@ public class WaveProcessor : ISceneProcessor
     private Scene _scene;
     private Player _player;
 
-    public WaveProcessor(Player player)
+    private MapGrid _grid;
+
+    public WaveProcessor(Player player, MapGrid grid)
     {
         _player = player;
+        _grid = grid;
     }
 
     public void Initialize(Scene scene)
@@ -59,15 +62,14 @@ public class WaveProcessor : ISceneProcessor
         _player.Renderer.ClearImpacts();
         WaveNumber++;
         EnemiesLeft = GetEnemiesToSpawn();
-        Random rand = new();
 
-        // Spawn new enemies
         for (int i = 0; i < EnemiesLeft; i++)
         {
-            Vector3 spawnPosition = VectorUtils.GetRandomVec3Pos(new(0, 1000, 0), rand);
+            Vector3 spawnPosition = _grid.GetRandomUnusedGridPosition(100);
             Enemy enemy = new(spawnPosition, WaveNumber * 5, this);
             _scene.AddGameObject(enemy);
         }
+
     }
 
     private int GetEnemiesToSpawn()

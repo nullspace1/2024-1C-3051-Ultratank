@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -9,6 +10,9 @@ using WarSteel.Scenes.Main;
 public class Player : GameObject
 {
     private float _health = 100;
+
+    public bool touchingGround = true;
+
     public float Health
     {
         get => _health;
@@ -39,7 +43,11 @@ public class Player : GameObject
         Model.SetTransformToPart("Turret", turretTransform);
         Model.SetTransformToPart("Cannon", cannonTransform);
 
-        AddComponent(new DynamicBody(new Collider(new ConvexShape(Model.GetModel(),Transform), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 2f));
+        AddComponent(new DynamicBody(new Collider(new ConvexShape(Model.GetModel(),Transform), (c) => {
+            if (c.Entity.HasTag("ground")){
+                touchingGround = true;
+            }
+        }), new Vector3(0, 100, 0), 5000, 0.9f, 2f));
         AddComponent(new TurretController(turretTransform, scene.GetCamera(), 3f));
         AddComponent(new CannonController(cannonTransform, scene.GetCamera()));
         AddComponent(new PlayerControls(cannonTransform));
@@ -50,7 +58,7 @@ public class Player : GameObject
     {
         WaveProcessor wave = _scene.GetSceneProcessor<WaveProcessor>();
         new LooseScreen(_scene).Initialize(wave.EnemiesLeft, wave.WaveNumber, wave.GetScore());
-        RemoveComponent<PlayerControls>();
+        RemoveComponent<PlayerControls>(_scene);
         _scene.Camera.StopFollowing();
     }
 

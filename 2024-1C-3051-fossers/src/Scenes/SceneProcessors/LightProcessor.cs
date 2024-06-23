@@ -98,18 +98,8 @@ class LightProcessor : ISceneProcessor
         _device.BlendState = BlendState.Opaque;
 
         var visibleObjects = scene.GetVisibleObjects(scene.Camera.View * scene.Camera.Projection);
-        var visibleLights = new List<Light>();
+        List<Light> visibleLights = GetVisibleLights(scene);
 
-        var frustum = new BoundingFrustum(scene.Camera.View * scene.Camera.Projection);
-        foreach (var light in _lights)
-        {
-            if (frustum.Contains(new BoundingSphere(light.Transform.Position, 100)) != ContainmentType.Disjoint)
-            {
-                visibleLights.Add(light);
-            }
-        }
-
-        // Draw objects with lighting
         foreach (var light in visibleLights)
         {
             _device.BlendState = BlendState.Opaque;
@@ -125,14 +115,10 @@ class LightProcessor : ISceneProcessor
             {
                 obj.Renderer.DrawLight(obj, scene, light, false);
             }
-        }
 
-        // Apply bloom effect
-        _device.BlendState = BlendState.AlphaBlend;
-        bloomEffect.Parameters["Screen"].SetValue(_dynamicLightsRenderTarget);
+            _device.BlendState = BlendState.AlphaBlend;
+            bloomEffect.Parameters["Screen"].SetValue(_dynamicLightsRenderTarget);
 
-        foreach (var light in visibleLights)
-        {
             var pos = _device.Viewport.Project(light.Transform.AbsolutePosition, scene.Camera.Projection, scene.Camera.View, Matrix.Identity);
             var lightScreenPos = new Vector2(pos.X / _device.Viewport.Width, pos.Y / _device.Viewport.Height);
             var distance = 1 / (1 - pos.Z) * 0.0001f;
@@ -141,9 +127,9 @@ class LightProcessor : ISceneProcessor
             bloomEffect.Parameters["LightColor"].SetValue(light.Color.ToVector3());
             bloomEffect.Parameters["Distance"].SetValue(distance);
             screenQuad.Draw(bloomEffect);
+            
         }
 
-        // Final rendering
         _device.SetRenderTarget(ContentRepoManager.Instance().GlobalRenderTarget);
         _device.BlendState = BlendState.AlphaBlend;
 
@@ -152,6 +138,22 @@ class LightProcessor : ISceneProcessor
         scene.SpriteBatch.End();
 
         scene.ResetGraphicsDevice();
+    }
+
+    private List<Light> GetVisibleLights(Scene scene)
+    {
+        var visibleLights = new List<Light>();
+
+        var frustum = new BoundingFrustum(scene.Camera.View * scene.Camera.Projection);
+        foreach (var light in _lights)
+        {
+            if (frustum.Contains(new BoundingSphere(light.Transform.Position, 100)) != ContainmentType.Disjoint)
+            {
+                visibleLights.Add(light);
+            }
+        }
+
+        return visibleLights;
     }
 
     public void AddLight(Light light)

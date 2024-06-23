@@ -78,7 +78,10 @@ public class PhysicsProcessor : ISceneProcessor
         {
 
             BodyReference body = Simulation.Bodies[r.Handle];
-            body.Awake = true;
+
+            if ((r.Forces != Vector3.Zero || r.Torques != Vector3.Zero) && !body.Awake){
+                body.Awake = true;
+            }
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
 

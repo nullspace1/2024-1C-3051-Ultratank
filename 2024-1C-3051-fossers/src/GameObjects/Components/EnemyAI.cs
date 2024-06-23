@@ -13,16 +13,19 @@ public class EnemyAI : IComponent
     private const float AttackRange = 5000f;
     private const int DelayBeforeMove = 1000;
     private const int ReloadingTimeInMs = 3000;
-    private const float BulletForce = 36000;
+    private const float BulletForce = 3600000 * 3;
+    private const float BulletMass = 500 * 3;
     private const float MaxForce = 81000f;
     private const float MinVelocityToMove = 10;
     private const float TimeToDetectStuck = 1;
-    private const float ExtraForceWhenStuck = 20;
+    private const float ExtraForceWhenStuck = 10;
     private const int DelayBetweenTorqueApplications = 100;
     private const float MinVelocityForForceApplication = 300;
     private const float RotationSpeed = 2.0f;
     private const float TorqueValue = 9000000;
     private const float ExtraTorqueWhenStuck = 20;
+
+    private  Random _random = new();
 
     private bool _canMove = true;
     private bool _isReloading = false;
@@ -35,7 +38,7 @@ public class EnemyAI : IComponent
     private Transform _turretTransform;
     private Transform _cannonTransform;
 
-    private enum State { Idle, Chase, Attack, Retreat }
+    private enum State { Idle, Chase, Attack}
     private State _currentState;
 
     public EnemyAI(Transform turretTransform, Transform cannonTransform)
@@ -105,7 +108,7 @@ public class EnemyAI : IComponent
                 if (gameTime.TotalGameTime.Seconds - _stuckTime > TimeToDetectStuck)
                 {
                     _rb.ApplyForce(self.Transform.Forward * MaxForce * ExtraForceWhenStuck);
-                    _rb.ApplyTorque(self.Transform.Up * TorqueValue * ExtraTorqueWhenStuck * MathF.Sign(CalculateAngle(self,self.Transform)));
+                    _rb.ApplyTorque(self.Transform.Up * TorqueValue * ExtraTorqueWhenStuck * MathF.Sign(CalculateAngleToPlayer(self,_rb.Transform)));
                     _stuckFlag = false;
                     Timer.Timeout(DelayBetweenTorqueApplications, () => _stuckFlag = true);
                 }
@@ -147,7 +150,7 @@ public class EnemyAI : IComponent
         if (_isReloading) return;
 
         _lastBullet?.Destroy();
-        var bullet = CreateBullet(self.Damage);
+        var bullet = CreateBullet(self.Damage,scene);
         _lastBullet = bullet;
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_cannonTransform.Forward * BulletForce);
@@ -156,25 +159,29 @@ public class EnemyAI : IComponent
         Timer.Timeout(ReloadingTimeInMs, () => _isReloading = false);
     }
 
-    private GameObject CreateBullet(float damage)
+    private GameObject CreateBullet(float damage,Scene scene)
     {
         var bullet = new GameObject(new[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Renderer(Color.Red))
         {
             Transform = 
             {
-                Position = _cannonTransform.AbsolutePosition - _cannonTransform.Forward * 500 + _cannonTransform.Up * 200
+                Position = _cannonTransform.AbsolutePosition - _cannonTransform.Forward * 500 + _cannonTransform.Up * 250
             }
         };
         
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
-            if (c.Entity.HasTag("player"))
+            if (c.Entity.HasTag("player") && !bullet.HasTag("HitGround"))
             {
                 _player.Health -= damage;
-                bullet.Destroy();
                 _player.Renderer.AddImpact(c.Entity.Transform.WorldToLocalPosition(bullet.Transform.AbsolutePosition));
+                bullet.Destroy();
             }
-        }), Vector3.Zero, 5, 0, 0));
+            if (c.Entity.HasTag("ground")){
+                bullet.AddTag("HitGround");
+            }
+            bullet.RemoveComponent<LightComponent>(scene);
+        }), Vector3.Zero,BulletMass,0,0));
         
         bullet.AddComponent(new LightComponent(Color.White));
         Timer.Timeout(3 * ReloadingTimeInMs, () => bullet.Destroy());
@@ -184,14 +191,14 @@ public class EnemyAI : IComponent
 
     private void RotateTurret(Enemy self, GameTime gameTime)
     {
-        float angle = CalculateAngle(self, _turretTransform);
+        float angle = CalculateAngleToPlayer(self, _turretTransform);
         var targetOrientation = angle == 0 ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Up, angle);
         _turretTransform.Orientation = Quaternion.Slerp(_turretTransform.Orientation, _turretTransform.Orientation * targetOrientation, RotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
     }
 
     private void RotateBody(Enemy self)
     {
-        float angle = CalculateAngle(self, self.Transform);
+        float angle = CalculateAngleToPlayer(self, self.Transform);
         if (angle > 0)
         {
             _rb.ApplyTorque(Vector3.Up * TorqueValue);
@@ -202,7 +209,7 @@ public class EnemyAI : IComponent
         }
     }
 
-    private float CalculateAngle(Enemy self, Transform transform)
+    private float CalculateAngleToPlayer(Enemy self, Transform transform)
     {
         var direction = _player.Transform.AbsolutePosition + _player.GetComponent<DynamicBody>().Velocity * 0.2f;
         direction.Y = self.Transform.AbsolutePosition.Y;

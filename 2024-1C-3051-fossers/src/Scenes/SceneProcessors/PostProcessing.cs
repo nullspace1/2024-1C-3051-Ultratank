@@ -13,7 +13,7 @@ public class PostProcessing : ISceneProcessor
 
     public void Draw(Scene scene)
     {
-        _postProcessingEffect.Parameters["Screen"].SetValue(ContentRepoManager.Instance().GlobalRenderTarget);;
+        _postProcessingEffect.Parameters["Screen"].SetValue(ContentRepoManager.Instance().GlobalRenderTarget);
         _quad.Draw(_postProcessingEffect);
     }
 

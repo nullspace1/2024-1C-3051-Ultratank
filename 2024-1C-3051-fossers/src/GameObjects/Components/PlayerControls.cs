@@ -10,15 +10,17 @@ namespace WarSteel.Scenes.Main
 {
     public class PlayerControls : IComponent
     {
-        private const float BulletForce = 36000;
         private const int ReloadingTimeInMs = 1000;
         private const float ForwardForce = 100000f;
         private const float TorqueForce = 1000000f;
+
+
+        private const float BulletForce = 3600000 * 3;
+        private const float BulletMass = 500 * 3;
         private const float FlipTimeThreshold = 10f;
         private const float HealthReductionOnFlip = 1f;
-        private const float CanMoveAngleThreshold = 0.7f;
-        private const float CanMoveHeightThreshold = 50f;
-        private const float FlipAngleThreshold = 0.2f;
+        private const float CanMoveAngleThreshold = 0.5f;
+        private const float FlipAngleThreshold = 0.6f;
         private const float BulletPositionOffsetForward = 1000f;
         private const float BulletPositionOffsetUp = 200f;
 
@@ -65,7 +67,7 @@ namespace WarSteel.Scenes.Main
                 _startFlipTime = 0;
             }
 
-            _canMove = Vector3.Dot(self.Transform.Up, Vector3.Up) >= CanMoveAngleThreshold && self.Transform.AbsolutePosition.Y <= CanMoveHeightThreshold;
+            _canMove = Vector3.Dot(self.Transform.Up, Vector3.Up) >= CanMoveAngleThreshold && ((Player)self).touchingGround;
 
             if (Keyboard.GetState().IsKeyDown(Keys.W) && _canMove)
             {
@@ -103,6 +105,8 @@ namespace WarSteel.Scenes.Main
             {
                 Shoot(self, scene);
             }
+
+            if (self.GetComponent<DynamicBody>().Velocity.Y > 0) ((Player)self).touchingGround = false;
         }
 
         public void Shoot(GameObject self, Scene scene)
@@ -110,7 +114,7 @@ namespace WarSteel.Scenes.Main
             if (_isReloading) return;
 
             _lastBullet?.Destroy();
-            var bullet = CreateBullet((Player)self);
+            var bullet = CreateBullet((Player)self, scene);
             _lastBullet = bullet;
             AudioManager.Instance.PlaySound(Audios.SHOOT);
             scene.AddGameObject(bullet);
@@ -120,19 +124,24 @@ namespace WarSteel.Scenes.Main
             Timer.Timeout(ReloadingTimeInMs, () => _isReloading = false);
         }
 
-        public GameObject CreateBullet(Player self)
+        public GameObject CreateBullet(Player self, Scene scene)
         {
             var bullet = new GameObject(new[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Renderer(Color.Red));
             bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
+        {
+            if (c.Entity.HasTag("enemy") && !bullet.HasTag("HitGround"))
             {
-                if (c.Entity.HasTag("enemy"))
-                {
-                    var enemy = (Enemy)c.Entity;
-                    enemy.Health -= self.Damage;
-                    enemy.Renderer.AddImpact(c.Entity.Transform.WorldToLocalPosition(bullet.Transform.AbsolutePosition));
-                    bullet.Destroy();
-                }
-            }), Vector3.Zero, 5, 0, 0));
+                var enemy = (Enemy)c.Entity;
+                enemy.Health -= self.Damage;
+                enemy.Renderer.AddImpact(c.Entity.Transform.WorldToLocalPosition(bullet.Transform.AbsolutePosition));
+                bullet.Destroy();
+            }
+            if (c.Entity.HasTag("ground"))
+            {
+                bullet.AddTag("HitGround");
+            }
+            bullet.RemoveComponent<LightComponent>(scene);
+        }), Vector3.Zero, BulletMass, 0, 0));
             bullet.AddComponent(new LightComponent(Color.Blue));
             bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
             bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * BulletPositionOffsetForward + _tankCannon.Up * BulletPositionOffsetUp;

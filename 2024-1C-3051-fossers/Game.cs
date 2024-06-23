@@ -65,13 +65,13 @@ public class Game : Microsoft.Xna.Framework.Game
         Graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
         SceneManager.CurrentScene().Draw();
 
-        _quadEffect.Parameters["Texture"].SetValue(ContentRepoManager.Instance().GlobalRenderTarget);
-
         Graphics.GraphicsDevice.SetRenderTarget(null);
         Graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
-        _fullScreenQuad.Draw(_quadEffect);
-
+        // Draw the render target to the back buffer
+        SpriteBatch.Begin();
+        SpriteBatch.Draw(ContentRepoManager.Instance().GlobalRenderTarget, Vector2.Zero, Color.White);
+        SpriteBatch.End();
 
         base.Draw(gameTime);
     }

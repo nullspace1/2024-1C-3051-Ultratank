@@ -17,7 +17,7 @@ public class GameObject
     public ObjectModel Model { get; set; }
     public Renderer Renderer;
 
-    private string[] _tags { get; }
+    private List<string> _tags { get; }
     private bool _toDestroy = false;
     public string Id { get; }
     public bool AlwaysRender;
@@ -25,7 +25,7 @@ public class GameObject
     public GameObject(string[] tags, Transform transform, Model model, Renderer renderer, bool alwaysRender = false) : base()
     {
         Id = Guid.NewGuid().ToString();
-        _tags = tags;
+        _tags = new(tags);
         Transform = transform;
         Model = new ObjectModel(model);
         Renderer = renderer;
@@ -37,8 +37,14 @@ public class GameObject
         _components.Add(c.GetType(), c);
     }
 
-    public void RemoveComponent<T>() where T : class, IComponent
+    public void AddTag(string tag){
+        _tags.Add(tag);
+    }
+
+    public void RemoveComponent<T>(Scene scene) where T : class, IComponent
     {
+        _components.TryGetValue(typeof(T),out var c);
+        c?.Destroy(this,scene);
         _components.Remove(typeof(T));
     }
 
