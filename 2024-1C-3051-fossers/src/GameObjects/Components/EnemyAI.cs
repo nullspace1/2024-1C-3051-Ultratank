@@ -18,19 +18,15 @@ public class EnemyAI : IComponent
     private const float MaxForce = 81000f;
     private const float MinVelocityToMove = 10;
     private const float TimeToDetectStuck = 1;
-    private const float ExtraForceWhenStuck = 10;
-    private const int DelayBetweenTorqueApplications = 100;
+    private const int SetAsUnStuckDelay = 1000;
     private const float MinVelocityForForceApplication = 300;
     private const float RotationSpeed = 2.0f;
     private const float TorqueValue = 9000000;
-    private const float ExtraTorqueWhenStuck = 20;
-
-    private  Random _random = new();
 
     private bool _canMove = true;
     private bool _isReloading = false;
     private float _stuckTime = 0;
-    private bool _stuckFlag = true;
+    private bool _stuckFlag = false;
 
     private GameObject _lastBullet;
     private Player _player;
@@ -38,7 +34,7 @@ public class EnemyAI : IComponent
     private Transform _turretTransform;
     private Transform _cannonTransform;
 
-    private enum State { Idle, Chase, Attack}
+    private enum State { Idle, Chase, Attack }
     private State _currentState;
 
     public EnemyAI(Transform turretTransform, Transform cannonTransform)
@@ -52,6 +48,12 @@ public class EnemyAI : IComponent
     {
         _rb = self?.GetComponent<DynamicBody>() ?? throw new InvalidOperationException("Dynamic body not found in enemy.");
         _player = scene?.GetEntityByTag<Player>("player") ?? throw new InvalidOperationException("Player not found in the scene.");
+    }
+
+    public void HandleCollision()
+    {
+        _stuckFlag = true;
+        Timer.Timeout(SetAsUnStuckDelay, () => _stuckFlag = false);
     }
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
@@ -92,13 +94,22 @@ public class EnemyAI : IComponent
 
     private void ChaseState(GameTime gameTime, Enemy self, float distanceToPlayer)
     {
-        if (_canMove && distanceToPlayer > AttackRange)
+        if (distanceToPlayer > AttackRange)
         {
-            Timer.Timeout(DelayBeforeMove, () => _canMove = true);
             RotateTurret(self, gameTime);
             RotateBody(self);
 
-            if (_rb.Velocity.Length() < MinVelocityToMove && _stuckFlag)
+            if (_stuckFlag)
+            {
+                _rb.ApplyForce(self.Transform.Forward * MaxForce);
+                return;
+            }
+            else
+            {
+                _stuckTime = 0;
+            }
+
+            if (_rb.Velocity.Length() < MinVelocityToMove)
             {
                 if (_stuckTime == 0)
                 {
@@ -107,17 +118,11 @@ public class EnemyAI : IComponent
 
                 if (gameTime.TotalGameTime.Seconds - _stuckTime > TimeToDetectStuck)
                 {
-                    _rb.ApplyForce(self.Transform.Forward * MaxForce * ExtraForceWhenStuck);
-                    _rb.ApplyTorque(self.Transform.Up * TorqueValue * ExtraTorqueWhenStuck * MathF.Sign(CalculateAngleToPlayer(self,_rb.Transform)));
-                    _stuckFlag = false;
-                    Timer.Timeout(DelayBetweenTorqueApplications, () => _stuckFlag = true);
+                    _stuckFlag = true;
+                    Timer.Timeout(SetAsUnStuckDelay, () => _stuckFlag = false);
                 }
+            }
 
-            }
-            else
-            {
-                _stuckTime = 0;
-            }
 
             if (_rb.Velocity.Length() < MinVelocityForForceApplication)
             {
@@ -128,10 +133,10 @@ public class EnemyAI : IComponent
                 _rb.ApplyForce(self.Transform.Forward * MaxForce);
             }
         }
-
-        if (distanceToPlayer <= AttackRange)
+        else
         {
             _currentState = State.Attack;
+            _stuckTime = 0;
         }
     }
 
@@ -150,25 +155,25 @@ public class EnemyAI : IComponent
         if (_isReloading) return;
 
         _lastBullet?.Destroy();
-        var bullet = CreateBullet(self.Damage,scene);
+        var bullet = CreateBullet(self.Damage, scene);
         _lastBullet = bullet;
         scene.AddGameObject(bullet);
         bullet.GetComponent<DynamicBody>().ApplyForce(-_cannonTransform.Forward * BulletForce);
-
+        AudioManager.Instance.PlaySound(Audios.SHOOT);
         _isReloading = true;
         Timer.Timeout(ReloadingTimeInMs, () => _isReloading = false);
     }
 
-    private GameObject CreateBullet(float damage,Scene scene)
+    private GameObject CreateBullet(float damage, Scene scene)
     {
         var bullet = new GameObject(new[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Renderer(Color.Red))
         {
-            Transform = 
+            Transform =
             {
                 Position = _cannonTransform.AbsolutePosition - _cannonTransform.Forward * 500 + _cannonTransform.Up * 250
             }
         };
-        
+
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
             if (c.Entity.HasTag("player") && !bullet.HasTag("HitGround"))
@@ -177,12 +182,13 @@ public class EnemyAI : IComponent
                 _player.Renderer.AddImpact(c.Entity.Transform.WorldToLocalPosition(bullet.Transform.AbsolutePosition));
                 bullet.Destroy();
             }
-            if (c.Entity.HasTag("ground")){
+            if (c.Entity.HasTag("ground"))
+            {
                 bullet.AddTag("HitGround");
             }
             bullet.RemoveComponent<LightComponent>(scene);
-        }), Vector3.Zero,BulletMass,0,0));
-        
+        }), Vector3.Zero, BulletMass, 0, 0));
+
         bullet.AddComponent(new LightComponent(Color.White));
         Timer.Timeout(3 * ReloadingTimeInMs, () => bullet.Destroy());
 

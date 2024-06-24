@@ -42,8 +42,14 @@ public class Enemy : GameObject
         _wave = wave;
 
         AudioManager.Instance.AddSoundEffect(Audios.ENEMY_DIED, ContentRepoManager.Instance().GetSoundEffect("enemy_died"));
-        
-        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) => { }), new Vector3(0, 100, 0), 5000, 0.9f, 0.2f));
+
+        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), (c) =>
+        {
+            if (!c.Entity.HasTag("SURFACE"))
+            {
+                GetComponent<EnemyAI>().HandleCollision();
+            }
+        }), new Vector3(0, 100, 0), 5000, 0.9f, 0.2f));
         AddComponent(ai);
         AddComponent(_healthBar);
     }

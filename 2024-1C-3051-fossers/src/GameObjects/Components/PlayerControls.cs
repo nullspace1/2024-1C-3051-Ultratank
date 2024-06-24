@@ -13,8 +13,6 @@ namespace WarSteel.Scenes.Main
         private const int ReloadingTimeInMs = 1000;
         private const float ForwardForce = 100000f;
         private const float TorqueForce = 1000000f;
-
-
         private const float BulletForce = 3600000 * 3;
         private const float BulletMass = 500 * 3;
         private const float FlipTimeThreshold = 10f;

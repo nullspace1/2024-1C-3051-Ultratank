@@ -58,7 +58,7 @@ class MapFactory
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
         Renderer renderer = new(Color.Gray);
-        GameObject ground = new(new string[] { GROUND }, new Transform(), model, renderer,true);
+        GameObject ground = new(new string[] { GROUND, "SURFACE" }, new Transform(), model, renderer,true);
         ground.Transform.Position = position;
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));
         return ground;

@@ -23,8 +23,11 @@ namespace WarSteel.Scenes.Main
         private const float CameraFieldOfView = MathHelper.PiOver2;
         private const float CameraNearPlane = 0.1f;
         private const float CameraFarPlane = 50000f;
-        private const int MapWidth = 9600;
-        private const int MapHeight = 9200;
+        private const int MapWidth = 9000;
+        private const int MapHeight = 9000;
+
+        private const int WallWidth = 9600;
+        private const int WallHeight = 9200;
 
         private static readonly Vector3 InitialCameraPosition = new(0, 900, -200);
         private static readonly Vector3 PlayerInitialPosition = new(0, 100, 0);
@@ -93,6 +96,7 @@ namespace WarSteel.Scenes.Main
         private Player InitializePlayer(MapFactory factory)
         {
             var player = factory.PlayerTank(PlayerInitialPosition);
+            player.Transform.Position = grid.GetRandomUnusedGridPosition(100);
             AddGameObject(player);
             Camera.Follow(player);
 
@@ -103,10 +107,10 @@ namespace WarSteel.Scenes.Main
 
         private void InitializeWalls(MapFactory factory)
         {
-            AddWall(factory, new Vector3(0, -MapHeight, MapWidth), WallOrientation1);
-            AddWall(factory, new Vector3(0, -MapHeight, -MapWidth), WallOrientation2);
-            AddWall(factory, new Vector3(MapWidth, -MapHeight, 0), WallOrientation3);
-            AddWall(factory, new Vector3(-MapWidth, -MapHeight, 0), WallOrientation4);
+            AddWall(factory, new Vector3(0, -WallHeight, WallWidth), WallOrientation1);
+            AddWall(factory, new Vector3(0, -WallHeight, -WallWidth), WallOrientation2);
+            AddWall(factory, new Vector3(WallWidth, -WallHeight, 0), WallOrientation3);
+            AddWall(factory, new Vector3(-WallWidth, -WallHeight, 0), WallOrientation4);
         }
 
         private void AddWall(MapFactory factory, Vector3 position, Quaternion orientation)
