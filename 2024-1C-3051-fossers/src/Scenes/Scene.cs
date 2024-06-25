@@ -115,8 +115,10 @@ public abstract class Scene
 
     public List<GameObject> GetGameObjects()
     {
-        List<GameObject> list = new();
-        foreach (var e in _gameObjects)
+        // creating this tmp list to prevent errors while modifying the collection in the loop.
+        List<GameObject> gameObjects = new(_gameObjects);
+        List<GameObject> list = new(gameObjects);
+        foreach (var e in gameObjects)
         {
             list.Add(e);
         }
@@ -157,7 +159,7 @@ public abstract class Scene
         List<GameObject> gb = GetVisibleObjects(Camera.View * Camera.Projection);
         foreach (var entity in gb)
         {
-            entity.Renderer.DrawDefault(entity,this);
+            entity.Renderer.DrawDefault(entity, this);
         }
 
         foreach (var sceneProcessor in _sceneProcessors.Values)
@@ -177,15 +179,18 @@ public abstract class Scene
         SpriteBatch.End();
 
         ResetGraphicsDevice();
-        
+
     }
 
-    public List<GameObject> GetVisibleObjects(Matrix viewProjection){
+    public List<GameObject> GetVisibleObjects(Matrix viewProjection)
+    {
         List<GameObject> visibleObjects = new();
-        foreach(var go in _gameObjects){
+        foreach (var go in _gameObjects)
+        {
             BoundingFrustum boundingFrustum = new(viewProjection);
             BoundingSphere boundingSphere = go.GetBoundingSphere();
-            if (boundingFrustum.Contains(boundingSphere) != ContainmentType.Disjoint || go.AlwaysRender){
+            if (boundingFrustum.Contains(boundingSphere) != ContainmentType.Disjoint || go.AlwaysRender)
+            {
                 visibleObjects.Add(go);
             }
         }
