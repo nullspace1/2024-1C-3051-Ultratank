@@ -161,16 +161,7 @@ class LightProcessor : ISceneProcessor
         _lights.Add(light);
     }
 
-<<<<<<< HEAD
     public void RemoveLight(Light light)
-=======
-    public void AddLightSource(LightSource s)
-    {
-        Sources.Add(s);
-    }
-
-    public Color GetAmbientColor()
->>>>>>> main
     {
         _lights.Remove(light);
     }

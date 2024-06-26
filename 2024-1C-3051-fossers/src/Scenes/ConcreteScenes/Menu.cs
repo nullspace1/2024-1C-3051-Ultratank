@@ -49,6 +49,6 @@ public class MenuScene : Scene
         for (int i = 0; i < numTress; i++)
             AddGameObject(factory.Tree(VectorUtils.GetRandomVec3Pos(Vector3.Zero, rand)));
         for (int i = 0; i < numRocks; i++)
-            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(new Vector3(0,100,0), rand), RockSize.LARGE));
+            AddGameObject(factory.Rock(VectorUtils.GetRandomVec3Pos(new Vector3(0, 100, 0), rand), RockSize.LARGE));
     }
 }
