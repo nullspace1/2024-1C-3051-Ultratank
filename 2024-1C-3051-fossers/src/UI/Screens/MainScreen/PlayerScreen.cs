@@ -1,13 +1,11 @@
 using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Scenes;
-using WarSteel.Screens;
 using WarSteel.UIKit;
 using WarSteel.Utils;
 
-public class PlayerScreen : UIScreen
+public class PlayerScreen
 {
-    public PlayerScreen() : base("player-screen") { }
     private UI _healthBar;
     private int _healthBarWidth = 600;
 
@@ -15,26 +13,39 @@ public class PlayerScreen : UIScreen
     private TextUI _reloadingTimeUIText;
     private float _reloadingTime;
     private float _currentReloadTime;
-    Vector2 screenCenter;
 
-    public override void Initialize(Scene scene)
+    private TextUI _dmgText;
+
+    Vector2 screenCenter;
+    private Scene _scene;
+
+    public PlayerScreen(Scene scene)
     {
-        GraphicsDeviceManager GraphicsDeviceManager = scene.GraphicsDeviceManager;
+        _scene = scene;
+    }
+
+    public void Initialize()
+    {
+        GraphicsDeviceManager GraphicsDeviceManager = _scene.GraphicsDeviceManager;
         screenCenter = Screen.GetScreenCenter(GraphicsDeviceManager);
         int screenWidth = Screen.GetScreenWidth(GraphicsDeviceManager);
         int screenHeight = Screen.GetScreenHeight(GraphicsDeviceManager);
 
-        Vector3 healthBarPos = new(screenCenter.X, screenHeight - 60, 0);
-        UI healthBarBG = new UI(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-bg"));
-        _healthBar = new UI(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-fill"));
+        Vector2 healthBarPos = new(screenCenter.X, screenHeight - 60);
+        UI healthBarBG = new(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-bg"));
+        _healthBar = new(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-fill"));
+
+        _dmgText = new Paragraph(GetDmgText(0));
+        UI dmg = new(new(screenCenter.X, screenHeight - 120), _dmgText);
 
         // add ui elements
-        AddUIElem(healthBarBG);
-        AddUIElem(_healthBar);
+        _scene.AddUI(healthBarBG);
+        _scene.AddUI(_healthBar);
+        _scene.AddUI(dmg);
 
-        // subscribe to player events and update the ui accordingly
         PlayerEvents.SubscribeToReload(OnPlayerStartedReloading);
         PlayerEvents.SubscribeToHealthChanged(OnPlayerHealthUpdated);
+        PlayerEvents.SubscribeToDamageChanged(OnPlayerDmgUpdated);
     }
 
     private string GetReloadingText()
@@ -45,9 +56,9 @@ public class PlayerScreen : UIScreen
     private void UpdateReloadingTimeText()
     {
         _currentReloadTime -= 10 / 1000f;
-        if (_currentReloadTime <= 0)
+        if (_currentReloadTime <= 0 && _scene.HasUI(_reloadingTimeUI))
         {
-            RemoveUIElem(_reloadingTimeUI);
+            _reloadingTimeUI?.Destroy();
             return;
         }
         _reloadingTimeUIText.Text = GetReloadingText();
@@ -56,26 +67,32 @@ public class PlayerScreen : UIScreen
 
     private void OnPlayerStartedReloading(int reloadingTimeInMs)
     {
-        RemoveUIElem(_reloadingTimeUI);
+        int screenHeight = Screen.GetScreenHeight(_scene.GraphicsDeviceManager);
+        _reloadingTimeUI?.Destroy();
         _reloadingTime = reloadingTimeInMs / 1000;
         _currentReloadTime = _reloadingTime;
         _reloadingTimeUIText = new Paragraph(GetReloadingText());
-        _reloadingTimeUI = new UI(new(screenCenter.X, screenCenter.Y, 0), _reloadingTimeUIText);
-        AddUIElem(_reloadingTimeUI);
+        _reloadingTimeUI = new UI(new(screenCenter.X, screenHeight - 240), _reloadingTimeUIText);
+        _scene.AddUI(_reloadingTimeUI);
 
         Timer.Timeout(10, UpdateReloadingTimeText);
     }
 
-    private void OnPlayerHealthUpdated(int health)
+    private void OnPlayerHealthUpdated(float health)
     {
-        // Calculate the width of the health bar based on the player's health percentage
-        float healthPercentage = health / 100f; // Calculate health percentage
-        int newHealthBarWidth = (int)(_healthBarWidth * healthPercentage); // Calculate new width
-
-        // Ensure the width does not go below 0
+        float healthPercentage = health / 100f;
+        int newHealthBarWidth = (int)(_healthBarWidth * healthPercentage);
         newHealthBarWidth = Math.Max(0, newHealthBarWidth);
-
-        // Update the health bar width
         _healthBar.Width = newHealthBarWidth;
+    }
+
+    private string GetDmgText(float dmg)
+    {
+        return "Dmg: " + dmg;
+    }
+
+    private void OnPlayerDmgUpdated(float dmg)
+    {
+        _dmgText.Text = GetDmgText(dmg);
     }
 }

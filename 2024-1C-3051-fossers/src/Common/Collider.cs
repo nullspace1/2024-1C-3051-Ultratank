@@ -14,11 +14,13 @@ using WarSteel.Managers.Gizmos;
 
 public class Collision
 {
-    public Entity Entity;
+    public GameObject Entity;
+    public Vector3 ImpactPoint;
 
-    public Collision(Entity entity)
+    public Collision(GameObject entity, Vector3 impactPoint)
     {
         Entity = entity;
+        ImpactPoint = impactPoint;
     }
 }
 
@@ -42,22 +44,11 @@ public class Collider
 
     public void OnCollide(Collision collision)
     {
-        _action.ExecuteAction(collision);
+        _action.Invoke(collision);
     }
 }
 
-public interface CollisionAction
-{
-    public void ExecuteAction(Collision collision);
-}
-
-public class NoAction : CollisionAction
-{
-    public void ExecuteAction(Collision collision)
-    {
-    }
-
-}
+public delegate void CollisionAction(Collision collision);
 
 
 public interface ColliderShape
@@ -136,10 +127,10 @@ public class ConvexShape : ColliderShape
     private ConvexHull _hull;
     private Vector3 _center;
 
-    public ConvexShape(Model model)
+    public ConvexShape(Model model, Transform transform)
     {
 
-        List<Vector3> list = new List<Vector3>();
+        List<Vector3> list = new();
 
         foreach (ModelMesh mesh in model.Meshes)
         {
@@ -150,7 +141,7 @@ public class ConvexShape : ColliderShape
 
                 foreach (VertexPositionNormalTexture vertex in vertices)
                 {
-                    Vector3 v = Vector3.Transform(vertex.Position, mesh.ParentBone.Transform);
+                    Vector3 v = Vector3.Transform(vertex.Position, transform.LocalToWorldMatrix(mesh.ParentBone.Transform));
                     list.Add(v);
                 }
             }
@@ -182,7 +173,7 @@ public class ConvexShape : ColliderShape
         for (int i = 0; i < _hull.Points.Length; i++)
         {
             Vector3Wide point = _hull.Points[i];
-            Vector3 pos = new Vector3(point.X[0], point.Y[0], point.Z[0]);
+            Vector3 pos = new(point.X[0], point.Y[0], point.Z[0]);
             gizmos.DrawSphere(position + pos, new Vector3(10, 10, 10));
         }
     }
@@ -198,48 +189,4 @@ public class ConvexShape : ColliderShape
     }
 
 
-}
-
-// TODO :: We need to implement this for more complex collisions.
-public class MeshShape : ColliderShape
-{
-
-    private Model _model;
-
-    private Mesh _mesh;
-
-    private Vector3 _center;
-
-    public MeshShape(Model model)
-    {
-        _mesh = new Mesh();
-    }
-
-    public void DrawGizmos(Vector3 position, Gizmos gizmos)
-    {
-        throw new NotImplementedException();
-    }
-
-    public BodyInertia GetInertia(DynamicBody body)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IShape GetShape()
-    {
-        throw new NotImplementedException();
-    }
-
-    private int NextPowerOfTwo(int n)
-    {
-        if (n < 1)
-            return 1;
-        n--;
-        n |= n >> 1;
-        n |= n >> 2;
-        n |= n >> 4;
-        n |= n >> 8;
-        n |= n >> 16;
-        return n + 1;
-    }
 }

@@ -16,8 +16,8 @@ class LineSegmentGizmoGeometry : GizmoGeometry
     {
         var vertices = new VertexPosition[2]
         {
-                new VertexPosition(Vector3.Zero),
-                new VertexPosition(Vector3.One),
+                new(Vector3.Zero),
+                new(Vector3.One),
         };
         var indices = new ushort[2] { 0, 1 };
         InitializeVertices(vertices);

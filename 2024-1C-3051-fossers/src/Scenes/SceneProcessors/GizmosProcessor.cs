@@ -7,11 +7,11 @@ using WarSteel.Scenes;
 public class GizmosProcessor : ISceneProcessor
 {
 
-    protected Gizmos _gizmos = new Gizmos();
+    protected Gizmos _gizmos = new();
 
     public void Draw(Scene scene)
     {
-        scene.GetEntities().ForEach(e =>
+        scene.GetGameObjects().ForEach(e =>
         {
             if (e.HasComponent<DynamicBody>())
             {
@@ -20,7 +20,7 @@ public class GizmosProcessor : ISceneProcessor
 
         });
 
-        scene.GetEntities().ForEach(e =>
+        scene.GetGameObjects().ForEach(e =>
        {
 
            if (e.HasComponent<StaticBody>())

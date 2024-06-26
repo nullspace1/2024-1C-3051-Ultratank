@@ -50,11 +50,23 @@
 /processorParam:TextureFormat=Compressed
 /build:3D/geometries/sphere.fbx
 
+#begin Audio/ambient.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/ambient.wav
+
 #begin Audio/button-click.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Audio/button-click.wav
+
+#begin Audio/enemy_died.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/enemy_died.wav
 
 #begin Audio/start-song.wav
 /importer:WavImporter
@@ -62,23 +74,29 @@
 /processorParam:Quality=Best
 /build:Audio/start-song.wav
 
+#begin Audio/tank-moving.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/tank-moving.mp3
+
 #begin Audio/tank-shot.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Audio/tank-shot.wav
 
-#begin Effects/BasicShader.fx
+#begin Effects/Bloom.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/BasicShader.fx
+/build:Effects/Bloom.fx
 
-#begin Effects/BasicTextureShader.fx
+#begin Effects/DefaultQuad.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/BasicTextureShader.fx
+/build:Effects/DefaultQuad.fx
 
 #begin Effects/Gizmos.fx
 /importer:EffectImporter
@@ -86,11 +104,23 @@
 /processorParam:DebugMode=Auto
 /build:Effects/Gizmos.fx
 
-#begin Effects/PhongShader.fx
+#begin Effects/PostProcessing.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:Effects/PhongShader.fx
+/build:Effects/PostProcessing.fx
+
+#begin Effects/Shader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Shader.fx
+
+#begin Effects/Shadow.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Shadow.fx
 
 #begin Effects/SkyBox.fx
 /importer:EffectImporter
@@ -154,6 +184,25 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=NoChange
 /build:Models/Map/LargeStone.fbx
+
+#begin Models/Map/Low_Poly_Tree_FBX.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/Map/Low_Poly_Tree_FBX.fbx
 
 #begin Models/Map/MediumStone.fbx
 /importer:FbxImporter
@@ -488,35 +537,11 @@
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
+/processorParam:PremultiplyAlpha=False
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
+/processorParam:TextureFormat=NoChange
 /build:Textures/skybox.dds
-
-#begin Textures/SkyBox.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/SkyBox.jpg
-
-#begin Textures/sunset.dds
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/sunset.dds
 
 #begin Textures/UI/health-bar-bg.jpg
 /importer:TextureImporter
@@ -577,4 +602,28 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/UI/secondary-btn.jpg
+
+#begin Textures/UI/tertiary-btn.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/UI/tertiary-btn.jpg
+
+#begin Textures/UI/transparent-bg.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/UI/transparent-bg.png
 

@@ -4,7 +4,6 @@ namespace WarSteel.Utils;
 
 public static class Screen
 {
-    // Function to get the center of the screen
     public static Vector2 GetScreenCenter(GraphicsDeviceManager graphics)
     {
         int screenWidth = graphics.PreferredBackBufferWidth;
