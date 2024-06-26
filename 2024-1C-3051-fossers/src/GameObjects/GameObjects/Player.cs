@@ -43,8 +43,10 @@ public class Player : GameObject
         Model.SetTransformToPart("Turret", turretTransform);
         Model.SetTransformToPart("Cannon", cannonTransform);
 
-        AddComponent(new DynamicBody(new Collider(new ConvexShape(Model.GetModel(),Transform), (c) => {
-            if (c.Entity.HasTag("ground")){
+        AddComponent(new DynamicBody(new Collider(new ConvexShape(Model.GetModel(), Transform), (c) =>
+        {
+            if (c.Entity.HasTag("ground"))
+            {
                 touchingGround = true;
             }
         }), new Vector3(0, 100, 0), 5000, 0.9f, 2f));
@@ -57,11 +59,9 @@ public class Player : GameObject
     public void OnDie()
     {
         WaveProcessor wave = _scene.GetSceneProcessor<WaveProcessor>();
+        wave.StopEnemies();
         new LooseScreen(_scene).Initialize(wave.EnemiesLeft, wave.WaveNumber, wave.GetScore());
         RemoveComponent<PlayerControls>(_scene);
         _scene.Camera.StopFollowing();
     }
-
-
-
 }

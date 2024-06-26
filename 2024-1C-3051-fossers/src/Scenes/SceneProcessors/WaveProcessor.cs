@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using WarSteel.Entities;
 using WarSteel.Scenes;
 using WarSteel.Utils;
 
@@ -86,5 +88,11 @@ public class WaveProcessor : ISceneProcessor
     public float GetScore()
     {
         return EnemiesKilled + WaveNumber;
+    }
+
+    public void StopEnemies()
+    {
+        List<GameObject> enemies = _scene.GetEntitiesByTag("enemy");
+        enemies.ForEach(enemy => enemy.RemoveComponent<EnemyAI>(_scene));
     }
 }
