@@ -127,7 +127,7 @@ class LightProcessor : ISceneProcessor
             bloomEffect.Parameters["LightColor"].SetValue(light.Color.ToVector3());
             bloomEffect.Parameters["Distance"].SetValue(distance);
             screenQuad.Draw(bloomEffect);
-            
+
         }
 
         _device.SetRenderTarget(ContentRepoManager.Instance().GlobalRenderTarget);
@@ -161,7 +161,16 @@ class LightProcessor : ISceneProcessor
         _lights.Add(light);
     }
 
+<<<<<<< HEAD
     public void RemoveLight(Light light)
+=======
+    public void AddLightSource(LightSource s)
+    {
+        Sources.Add(s);
+    }
+
+    public Color GetAmbientColor()
+>>>>>>> main
     {
         _lights.Remove(light);
     }

@@ -5,8 +5,6 @@ namespace WarSteel.Utils;
 
 public static class Timer
 {
-
-
     // runs a callback once after x ms have passed
     public static async void Timeout(int timeInMs, Action cb)
     {

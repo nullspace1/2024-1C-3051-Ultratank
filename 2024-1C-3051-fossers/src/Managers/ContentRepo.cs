@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 using System.Collections.Generic;
+=======
+>>>>>>> main
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -120,5 +123,15 @@ public class ContentRepoManager
             songCache[song] = loadedSong;
         }
         return loadedSong;
+    }
+
+    public SoundEffect GetSoundEffect(string audio)
+    {
+        return _manager.Load<SoundEffect>(ContentFolderAudio + audio);
+    }
+
+    public Song GetSong(string song)
+    {
+        return _manager.Load<Song>(ContentFolderAudio + song);
     }
 }
