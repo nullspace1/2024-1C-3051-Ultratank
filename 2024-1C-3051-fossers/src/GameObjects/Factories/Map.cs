@@ -29,14 +29,12 @@ class MapFactory
 
     public GameObject Tree(Vector3 position)
     {
-        Model model = ContentRepoManager.Instance().GetModel("Map/Low_Poly_Tree_FBX");
+        Model model = ContentRepoManager.Instance().GetModel("Map/Trees/1");
         Renderer renderer = new(Color.Brown);
         GameObject tree = new(new string[] { GROUND }, new Transform(), model, renderer);
-        Random rand = new();
-        float scaleFactor = (float)Crypto.GetRandomNumber(0.9, 1.5);
         tree.Transform.Dimensions = tree.Transform.Dimensions;
-        tree.AddComponent(new StaticBody(new Collider(new BoxShape(1000, 200, 200), (c) => { }), new Vector3(-100, 500, -150)));
-        tree.Transform.Position = position;
+        tree.AddComponent(new StaticBody(new Collider(new ConvexShape(model), (c) => { }), Vector3.Zero));
+        tree.Transform.Position = position - Vector3.Up * 50;
         return tree;
     }
 
@@ -58,7 +56,7 @@ class MapFactory
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
         Renderer renderer = new(Color.Gray);
-        GameObject ground = new(new string[] { GROUND, "SURFACE" }, new Transform(), model, renderer,true);
+        GameObject ground = new(new string[] { "SURFACE" }, new Transform(), model, renderer,true);
         ground.Transform.Position = position;
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));
         return ground;

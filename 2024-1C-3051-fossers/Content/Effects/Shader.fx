@@ -8,9 +8,11 @@
 #endif
 
 float4x4 World;
-float4x4 LightViewProjection;
-float4x4 CameraViewProjection;
+float4x4 WorldLightViewProjection;
+float4x4 WorldCameraViewProjection;
 float4x4 InverseTransposeWorld;
+float4x4 Bone;
+float4x4 InverseTransposeBone;
 
 float3 LightDirection;
 
@@ -24,6 +26,7 @@ float DiffuseCoefficient;
 float FarPlaneDistance;
 float NearPlaneDistance;
 float3 ImpactPoints[5];
+float3 ImpactVelocities[5];
 int ImpactCount;
 
 float3 LightPosition;
@@ -80,53 +83,52 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 {
     VertexShaderOutput output = (VertexShaderOutput)0;
     output.UV = input.UV;
-    output.WorldPosition = mul(input.Position,World);
+    output.WorldPosition = mul(mul(input.Position,Bone),World);
     output.Normal = mul(input.Normal,InverseTransposeWorld);
 
-
     float OFFSET = 10;
-    float3 normal = normalize(output.Normal.xyz);
-    float3 position = output.WorldPosition.xyz;
-    float distanceThreshold = 100;
-    float3 positionChange = normal * 20;
+
+    float3 position = mul(input.Position,Bone).xyz;
+    float distanceThreshold = 115;
+
 
     if (ImpactCount > 0) {
-        float dis0 = distance(position, ImpactPoints[0]);
-        if (dis0 < distanceThreshold) {
-            position -= positionChange;
+        float dis = distance(position, ImpactPoints[0]);
+        if (dis < distanceThreshold) {
+            position -= ImpactVelocities[0] * (1-dis/distanceThreshold) * 60;
         }
     }
 
     if (ImpactCount > 1) {
-        float dis1 = distance(position, ImpactPoints[1]);
-        if (dis1 < distanceThreshold) {
-            position -= positionChange;
+        float dis = distance(position, ImpactPoints[1]);
+        if (dis < distanceThreshold) {
+            position -= ImpactVelocities[1] * (1-dis/distanceThreshold) * 100;
         }
     }
 
     if (ImpactCount > 2) {
-        float dis2 = distance(position, ImpactPoints[2]);
-        if (dis2 < distanceThreshold) {
-            position -= positionChange;
+        float dis = distance(position, ImpactPoints[2]);
+        if (dis < distanceThreshold) {
+            position -= ImpactVelocities[2] * (1-dis/distanceThreshold) * 100;
         }
     }
 
     if (ImpactCount > 3) {
-        float dis3 = distance(position, ImpactPoints[3]);
-        if (dis3 < distanceThreshold) {
-            position -= positionChange;
+        float dis = distance(position, ImpactPoints[3]);
+        if (dis < distanceThreshold) {
+            position -= ImpactVelocities[3] * (1-dis/distanceThreshold) * 100;
         }
     }
 
     if (ImpactCount > 4) {
-        float dis3 = distance(position, ImpactPoints[4]);
-        if (dis3 < distanceThreshold) {
-            position -= positionChange;
+        float dis = distance(position, ImpactPoints[4]);
+        if (dis < distanceThreshold) {
+            position -= ImpactVelocities[4] * (1-dis/distanceThreshold) * 100;
         }
     }
 
-    output.Position = mul(float4(position,1),CameraViewProjection);
-    output.LightSpacePosition = mul(float4(position,1), LightViewProjection);
+    output.Position = mul(float4(position,1), WorldCameraViewProjection);
+    output.LightSpacePosition = mul(float4(position,1), WorldLightViewProjection);
 
     return output;
 }
@@ -135,6 +137,8 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
+
+
     float4 base = HasTexture ? tex2D(textureSampler, input.UV) : float4(Color.rgb, 1);
 
     float shadowBias = 0.00001f;

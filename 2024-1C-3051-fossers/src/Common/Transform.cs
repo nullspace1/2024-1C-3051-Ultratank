@@ -13,7 +13,6 @@ namespace WarSteel.Common
         private Transform _parent;
         private Matrix _worldMatrix;
         private bool _isDirty = true;
-
         protected List<Transform> _children = new();
 
         public Vector3 Dimensions
@@ -75,6 +74,7 @@ namespace WarSteel.Common
                 return _worldMatrix;
             }
         }
+
 
         public Matrix View => GetLookAt(AbsolutePosition + Forward * 10);
 

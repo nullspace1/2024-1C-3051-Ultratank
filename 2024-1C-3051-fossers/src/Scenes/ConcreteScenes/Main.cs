@@ -23,8 +23,8 @@ namespace WarSteel.Scenes.Main
         private const float CameraFieldOfView = MathHelper.PiOver2;
         private const float CameraNearPlane = 0.1f;
         private const float CameraFarPlane = 50000f;
-        private const int MapWidth = 9000;
-        private const int MapHeight = 9000;
+        private const int MapWidth = 7000;
+        private const int MapHeight = 7000;
 
         private const int WallWidth = 9600;
         private const int WallHeight = 9200;
@@ -38,7 +38,7 @@ namespace WarSteel.Scenes.Main
         private static readonly Vector3 GroundPosition = Vector3.Up * -100;
         private static readonly Vector3 LightDirection = new(0, 0.5f, 0.5f);
         private static readonly Color LightColor = Color.Orange;
-        private static readonly int CellSize = 200;
+        private static readonly int CellSize = 500;
         private static readonly MapGrid grid = new MapGrid(CellSize, CellSize, MapWidth / CellSize, MapHeight / CellSize);
 
         public MainScene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch) : base(graphics, spriteBatch)
@@ -61,6 +61,8 @@ namespace WarSteel.Scenes.Main
             InitializeGround(factory);
             InitializeGroundObjects(factory);
             InitializeUI(player);
+
+        
         }
 
         private void InitializeAudio()
@@ -144,6 +146,13 @@ namespace WarSteel.Scenes.Main
             {
                 Vector3 pos = grid.GetRandomUnusedGridPosition(10);
                 GameObject rock = factory.Rock(pos, RockSize.LARGE);
+                AddGameObject(rock);
+            }
+
+             for (int i = 0; i < 10; i++)
+            {
+                Vector3 pos = grid.GetRandomUnusedGridPosition(10);
+                GameObject rock = factory.Tree(pos);
                 AddGameObject(rock);
             }
         }

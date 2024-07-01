@@ -1,3 +1,4 @@
+using System;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
@@ -157,6 +158,8 @@ public class DynamicBody : RigidBody
 
         Transform.Position = desc.Pose.Position - Vector3.Transform(Offset,Matrix.CreateFromQuaternion(Transform.Orientation));
         Transform.Orientation = desc.Pose.Orientation;
+        Velocity = desc.Velocity.Linear;
+        AngularVelocity = desc.Velocity.Angular;
 
         base.OnUpdate(self, time, scene);
     }

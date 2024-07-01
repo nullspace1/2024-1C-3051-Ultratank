@@ -1,3 +1,5 @@
+using System;
+using BepuPhysics.Constraints;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
@@ -11,8 +13,8 @@ namespace WarSteel.Scenes.Main
     public class PlayerControls : IComponent
     {
         private const int ReloadingTimeInMs = 1000;
-        private const float ForwardForce = 100000f;
-        private const float TorqueForce = 1000000f;
+        private const float ForwardForce = -100000f;
+        private const float TorqueForce = 750000f;
         private const float BulletForce = 3600000 * 3;
         private const float BulletMass = 500 * 3;
         private const float FlipTimeThreshold = 10f;
@@ -21,13 +23,15 @@ namespace WarSteel.Scenes.Main
         private const float FlipAngleThreshold = 0.6f;
         private const float BulletPositionOffsetForward = 1000f;
         private const float BulletPositionOffsetUp = 200f;
+        private const float TankRotationSpeed = 15f;
 
         private DynamicBody _rb;
         private bool _isReloading = false;
         private GameObject _lastBullet;
-        private WheelsController _wheelsController;
+
         private float _startFlipTime = 0;
         private bool _canMove = false;
+
         private Transform _tankCannon;
 
         public PlayerControls(Transform tankCannon)
@@ -39,15 +43,10 @@ namespace WarSteel.Scenes.Main
         public void OnStart(GameObject self, Scene scene)
         {
             _rb = self.GetComponent<DynamicBody>();
-            _wheelsController = self.GetComponent<WheelsController>();
         }
 
         public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
         {
-            var wheel = _wheelsController.WheelTransform;
-            bool isMoving = false;
-            bool isRotating = false;
-
             if (Vector3.Dot(self.Transform.Up, Vector3.Up) < FlipAngleThreshold)
             {
                 if (_startFlipTime == 0)
@@ -65,38 +64,54 @@ namespace WarSteel.Scenes.Main
                 _startFlipTime = 0;
             }
 
+            ((Player)self).touchingGround = !(self.GetComponent<DynamicBody>().Velocity.Y > 10);
             _canMove = Vector3.Dot(self.Transform.Up, Vector3.Up) >= CanMoveAngleThreshold && ((Player)self).touchingGround;
+
+            bool isMoving = self.GetComponent<DynamicBody>().Velocity.Length() > 0;
+
+            bool isRotatingL = false;
+            bool isRotatingR = false;
 
             if (Keyboard.GetState().IsKeyDown(Keys.W) && _canMove)
             {
-                isMoving = true;
-                _wheelsController.RotateForwards();
-                _rb.ApplyForce(Vector3.Normalize(wheel.Backward) * ForwardForce);
+                _rb.ApplyForce(self.Transform.Forward * ForwardForce);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.S) && _canMove)
             {
-                isMoving = true;
-                _wheelsController.RotateBackwards();
-                _rb.ApplyForce(Vector3.Normalize(wheel.Forward) * ForwardForce);
+                _rb.ApplyForce(self.Transform.Backward * ForwardForce);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                isRotating = true;
-                _wheelsController.RotateLeft();
+                isRotatingL = true;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                isRotating = true;
-                _wheelsController.RotateRight();
+                isRotatingR = true;
             }
+
+            float rotationSpeed;
+
+            if (!(isRotatingL || isRotatingR) || isRotatingL && isRotatingR)
+            {
+                rotationSpeed = 0;
+            }
+            else if (isRotatingL)
+            {
+                rotationSpeed = TankRotationSpeed;
+            }
+            else if (isRotatingR)
+            {
+                rotationSpeed = -TankRotationSpeed;
+            }
+            else
+            {
+                rotationSpeed = 0;
+            }
+
 
             if (isMoving)
             {
-                _rb.ApplyTorque(Vector3.Normalize(self.Transform.Up) * _wheelsController.Angle * TorqueForce);
-            }
-            if (!isRotating)
-            {
-                _wheelsController.ResetWheels();
+                _rb.ApplyTorque(Vector3.Normalize(self.Transform.Up) * rotationSpeed * TorqueForce);
             }
 
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
@@ -104,7 +119,7 @@ namespace WarSteel.Scenes.Main
                 Shoot(self, scene);
             }
 
-            if (self.GetComponent<DynamicBody>().Velocity.Y > 0) ((Player)self).touchingGround = false;
+
         }
 
         public void Shoot(GameObject self, Scene scene)
@@ -131,7 +146,7 @@ namespace WarSteel.Scenes.Main
             {
                 var enemy = (Enemy)c.Entity;
                 enemy.Health -= self.Damage;
-                enemy.Renderer.AddImpact(c.Entity.Transform.WorldToLocalPosition(bullet.Transform.AbsolutePosition));
+                enemy.Model.AddImpact(bullet.Transform.AbsolutePosition, bullet.GetComponent<DynamicBody>().Velocity);
                 bullet.Destroy();
             }
             if (c.Entity.HasTag("ground"))

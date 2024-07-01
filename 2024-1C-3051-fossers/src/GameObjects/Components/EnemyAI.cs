@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -6,33 +9,41 @@ using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 using WarSteel.Utils;
+using Quaternion = Microsoft.Xna.Framework.Quaternion;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 public class EnemyAI : IComponent
 {
-    private const float ChaseRange = 32000f;
-    private const float AttackRange = 5000f;
-    private const int DelayBeforeMove = 1000;
-    private const int ReloadingTimeInMs = 3000;
-    private const float BulletForce = 3600000 * 3;
-    private const float BulletMass = 500 * 3;
-    private const float MaxForce = 81000f;
-    private const float MinVelocityToMove = 10;
-    private const float TimeToDetectStuck = 1;
-    private const int SetAsUnStuckDelay = 1000;
-    private const float MinVelocityForForceApplication = 300;
-    private const float RotationSpeed = 2.0f;
-    private const float TorqueValue = 9000000;
+    private static readonly float ChaseDistance = 32000f;
+    private static readonly float AttackDistance = 5000;
+    private static readonly int ReloadDelayMs = 3000;
+    private static readonly float BulletForce = 10800000f / 3;
+    private static readonly float BulletMass = 500f;
+    private static readonly float MaximumForce = 900f;
+    private static readonly float MinimumVelocityToMove = 70f;
+    private static readonly float StuckDetectionTime = 1f;
+    private static readonly int UnstuckDelayMs = 1000;
+    private static readonly float MinimumVelocityForForce = 750f;
+    private static readonly float TurretRotationSpeed = 2.0f;
+    private static readonly float TurretTorque = 9000000f;
+    private static readonly int CollisionResolutionTimeMs = 2000;
+    private static readonly float NearbyObjectDetectionAngle = 0.1f;  // Radians
+    private static readonly float NearbyObjectDetectionDistance = 30f;
 
-    private bool _canMove = true;
+    private static readonly float MaxFrontVelocity = 100;
+
+    private static readonly float MaxBackVelocity = 20;
+
+    private bool _collided = false;
     private bool _isReloading = false;
     private float _stuckTime = 0;
     private bool _stuckFlag = false;
-
     private GameObject _lastBullet;
     private Player _player;
     private DynamicBody _rb;
     private Transform _turretTransform;
     private Transform _cannonTransform;
+    private List<GameObject> _nearbyObjects;
 
     private enum State { Idle, Chase, Attack }
     private State _currentState;
@@ -52,17 +63,22 @@ public class EnemyAI : IComponent
 
     public void HandleCollision()
     {
-        _stuckFlag = true;
-        Timer.Timeout(SetAsUnStuckDelay, () => _stuckFlag = false);
+        _collided = true;
+        Timer.Timeout(CollisionResolutionTimeMs, () => _collided = false);
     }
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {
         if (self is not Enemy enemy || enemy.isDead) return;
 
+        if (_nearbyObjects == null)
+        {
+            _nearbyObjects = scene.GetEntitiesByTag("ground");
+        }
+
         if (Vector3.Dot(enemy.Transform.Up, Vector3.Up) < 0.4f)
         {
-            enemy.Health = 0;
+            enemy.Health -= 0.3f;
             return;
         }
 
@@ -82,11 +98,13 @@ public class EnemyAI : IComponent
                 AttackState(gameTime, scene, enemy, distanceToPlayer);
                 break;
         }
+
     }
+
 
     private void IdleState(float distanceToPlayer)
     {
-        if (distanceToPlayer <= ChaseRange)
+        if (distanceToPlayer <= ChaseDistance)
         {
             _currentState = State.Chase;
         }
@@ -94,14 +112,36 @@ public class EnemyAI : IComponent
 
     private void ChaseState(GameTime gameTime, Enemy self, float distanceToPlayer)
     {
-        if (distanceToPlayer > AttackRange)
+
+        foreach (var obj in _nearbyObjects)
+        {
+            var toObject = obj.Transform.AbsolutePosition - self.Transform.AbsolutePosition;
+            float angle = Vector3.Dot(toObject, self.Transform.Forward) / (toObject.Length() * self.Transform.Forward.Length());
+            angle = (float)Math.Acos(angle);
+            float distance = toObject.Length();
+
+            if (angle < NearbyObjectDetectionAngle && distance < NearbyObjectDetectionDistance)
+            {
+                _rb.ApplyForce(self.Transform.Forward * MaximumForce);
+                return;
+            }
+        }
+
+
+        if (_collided)
+        {
+            _rb.ApplyForce(self.Transform.Forward * MaximumForce * 70);
+            return;
+        }
+
+        if (distanceToPlayer > AttackDistance)
         {
             RotateTurret(self, gameTime);
             RotateBody(self);
 
             if (_stuckFlag)
             {
-                _rb.ApplyForce(self.Transform.Forward * MaxForce);
+                _rb.ApplyForce(self.Transform.Forward * MaximumForce * 70);
                 return;
             }
             else
@@ -109,34 +149,27 @@ public class EnemyAI : IComponent
                 _stuckTime = 0;
             }
 
-            if (_rb.Velocity.Length() < MinVelocityToMove)
+            if (_rb.Velocity.Length() < MinimumVelocityToMove)
             {
                 if (_stuckTime == 0)
                 {
                     _stuckTime = gameTime.TotalGameTime.Seconds;
                 }
 
-                if (gameTime.TotalGameTime.Seconds - _stuckTime > TimeToDetectStuck)
+                if (gameTime.TotalGameTime.Seconds - _stuckTime > StuckDetectionTime)
                 {
                     _stuckFlag = true;
-                    Timer.Timeout(SetAsUnStuckDelay, () => _stuckFlag = false);
+                    Timer.Timeout(UnstuckDelayMs, () => _stuckFlag = false);
                 }
             }
 
+            _rb.ApplyForce(MaximumForce * MathHelper.Clamp((Vector3.Dot(_rb.Velocity,self.Transform.Forward) - MaxFrontVelocity),MaxFrontVelocity,-MaxBackVelocity) *  -self.Transform.Forward);
 
-            if (_rb.Velocity.Length() < MinVelocityForForceApplication)
-            {
-                _rb.ApplyForce(-self.Transform.Forward * MaxForce);
-            }
-            else
-            {
-                _rb.ApplyForce(self.Transform.Forward * MaxForce);
-            }
+
         }
         else
         {
             _currentState = State.Attack;
-            _stuckTime = 0;
         }
     }
 
@@ -144,7 +177,7 @@ public class EnemyAI : IComponent
     {
         RotateTurret(self, gameTime);
         Shoot(scene, self);
-        if (distanceToPlayer > AttackRange)
+        if (distanceToPlayer > AttackDistance)
         {
             _currentState = State.Chase;
         }
@@ -161,7 +194,7 @@ public class EnemyAI : IComponent
         bullet.GetComponent<DynamicBody>().ApplyForce(-_cannonTransform.Forward * BulletForce);
         AudioManager.Instance.PlaySound(Audios.SHOOT);
         _isReloading = true;
-        Timer.Timeout(ReloadingTimeInMs, () => _isReloading = false);
+        Timer.Timeout(ReloadDelayMs, () => _isReloading = false);
     }
 
     private GameObject CreateBullet(float damage, Scene scene)
@@ -179,7 +212,7 @@ public class EnemyAI : IComponent
             if (c.Entity.HasTag("player") && !bullet.HasTag("HitGround"))
             {
                 _player.Health -= damage;
-                _player.Renderer.AddImpact(c.Entity.Transform.WorldToLocalPosition(bullet.Transform.AbsolutePosition));
+                _player.Model.AddImpact(bullet.Transform.AbsolutePosition, bullet.GetComponent<DynamicBody>().Velocity);
                 bullet.Destroy();
             }
             if (c.Entity.HasTag("ground"))
@@ -190,7 +223,7 @@ public class EnemyAI : IComponent
         }), Vector3.Zero, BulletMass, 0, 0));
 
         bullet.AddComponent(new LightComponent(Color.White));
-        Timer.Timeout(3 * ReloadingTimeInMs, () => bullet.Destroy());
+        Timer.Timeout(3 * ReloadDelayMs, () => bullet.Destroy());
 
         return bullet;
     }
@@ -199,7 +232,7 @@ public class EnemyAI : IComponent
     {
         float angle = CalculateAngleToPlayer(self, _turretTransform);
         var targetOrientation = angle == 0 ? Quaternion.Identity : Quaternion.CreateFromAxisAngle(Vector3.Up, angle);
-        _turretTransform.Orientation = Quaternion.Slerp(_turretTransform.Orientation, _turretTransform.Orientation * targetOrientation, RotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+        _turretTransform.Orientation = Quaternion.Slerp(_turretTransform.Orientation, _turretTransform.Orientation * targetOrientation, TurretRotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
     }
 
     private void RotateBody(Enemy self)
@@ -207,11 +240,11 @@ public class EnemyAI : IComponent
         float angle = CalculateAngleToPlayer(self, self.Transform);
         if (angle > 0)
         {
-            _rb.ApplyTorque(Vector3.Up * TorqueValue);
+            _rb.ApplyTorque(Vector3.Up * TurretTorque);
         }
         else if (angle < 0)
         {
-            _rb.ApplyTorque(-Vector3.Up * TorqueValue);
+            _rb.ApplyTorque(-Vector3.Up * TurretTorque);
         }
     }
 

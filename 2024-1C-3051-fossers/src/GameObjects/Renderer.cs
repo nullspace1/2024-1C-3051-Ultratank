@@ -9,132 +9,110 @@ using WarSteel.Managers;
 using WarSteel.Scenes;
 using WarSteel.Scenes.SceneProcessors;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
-namespace WarSteel.Common.Shaders;
 
-public class Renderer
+namespace WarSteel.Common.Shaders
 {
-
-    private readonly Texture2D _texture;
-    private Color _color;
-    private List<Vector3> _impactPoints = new();
-
-    private readonly Effect _effect;
-    private readonly Effect _shadowEffect;
-
-    public Renderer(Texture2D texture)
+    public class Renderer
     {
-        _texture = texture;
-        _effect = ContentRepoManager.Instance().GetEffect("Shader");
-        _shadowEffect = ContentRepoManager.Instance().GetEffect("Shadow");
-    }
+        private readonly Texture2D _texture;
+        private readonly Color _color;
+        private readonly Effect _effect;
+        private readonly Effect _shadowEffect;
 
-    public Renderer(Color color)
-    {
-        _color = color;
-        _effect = ContentRepoManager.Instance().GetEffect("Shader");
-        _shadowEffect = ContentRepoManager.Instance().GetEffect("Shadow");
-    }
-
-    public void AddImpact(Vector3 position)
-    {
-        if (_impactPoints.Count < 5)
+        public Renderer(Texture2D texture)
         {
-            _impactPoints.Add(position);
+            _texture = texture;
+            _effect = ContentRepoManager.Instance().GetEffect("Shader");
+            _shadowEffect = ContentRepoManager.Instance().GetEffect("Shadow");
         }
-    }
 
-    public void ClearImpacts(){
-        _impactPoints.Clear();
-    }
-
-    public void DrawDefault(GameObject gameObject, Scene scene)
-    {
-
-        _effect.CurrentTechnique = _effect.Techniques["Default"];
-
-        LightProcessor lightProcessor = scene.GetSceneProcessor<LightProcessor>();
-
-        foreach (var m in gameObject.Model.GetMeshes())
+        public Renderer(Color color)
         {
-            foreach (var p in m.MeshParts)
-                p.Effect = _effect;
+            _color = color;
+            _effect = ContentRepoManager.Instance().GetEffect("Shader");
+            _shadowEffect = ContentRepoManager.Instance().GetEffect("Shadow");
+        }
 
+        public void DrawDefault(GameObject gameObject, Scene scene)
+        {
+            _effect.CurrentTechnique = _effect.Techniques["Default"];
+            var lightProcessor = scene.GetSceneProcessor<LightProcessor>();
 
-            Matrix world = gameObject.Model.GetPartTransform(m, gameObject.Transform);
+            Draw(gameObject, scene, _effect, lightProcessor, applyTextureParameters: true);
+        }
 
-            _effect.Parameters["World"].SetValue(world);
-            _effect.Parameters["CameraViewProjection"].SetValue(scene.Camera.View * scene.Camera.Projection);
-            _effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
-            _effect.Parameters["LightViewProjection"].SetValue(lightProcessor.LightViewProjection);
-            _effect.Parameters["LightDirection"].SetValue(lightProcessor.LightDirection);
-            _effect.Parameters["ShadowDepth"].SetValue(lightProcessor.ShadowMapRenderTarget);
-            _effect.Parameters["TextureSize"].SetValue(lightProcessor.ShadowMapSize);
-            _effect.Parameters["DiffuseCoefficient"].SetValue(1f);
-            _effect.Parameters["FarPlaneDistance"].SetValue(lightProcessor.FarPlaneDistance);
-            _effect.Parameters["ImpactCount"].SetValue(_impactPoints.Count);
-            _effect.Parameters["ImpactPoints"].SetValue(_impactPoints.Select(i => gameObject.Transform.LocalToWorldPosition(i)).ToArray());
+        public void DrawLight(GameObject gameObject, Scene scene, Light light, bool depth)
+        {
+            if (gameObject.HasTag("skybox")) return;
 
-            if (_texture == null)
+            _effect.CurrentTechnique = _effect.Techniques["LightPass"];
+            var lightProcessor = scene.GetSceneProcessor<LightProcessor>();
+
+            Draw(gameObject, scene, _effect, lightProcessor, light, depth);
+        }
+
+        public void DrawShadowMap(GameObject gameObject, Matrix lightViewProjection, float farPlaneDistance)
+        {
+            foreach (var m in gameObject.Model.GetMeshes())
             {
-                _effect.Parameters["Color"].SetValue(_color.ToVector3());
-                _effect.Parameters["HasTexture"].SetValue(false);
+                foreach (var p in m.MeshParts)
+                    p.Effect = _shadowEffect;
+
+                Matrix world = gameObject.Model.GetPartWorld(m);
+                _shadowEffect.Parameters["WorldViewProjection"].SetValue(gameObject.Model.GetPartTransform(m) * world * lightViewProjection);
+                _shadowEffect.Parameters["FarPlaneDistance"].SetValue(farPlaneDistance);
+
+                m.Draw();
             }
-            else
+        }
+
+        private void Draw(GameObject gameObject, Scene scene, Effect effect, LightProcessor lightProcessor, Light light = null, bool depth = false, bool applyTextureParameters = false)
+        {
+            foreach (var m in gameObject.Model.GetMeshes())
             {
-                _effect.Parameters["Texture"].SetValue(_texture);
-                _effect.Parameters["HasTexture"].SetValue(true);
+                foreach (var p in m.MeshParts)
+                    p.Effect = effect;
+
+                Matrix world = gameObject.Model.GetPartWorld(m);
+
+                effect.Parameters["World"].SetValue(world);
+                effect.Parameters["Bone"].SetValue(gameObject.Model.GetPartTransform(m));
+                effect.Parameters["WorldCameraViewProjection"].SetValue(world * scene.Camera.View * scene.Camera.Projection);
+                effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(gameObject.Model.GetPartTransform(m) * world)));
+                effect.Parameters["WorldLightViewProjection"].SetValue(world * lightProcessor.LightViewProjection);
+                effect.Parameters["ImpactCount"].SetValue(gameObject.Model.ImpactCount);
+                effect.Parameters["ImpactPoints"].SetValue(gameObject.Model.GetImpactPositions(m));
+                effect.Parameters["ImpactVelocities"].SetValue(gameObject.Model.GetImpactVelocities(m));
+
+                if (applyTextureParameters)
+                {
+                    if (_texture == null)
+                    {
+                        effect.Parameters["Color"].SetValue(_color.ToVector3());
+                        effect.Parameters["HasTexture"].SetValue(false);
+                    }
+                    else
+                    {
+                        effect.Parameters["Texture"].SetValue(_texture);
+                        effect.Parameters["HasTexture"].SetValue(true);
+                    }
+
+                    effect.Parameters["ShadowDepth"].SetValue(lightProcessor.ShadowMapRenderTarget);
+                    effect.Parameters["TextureSize"].SetValue(lightProcessor.ShadowMapSize);
+                    effect.Parameters["DiffuseCoefficient"].SetValue(0.5f);
+                    effect.Parameters["FarPlaneDistance"].SetValue(lightProcessor.FarPlaneDistance);
+                    effect.Parameters["LightDirection"].SetValue(lightProcessor.LightDirection);
+                }
+
+                if (light != null)
+                {
+                    effect.Parameters["LightPosition"].SetValue(light.Transform.AbsolutePosition);
+                    effect.Parameters["LightColor"].SetValue(light.Color.ToVector3());
+                    effect.Parameters["Depth"].SetValue(depth);
+                }
+
+                m.Draw();
             }
-
-            m.Draw();
         }
     }
-
-    public void DrawLight(GameObject gameObject, Scene scene, Light light, bool depth)
-    {
-
-        _effect.CurrentTechnique = _effect.Techniques["LightPass"];
-
-        LightProcessor lightProcessor = scene.GetSceneProcessor<LightProcessor>();
-
-        if (gameObject.HasTag("skybox")) return;
-        foreach (var m in gameObject.Model.GetMeshes())
-        {
-            foreach (var p in m.MeshParts)
-                p.Effect = _effect;
-
-
-            Matrix world = gameObject.Model.GetPartTransform(m, gameObject.Transform);
-            
-            _effect.Parameters["World"].SetValue(world);
-            _effect.Parameters["CameraViewProjection"].SetValue(scene.Camera.View * scene.Camera.Projection);
-            _effect.Parameters["LightViewProjection"].SetValue(lightProcessor.LightViewProjection);
-            _effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
-            _effect.Parameters["LightPosition"].SetValue(light.Transform.AbsolutePosition);
-            _effect.Parameters["LightColor"].SetValue(light.Color.ToVector3());
-            _effect.Parameters["Depth"].SetValue(depth);
-
-            m.Draw();
-        }
-    }
-
-    public void DrawShadowMap(GameObject gameObject, Matrix lightViewProjection, float farPlaneDistance)
-    {
-
-        foreach (var modelMesh in gameObject.Model.GetMeshes())
-        {
-            foreach (var p in modelMesh.MeshParts)
-                p.Effect = _shadowEffect;
-
-            Matrix world = gameObject.Model.GetPartTransform(modelMesh, gameObject.Transform);
-
-            _shadowEffect.Parameters["WorldViewProjection"].SetValue(world * lightViewProjection);
-            _shadowEffect.Parameters["FarPlaneDistance"].SetValue(farPlaneDistance);
-
-            modelMesh.Draw();
-        }
-
-    }
-
-
-
 }

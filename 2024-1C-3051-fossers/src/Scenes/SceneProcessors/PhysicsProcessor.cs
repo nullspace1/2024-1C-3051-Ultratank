@@ -190,9 +190,9 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        pairMaterial.FrictionCoefficient = 0.9f;
+        pairMaterial.FrictionCoefficient = 1f;
         pairMaterial.MaximumRecoveryVelocity = 100000f;
-        pairMaterial.SpringSettings = new SpringSettings(30, 10);
+        pairMaterial.SpringSettings = new SpringSettings(10, 2);
 
         RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);
         RigidBody B = _processor.GetRigidBodyFromCollision(pair.B);

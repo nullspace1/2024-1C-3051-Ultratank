@@ -27,7 +27,7 @@ public class GameObject
         Id = Guid.NewGuid().ToString();
         _tags = new(tags);
         Transform = transform;
-        Model = new ObjectModel(model);
+        Model = new ObjectModel(model,Transform);
         Renderer = renderer;
         AlwaysRender = alwaysRender;
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.Samples.Geometries;
@@ -156,7 +157,7 @@ public abstract class Scene
 
         SkyBox.DrawSkyBox(this);
 
-        List<GameObject> gb = GetVisibleObjects(Camera.View * Camera.Projection);
+        List<GameObject> gb = GetVisibleObjects(Camera.View * Camera.Projection).OrderBy(g => g.Id).ToList();
         foreach (var entity in gb)
         {
             entity.Renderer.DrawDefault(entity, this);

@@ -127,7 +127,7 @@ public class ConvexShape : ColliderShape
     private ConvexHull _hull;
     private Vector3 _center;
 
-    public ConvexShape(Model model, Transform transform)
+    public ConvexShape(Model model)
     {
 
         List<Vector3> list = new();
@@ -141,7 +141,7 @@ public class ConvexShape : ColliderShape
 
                 foreach (VertexPositionNormalTexture vertex in vertices)
                 {
-                    Vector3 v = Vector3.Transform(vertex.Position, transform.LocalToWorldMatrix(mesh.ParentBone.Transform));
+                    Vector3 v = Vector3.Transform(vertex.Position, mesh.ParentBone.Transform);
                     list.Add(v);
                 }
             }

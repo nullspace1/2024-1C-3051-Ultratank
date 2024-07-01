@@ -10,6 +10,7 @@ public class WaveProcessor : ISceneProcessor
     private int _waveNumber { get; set; }
     private int _enemiesLeft { get; set; }
 
+
     public int WaveNumber
     {
         get => _waveNumber;
@@ -28,7 +29,7 @@ public class WaveProcessor : ISceneProcessor
             _enemiesLeft = value;
             WaveEvents.TriggerEnemiesLeft(value);
             if (_enemiesLeft <= 0)
-                Timer.Timeout(4000, StartNextWave);
+                Timer.Timeout(4000, () => StartNextWave());
         }
     }
 
@@ -61,14 +62,14 @@ public class WaveProcessor : ISceneProcessor
         _scene.RemoveGameObjectsByTag("enemy");
         _player.Damage += WaveNumber * 2;
         _player.Health = 100;
-        _player.Renderer.ClearImpacts();
+        _player.Model.ClearImpacts();
         WaveNumber++;
         EnemiesLeft = GetEnemiesToSpawn();
 
         for (int i = 0; i < EnemiesLeft; i++)
         {
             Vector3 spawnPosition = _grid.GetRandomUnusedGridPosition(100);
-            Enemy enemy = new(spawnPosition, WaveNumber * 5, this);
+            Enemy enemy = new(spawnPosition, WaveNumber * 5, this,_scene);
             _scene.AddGameObject(enemy);
         }
 

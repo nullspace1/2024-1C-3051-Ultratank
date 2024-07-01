@@ -18,8 +18,8 @@ public class TurretController : IComponent
         _rotationSpeed = rotationSpeed;
     }
 
-    public void OnStart(GameObject self, Scene scene){}
-    public void Destroy(GameObject self, Scene scene){}
+    public void OnStart(GameObject self, Scene scene) { }
+    public void Destroy(GameObject self, Scene scene) { }
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {
@@ -46,15 +46,15 @@ public class CannonController : IComponent
         _camera = camera;
     }
 
-    public void OnStart(GameObject self, Scene scene){}
+    public void OnStart(GameObject self, Scene scene) { }
 
-    public void Destroy(GameObject self, Scene scene){}
+    public void Destroy(GameObject self, Scene scene) { }
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {
         Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(_camera.Transform.Orientation);
         Vector3 forward = Vector3.Transform(Vector3.Forward, localOrientation);
-        float pitch = MathHelper.Clamp(-(float)Math.Atan2(forward.Y, forward.Z) - 0.1f, -MathF.PI / 4, 0.01f);
+        float pitch = MathHelper.Clamp(-(float)Math.Atan2(forward.Y, forward.Z) - 0.1f, -MathF.PI / 16, 0.10f);
 
         Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);
         _transform.Orientation = pitchRotation;
@@ -63,97 +63,26 @@ public class CannonController : IComponent
 
 public class WheelsController : IComponent
 {
-    private Transform[] _transforms;
-    private float _rotationAngle;
-    private float _rotationSpeedY = 0.5f;
-    private const float _maxRotationAngleY = 10f;
+    private Transform _leftWheel;
 
-    public Transform WheelTransform { get => _transforms[0]; }
+    private Transform _rightWheel;
 
-    public bool IsMovingForwards = false;
-    public bool IsMovingBackwards = false;
-    public bool IsRotatingLeft = false;
-    public bool IsRotatingRight = false;
-
-    public float Angle { get => _rotationAngle; }
+    private float _rotationSpeed = 0.5f;
 
     public WheelsController(ObjectModel tankModel, Transform tankTransform)
     {
-        int numWheels = 20;
-        _transforms = new Transform[numWheels];
-        _rotationAngle = 0;
 
-        for (int i = 0; i < numWheels; i++)
-        {
-            _transforms[i] = new Transform(tankTransform, Vector3.Zero);
-            tankModel.SetTransformToPart("Wheel" + (i + 1), _transforms[i]);
-        }
+        _leftWheel = new Transform(tankTransform, Vector3.Zero);
+        _rightWheel = new Transform(tankTransform, Vector3.Zero);
+        tankModel.SetTransformToPart("WheelL", _leftWheel);
+        tankModel.SetTransformToPart("WheelR", _rightWheel);
+
     }
 
     public void OnStart(GameObject self, Scene scene)
     {
     }
 
-    public void RotateRight()
-    {
-        CalculateRotationY(true);
-    }
-
-    public void RotateLeft()
-    {
-        CalculateRotationY(false);
-    }
-
-    public void RotateForwards()
-    {
-        CalculateRotationX(true);
-    }
-
-    public void RotateBackwards()
-    {
-        CalculateRotationX(false);
-    }
-
-    public void ResetWheels()
-    {
-        if (_rotationAngle == 0) return;
-
-        if (_rotationAngle < 0)
-            CalculateRotationY(false, 0);
-        else
-            CalculateRotationY(true, 0);
-    }
-
-    private void CalculateRotationY(bool isRight, float maxRotationAngle = _maxRotationAngleY)
-    {
-        float angle = isRight ? -_rotationSpeedY : _rotationSpeedY;
-        float currentRotationAngle = _rotationAngle + angle;
-
-        if (!isRight && currentRotationAngle > maxRotationAngle)
-        {
-            currentRotationAngle = maxRotationAngle;
-        }
-        else if (isRight && currentRotationAngle < -maxRotationAngle)
-        {
-            currentRotationAngle = -maxRotationAngle;
-        }
-
-        float toRotate = currentRotationAngle - _rotationAngle;
-        _rotationAngle = currentRotationAngle;
-
-        foreach (Transform wheelTransform in _transforms)
-        {
-            wheelTransform.RotateEuler(wheelTransform.Up * toRotate);
-        }
-    }
-
-    private void CalculateRotationX(bool isForwards)
-    {
-        foreach (Transform wheelTransform in _transforms)
-        {
-            // wheelTransform.RotateEuler(wheelTransform.Right * rotationDelta);
-        }
-    }
 
     public void OnUpdate(GameObject self, GameTime gameTime, Scene scene)
     {

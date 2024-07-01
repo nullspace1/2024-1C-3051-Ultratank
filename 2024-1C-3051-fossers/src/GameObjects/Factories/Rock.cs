@@ -34,7 +34,7 @@ public class RockFactory
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue(size) + "Stone");
         Renderer renderable = new(Color.DarkGray);
         GameObject rock = new(tags, new Transform(), model,renderable);
-        rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model, rock.Transform), (c) => { }), Vector3.Zero));
+        rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model), (c) => { }), Vector3.Zero));
         rock.Transform.Position = position;
         return rock;
     }
