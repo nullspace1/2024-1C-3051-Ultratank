@@ -8,7 +8,7 @@
 #endif
 
 Texture2D Screen;
-float PixelationAmount = 2; // A new parameter to control the pixelation size
+float PixelationAmount = 6; // A new parameter to control the pixelation size
 
 sampler2D textureSampler = sampler_state {
     Texture = (Screen);
