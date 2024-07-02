@@ -1,12 +1,9 @@
-using System.Collections.Generic;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
-using WarSteel.Utils;
 using Timer = WarSteel.Utils.Timer;
 
 public class Enemy : GameObject

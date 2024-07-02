@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -163,7 +161,7 @@ public class EnemyAI : IComponent
                 }
             }
 
-            _rb.ApplyForce(MaximumForce * MathHelper.Clamp((Vector3.Dot(_rb.Velocity,self.Transform.Forward) - MaxFrontVelocity),MaxFrontVelocity,-MaxBackVelocity) *  -self.Transform.Forward);
+            _rb.ApplyForce(MaximumForce * MathHelper.Clamp((Vector3.Dot(_rb.Velocity, self.Transform.Forward) - MaxFrontVelocity), MaxFrontVelocity, -MaxBackVelocity) * -self.Transform.Forward);
 
 
         }
@@ -209,21 +207,23 @@ public class EnemyAI : IComponent
 
         bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
-            if (c.Entity.HasTag("player") && !bullet.HasTag("HitGround"))
+            if (c.Entity.HasTag("player") && !bullet.HasTag("HitGround") && !bullet.HasTag("HitPlayer"))
             {
                 _player.Health -= damage;
                 _player.Model.AddImpact(bullet.Transform.AbsolutePosition, bullet.GetComponent<DynamicBody>().Velocity);
-                bullet.Destroy();
+                bullet.AddTag("HitPlayer");
             }
             if (c.Entity.HasTag("ground"))
             {
                 bullet.AddTag("HitGround");
+                bullet.GetComponent<LightComponent>().DecayFactor = 5f;
             }
-            bullet.RemoveComponent<LightComponent>(scene);
+
+            Timer.Timeout(3000, () => bullet.Destroy());
         }), Vector3.Zero, BulletMass, 0, 0));
 
         bullet.AddComponent(new LightComponent(Color.White));
-        Timer.Timeout(3 * ReloadDelayMs, () => bullet.Destroy());
+        Timer.Timeout(10 * ReloadDelayMs, () => bullet.Destroy());
 
         return bullet;
     }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using BepuUtilities;
 using Microsoft.Xna.Framework.Audio;

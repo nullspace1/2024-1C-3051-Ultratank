@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
@@ -7,8 +6,6 @@ using WarSteel.Entities;
 using WarSteel.Entities.Map;
 using WarSteel.Managers;
 using WarSteel.Scenes;
-using WarSteel.Scenes.Main;
-using WarSteel.Utils;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 class MapFactory
@@ -46,7 +43,7 @@ class MapFactory
     public GameObject Bush(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
-       Renderer renderer = new(Color.Red);
+        Renderer renderer = new(Color.Red);
         GameObject bush = new(new string[] { GROUND }, new Transform(), model, renderer);
         bush.Transform.Position = position;
         return bush;
@@ -55,8 +52,8 @@ class MapFactory
     public GameObject Ground(Vector3 position)
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        Renderer renderer = new(Color.Gray);
-        GameObject ground = new(new string[] { "SURFACE" }, new Transform(), model, renderer,true);
+        Renderer renderer = new(Color.DarkGray);
+        GameObject ground = new(new string[] { "SURFACE" }, new Transform(), model, renderer, true);
         ground.Transform.Position = position;
         ground.AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), (e) => { }), Vector3.Up * 70));
         return ground;

@@ -8,7 +8,6 @@
 #endif
 
 Texture2D Screen;
-float PixelationAmount = 2; // A new parameter to control the pixelation size
 
 sampler2D textureSampler = sampler_state {
     Texture = (Screen);
@@ -37,7 +36,7 @@ VS_OUTPUT MainVS(VS_INPUT input) {
 }
 
 float4 MainPS(VS_OUTPUT input) : SV_TARGET {
-    float2 pixelSize = 500;
+    float2 pixelSize = 300;
     float2 pixelatedUV = float2(floor(input.UV.x * pixelSize.x) / pixelSize.x,floor(input.UV.y * pixelSize.y) / pixelSize.y);
 
     // Average color over the 4 nearest texels

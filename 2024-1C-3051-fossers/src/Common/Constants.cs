@@ -2,7 +2,7 @@ using System;
 
 public static class Constants
 {
-    public const bool DEBUG_MODE = true;
+    public const bool DEBUG_MODE = false;
     public const bool PLAY_SOUND = true;
 
     public static class Events

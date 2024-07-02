@@ -6,6 +6,7 @@ using WarSteel.Utils;
 public class EnemyHealthBar : IComponent
 {
     private HealthBar _healthBar;
+    private Enemy _self;
 
     public EnemyHealthBar()
     {
@@ -14,6 +15,7 @@ public class EnemyHealthBar : IComponent
     public void OnStart(GameObject self, Scene scene)
     {
         Enemy enemy = (Enemy)self;
+        _self = enemy;
         _healthBar = new HealthBar(scene, new Vector2(enemy.Transform.AbsolutePosition.X, enemy.Transform.AbsolutePosition.Y + 100), 30, 10);
     }
 
@@ -37,7 +39,7 @@ public class EnemyHealthBar : IComponent
     public void CalculateHealthPos(Vector3 absolutePos, Scene scene)
     {
         Vector3 screenPosition = GetEnemyScreenPos(absolutePos, scene);
-        if (IsEnemyInView(scene, absolutePos, screenPosition))
+        if (IsEnemyInView(scene, absolutePos, screenPosition) && _self.Health < 100)
         {
             Vector2 offset = new(0, -20);
             Vector2 newPosition = new Vector2(screenPosition.X, screenPosition.Y) + offset;

@@ -39,7 +39,7 @@ public class MenuScreen
         List<UI> controlsMenu = new();
         List<UI> exitMenu = new();
 
-        UI headerMain = new(new Vector2(screenCenter.X, screenCenter.Y - 160), new Header("WARSTEEL"));
+        UI headerMain = new(new Vector2(screenCenter.X, screenCenter.Y - 160), new Header("DARKSTEEL"));
 
         UI startButton = new(GetBtnPos(0), 300, 60, new PrimaryBtn("Start"), (Scene scene, UI ui) =>
         {

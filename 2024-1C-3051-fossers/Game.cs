@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Geometries;
 using WarSteel.Managers;
 using WarSteel.Scenes.Main;
@@ -35,7 +34,6 @@ public class Game : Microsoft.Xna.Framework.Game
 };
         if (!Constants.DEBUG_MODE)
             Graphics.IsFullScreen = true;
-
 
     }
 

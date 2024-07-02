@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework;
-using WarSteel.Entities;
-using WarSteel.Common;
 using WarSteel.Scenes.SceneProcessors;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Managers;
@@ -36,6 +34,7 @@ public class MenuScene : Scene
 
         AddSceneProcessor(processor);
         AddSceneProcessor(new PhysicsProcessor());
+        AddSceneProcessor(new PostProcessing());
 
         AddGameObject(factory.Ground(Vector3.Zero));
         Random rand = new();
