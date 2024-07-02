@@ -191,7 +191,7 @@ float4 LightPS(in VertexShaderOutput input) : SV_TARGET
     float3 N = normalize(input.Normal.xyz);
     float NdotL = saturate(dot(L, N));
 
-    float4 color = float4(saturate(LightColor * NdotL), 1);
+    float4 color = float4(saturate(LightColor * NdotL * 3), 1);
 
     return color;
 }

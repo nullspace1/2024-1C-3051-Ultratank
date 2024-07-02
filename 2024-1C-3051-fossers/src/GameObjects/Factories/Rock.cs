@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Managers;
-using WarSteel.Scenes;
 
 namespace WarSteel.Entities.Map;
 
@@ -16,7 +13,7 @@ public enum RockSize
     LARGE
 }
 
-public class RockFactory 
+public class RockFactory
 {
     private static string GetRockSizeStringValue(RockSize rockSize)
     {
@@ -33,7 +30,7 @@ public class RockFactory
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue(size) + "Stone");
         Renderer renderable = new(Color.DarkGray);
-        GameObject rock = new(tags, new Transform(), model,renderable);
+        GameObject rock = new(tags, new Transform(), model, renderable);
         rock.AddComponent(new StaticBody(new Collider(new ConvexShape(model), (c) => { }), Vector3.Zero));
         rock.Transform.Position = position;
         return rock;

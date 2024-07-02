@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
@@ -51,7 +50,7 @@ public class Player : GameObject
                 touchingGround = true;
             }
         }), new Vector3(0, 0, 0), 5000, 0.9f, 2f));
-        
+
         AddComponent(new TurretController(turretTransform, scene.GetCamera(), 3f));
         AddComponent(new CannonController(cannonTransform, scene.GetCamera()));
         AddComponent(new PlayerControls(cannonTransform));

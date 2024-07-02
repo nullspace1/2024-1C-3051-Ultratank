@@ -9,7 +9,6 @@ using System;
 using WarSteel.Entities.Map;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Utils;
-using System.Collections.Generic;
 
 namespace WarSteel.Scenes.Main
 {
@@ -38,7 +37,7 @@ namespace WarSteel.Scenes.Main
         private static readonly Vector3 GroundPosition = Vector3.Up * -100;
         private static readonly Vector3 LightDirection = new(0, 0.5f, 0.5f);
         private static readonly Color LightColor = Color.Orange;
-        private static readonly int CellSize = 500;
+        private static readonly int CellSize = 800;
         private static readonly MapGrid grid = new MapGrid(CellSize, CellSize, MapWidth / CellSize, MapHeight / CellSize);
 
         public MainScene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch) : base(graphics, spriteBatch)
@@ -61,8 +60,6 @@ namespace WarSteel.Scenes.Main
             InitializeGround(factory);
             InitializeGroundObjects(factory);
             InitializeUI(player);
-
-        
         }
 
         private void InitializeAudio()
@@ -102,7 +99,7 @@ namespace WarSteel.Scenes.Main
             AddGameObject(player);
             Camera.Follow(player);
 
-            AddSceneProcessor(new WaveProcessor(player,grid));
+            AddSceneProcessor(new WaveProcessor(player, grid));
 
             return player;
         }
@@ -149,7 +146,7 @@ namespace WarSteel.Scenes.Main
                 AddGameObject(rock);
             }
 
-             for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Vector3 pos = grid.GetRandomUnusedGridPosition(10);
                 GameObject rock = factory.Tree(pos);

@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Scenes;
-using WarSteel.Scenes.SceneProcessors;
 
 namespace WarSteel.Entities;
 
@@ -27,7 +25,7 @@ public class GameObject
         Id = Guid.NewGuid().ToString();
         _tags = new(tags);
         Transform = transform;
-        Model = new ObjectModel(model,Transform);
+        Model = new ObjectModel(model, Transform);
         Renderer = renderer;
         AlwaysRender = alwaysRender;
     }
@@ -37,14 +35,15 @@ public class GameObject
         _components.Add(c.GetType(), c);
     }
 
-    public void AddTag(string tag){
+    public void AddTag(string tag)
+    {
         _tags.Add(tag);
     }
 
     public void RemoveComponent<T>(Scene scene) where T : class, IComponent
     {
-        _components.TryGetValue(typeof(T),out var c);
-        c?.Destroy(this,scene);
+        _components.TryGetValue(typeof(T), out var c);
+        c?.Destroy(this, scene);
         _components.Remove(typeof(T));
     }
 
@@ -101,7 +100,8 @@ public class GameObject
         return _toDestroy;
     }
 
-    public BoundingSphere GetBoundingSphere(){
+    public BoundingSphere GetBoundingSphere()
+    {
         return new BoundingSphere(Transform.AbsolutePosition, Model.GetMinDistance());
     }
 

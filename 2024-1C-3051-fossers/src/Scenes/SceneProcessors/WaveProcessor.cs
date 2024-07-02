@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
@@ -69,7 +68,7 @@ public class WaveProcessor : ISceneProcessor
         for (int i = 0; i < EnemiesLeft; i++)
         {
             Vector3 spawnPosition = _grid.GetRandomUnusedGridPosition(100);
-            Enemy enemy = new(spawnPosition, WaveNumber * 5, this,_scene);
+            Enemy enemy = new(spawnPosition, WaveNumber * 5, this, _scene);
             _scene.AddGameObject(enemy);
         }
 

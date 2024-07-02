@@ -99,7 +99,7 @@ namespace WarSteel.Common.Shaders
 
                     effect.Parameters["ShadowDepth"].SetValue(lightProcessor.ShadowMapRenderTarget);
                     effect.Parameters["TextureSize"].SetValue(lightProcessor.ShadowMapSize);
-                    effect.Parameters["DiffuseCoefficient"].SetValue(0.5f);
+                    effect.Parameters["DiffuseCoefficient"].SetValue(0.2f);
                     effect.Parameters["FarPlaneDistance"].SetValue(lightProcessor.FarPlaneDistance);
                     effect.Parameters["LightDirection"].SetValue(lightProcessor.LightDirection);
                 }

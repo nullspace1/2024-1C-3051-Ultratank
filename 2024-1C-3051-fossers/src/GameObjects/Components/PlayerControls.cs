@@ -142,20 +142,22 @@ namespace WarSteel.Scenes.Main
             var bullet = new GameObject(new[] { "bullet" }, new Transform(), ContentRepoManager.Instance().GetModel("Tanks/Bullet"), new Renderer(Color.Red));
             bullet.AddComponent(new DynamicBody(new Collider(new SphereShape(10), c =>
         {
-            if (c.Entity.HasTag("enemy") && !bullet.HasTag("HitGround"))
+            if (c.Entity.HasTag("enemy") && !bullet.HasTag("HitGround") && !bullet.HasTag("HitEnemy"))
             {
                 var enemy = (Enemy)c.Entity;
                 enemy.Health -= self.Damage;
                 enemy.Model.AddImpact(bullet.Transform.AbsolutePosition, bullet.GetComponent<DynamicBody>().Velocity);
-                bullet.Destroy();
+                bullet.AddTag("HitEnemy");
             }
             if (c.Entity.HasTag("ground"))
             {
                 bullet.AddTag("HitGround");
+                bullet.GetComponent<LightComponent>().DecayFactor = 5f;
             }
-            bullet.RemoveComponent<LightComponent>(scene);
+
+            Timer.Timeout(3000, () => bullet.Destroy());
         }), Vector3.Zero, BulletMass, 0, 0));
-            bullet.AddComponent(new LightComponent(Color.Blue));
+            bullet.AddComponent(new LightComponent(Color.LightSkyBlue));
             bullet.GetComponent<DynamicBody>().Velocity = self.GetComponent<DynamicBody>().Velocity;
             bullet.Transform.Position = _tankCannon.AbsolutePosition - _tankCannon.Forward * BulletPositionOffsetForward + _tankCannon.Up * BulletPositionOffsetUp;
             return bullet;

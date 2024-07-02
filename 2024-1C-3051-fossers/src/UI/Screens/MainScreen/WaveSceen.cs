@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using WarSteel.Scenes;
 using WarSteel.UIKit;

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 
@@ -13,7 +12,7 @@ public class SkyBox
     private Effect _effect;
 
     private Model _model;
-    
+
 
     public SkyBox(TextureCube texture)
     {
@@ -24,7 +23,7 @@ public class SkyBox
 
     public void DrawSkyBox(Scene scene)
     {
-        
+
         GraphicsDevice gDevice = scene.GraphicsDeviceManager.GraphicsDevice;
         RasterizerState state_r = gDevice.RasterizerState;
         gDevice.RasterizerState = RasterizerState.CullNone;

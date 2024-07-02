@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TGC.MonoGame.Samples.Geometries;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Entities;
-using WarSteel.Managers;
-
 
 namespace WarSteel.Scenes;
 
@@ -262,5 +259,4 @@ public abstract class Scene
         GraphicsDeviceManager.GraphicsDevice.BlendState = BlendState.Opaque;
         GraphicsDeviceManager.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
     }
-
 }
