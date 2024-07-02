@@ -13,7 +13,7 @@ DarkSteel is a simple, yet engaging arena shooter game developed for a universit
 
 ## Game Play
 
-[![Watch the video](https://www.youtube.com/watch?v=pQsaPgLcfq8)](https://www.youtube.com/watch?v=pQsaPgLcfq8)
+[![Watch gameplay](https://www.youtube.com/watch?v=pQsaPgLcfq8)](https://www.youtube.com/watch?v=pQsaPgLcfq8)
 
 ## Contributors
 
